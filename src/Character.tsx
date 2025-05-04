@@ -4,21 +4,16 @@ import { Assets, Sprite, Texture } from 'pixi.js'
 import { useEffect, useRef, useState } from 'react'
 import { useTick } from '@pixi/react'
 
-type JumpState =
-    | {
-          status: 'jumping' | 'landing'
-          initialYPosition: number
-      }
-    | {
-          status: 'inactive'
-          initialYPosition: null
-      }
+interface JumpState {
+    status: 'jumping' | 'landing' | 'inactive'
+    initialYPosition: number | null
+}
 
 const MOVING_AMOUNT_VALUES = {
     moveByPerTick: 4,
-    jumpAmountPerTick: 12,
-    maxJumpHeight: 20,
-    landingAmountPerTick: 10,
+    jumpAmountPerTick: 10,
+    maxJumpHeight: 300,
+    landingAmountPerTick: 15,
 }
 
 const SPRITE_SIZE = {
@@ -33,12 +28,12 @@ export function Character() {
 
     const [position, setPosition] = useState({ x: 0, y: 0 })
 
-    const [horizontalMovement, setHorizontalMovement] = useState<{
+    const horizontalMovement = useRef<{
         movingLeft: boolean
         movingRight: boolean
     }>({ movingLeft: false, movingRight: false })
 
-    const [jumpState, setJumpState] = useState<JumpState>({
+    const jumpState = useRef<JumpState>({
         status: 'inactive',
         initialYPosition: null,
     })
@@ -49,56 +44,90 @@ export function Character() {
         }
 
         if (event.key === 'd') {
-            setHorizontalMovement((currentMovement) => ({
-                ...currentMovement,
-                movingRight: true,
-            }))
+            horizontalMovement.current.movingRight = true
         }
 
         if (event.key === 'a') {
-            setHorizontalMovement((currentMovement) => ({
-                ...currentMovement,
-                movingLeft: true,
-            }))
+            horizontalMovement.current.movingLeft = true
         }
 
-        if (event.key === ' ' && jumpState.status !== 'landing') {
-            setJumpState({
-                initialYPosition: position.y,
-                status: 'jumping',
-            })
+        if (event.key === ' ' && jumpState.current.status !== 'landing') {
+            jumpState.current.status = 'jumping'
         }
     }
 
     function handleGlobalKeyUp(event: KeyboardEvent) {
         if (event.key === 'd') {
-            setHorizontalMovement((currentMovement) => ({
-                ...currentMovement,
-                movingRight: false,
-            }))
+            horizontalMovement.current.movingRight = false
         }
 
         if (event.key === 'a') {
-            setHorizontalMovement((currentMovement) => ({
-                ...currentMovement,
-                movingLeft: false,
-            }))
+            horizontalMovement.current.movingLeft = false
         }
     }
 
     useTick(() => {
-        if (horizontalMovement.movingLeft) {
+        if (horizontalMovement.current.movingLeft) {
             setPosition((currentPosition) => ({
                 x: currentPosition.x - MOVING_AMOUNT_VALUES.moveByPerTick,
                 y: currentPosition.y,
             }))
         }
 
-        if (horizontalMovement.movingRight) {
+        if (horizontalMovement.current.movingRight) {
             setPosition((currentPosition) => ({
                 x: currentPosition.x + MOVING_AMOUNT_VALUES.moveByPerTick,
                 y: currentPosition.y,
             }))
+        }
+
+        if (!jumpState.current.initialYPosition) {
+            throw new Error('Initial Y position for jump is `null`')
+        }
+
+        if (jumpState.current.status === 'jumping') {
+            const maxDistanceFromGround =
+                jumpState.current.initialYPosition -
+                MOVING_AMOUNT_VALUES.maxJumpHeight
+
+            const currentDistanceFromGround =
+                jumpState.current.initialYPosition - position.y
+
+            const jumpSlowingDivisor = Math.max(
+                currentDistanceFromGround / MOVING_AMOUNT_VALUES.maxJumpHeight,
+                0.4,
+            )
+
+            const nextJumpMoveAmount =
+                MOVING_AMOUNT_VALUES.jumpAmountPerTick / jumpSlowingDivisor
+
+            const newY = Math.max(
+                position.y - nextJumpMoveAmount,
+                maxDistanceFromGround,
+            )
+
+            setPosition((currentPosition) => ({
+                ...currentPosition,
+                y: newY,
+            }))
+
+            if (newY === maxDistanceFromGround) {
+                jumpState.current.status = 'landing'
+            }
+        } else if (jumpState.current.status === 'landing') {
+            const newY = Math.min(
+                position.y + MOVING_AMOUNT_VALUES.landingAmountPerTick,
+                jumpState.current.initialYPosition,
+            )
+
+            setPosition((currentPosition) => ({
+                ...currentPosition,
+                y: newY,
+            }))
+
+            if (newY === jumpState.current.initialYPosition) {
+                jumpState.current.status = 'inactive'
+            }
         }
     })
 
@@ -111,7 +140,9 @@ export function Character() {
             }
         })
 
-        setPosition({ y: window.innerHeight - SPRITE_SIZE.height, x: 0 })
+        const groundY = window.innerHeight - SPRITE_SIZE.height
+        setPosition({ y: groundY, x: 0 })
+        jumpState.current.initialYPosition = groundY
 
         const abortController = new AbortController()
         document.addEventListener('keypress', handleGlobalKeyDown, {
