@@ -1,9 +1,12 @@
-function App() {
+import { Application } from '@pixi/react'
+import { Character } from '@/Character'
+
+export function App() {
     return (
         <>
-            <h1 className="text-4xl">SQUARES</h1>
+            <Application resizeTo={window} backgroundColor="white">
+                <Character />
+            </Application>
         </>
     )
 }
-
-export default App
