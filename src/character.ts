@@ -1,7 +1,7 @@
 import characterSpriteImage from '@/assets/images/character-1.png'
 
 import { Assets, Sprite, Ticker } from 'pixi.js'
-import { KeyBindings } from '@/key-bindings'
+import { KeyBindings } from '@/utils/key-bindings'
 import { NotInitializedError } from '@/utils/errors'
 
 interface CharacterMovement {
