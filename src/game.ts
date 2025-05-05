@@ -2,22 +2,28 @@ import { Character } from '@/character'
 import { Obstacle } from '@/obstacle'
 import { Application } from 'pixi.js'
 
-export async function initializeGame(canvasElement: HTMLCanvasElement) {
-    const pixiApp = new Application()
+export class Game {
+    pixiApp: Application
 
-    await pixiApp.init({
-        canvas: canvasElement,
-        resizeTo: window,
-        backgroundColor: '#FFFFFF',
-    })
+    constructor() {
+        this.pixiApp = new Application()
+    }
 
-    const gameEntities = [
-        new Character(pixiApp.canvas),
-        new Obstacle(pixiApp.canvas),
-    ]
+    async initialize(canvasElement: HTMLCanvasElement) {
+        await this.pixiApp.init({
+            canvas: canvasElement,
+            resizeTo: window,
+            backgroundColor: '#FFFFFF',
+        })
 
-    gameEntities.forEach(async (entity) => {
-        pixiApp.stage.addChild(await entity.initialize())
-        pixiApp.ticker.add((ticker) => entity.update(ticker))
-    })
+        const gameEntities = [
+            new Character(this),
+            new Obstacle(this),
+        ]
+    
+        gameEntities.forEach(async (entity) => {
+            this.pixiApp.stage.addChild(await entity.initialize())
+            this.pixiApp.ticker.add((ticker) => entity.update(ticker))
+        })
+    }
 }

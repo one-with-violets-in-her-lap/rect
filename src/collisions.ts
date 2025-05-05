@@ -12,7 +12,6 @@ function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
 }
 
 type Collision = [GameEntity, GameEntity]
-
 export function getCollisionsBetweenEntities(entities: GameEntity[]): Collision[] {
     const collisions: Collision[] = []
 

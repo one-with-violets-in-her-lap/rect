@@ -1,9 +1,10 @@
 import characterSpriteImage from '@/assets/images/character-1.png'
 
 import { Assets, Sprite, Ticker } from 'pixi.js'
+import { Game } from '@/game'
+import { GameEntity } from '@/game-entity'
 import { KeyBindings } from '@/utils/key-bindings'
 import { NotInitializedError } from '@/utils/errors'
-import { GameEntity } from '@/game-entity'
 
 interface CharacterMovement {
     isMovingLeft: boolean
@@ -20,8 +21,8 @@ export class Character extends GameEntity<Sprite> {
         isMovingRight: false,
     }
 
-    constructor(canvas: HTMLCanvasElement) {
-        super(canvas, { enableCollision: true, enableGravity: true })
+    constructor(game: Game) {
+        super(game, { enableCollision: true, enableGravity: true })
 
         this.keyBindings = new KeyBindings([
             {
@@ -76,7 +77,8 @@ export class Character extends GameEntity<Sprite> {
         }
 
         if (this.movement.isMovingRight) {
-            const rightBoundaryX = this.canvas.width - pixiObject.width
+            const rightBoundaryX =
+                this.game.pixiApp.canvas.width - pixiObject.width
             pixiObject.x = Math.min(
                 pixiObject.x + X_VELOCITY * ticker.deltaTime,
                 rightBoundaryX,

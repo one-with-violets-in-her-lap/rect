@@ -1,14 +1,15 @@
 import obstacleSpriteImage from '@/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
-import { NotInitializedError } from '@/utils/errors'
 import { GameEntity } from '@/game-entity'
+import { Game } from '@/game'
+import { NotInitializedError } from '@/utils/errors'
 
 export class Obstacle extends GameEntity<Sprite> {
     sprite?: Sprite
 
-    constructor(canvas: HTMLCanvasElement) {
-        super(canvas, {
+    constructor(game: Game) {
+        super(game, {
             enableCollision: true,
             enableGravity: false,
         })
@@ -19,7 +20,8 @@ export class Obstacle extends GameEntity<Sprite> {
         this.sprite = Sprite.from(obstacleSpriteImage)
         this.sprite.setSize(500, 100)
 
-        this.sprite.y = this.canvas.height - this.sprite.height - 100 // TODO: make `400` a constant
+        this.sprite.y =
+            this.game.pixiApp.canvas.height - this.sprite.height - 100
 
         return this.sprite
     }
