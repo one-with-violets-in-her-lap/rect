@@ -11,10 +11,13 @@ export async function initializeGame(canvasElement: HTMLCanvasElement) {
         backgroundColor: '#FFFFFF',
     })
 
-    const character = new Character(pixiApp.canvas, pixiApp.ticker)
-    pixiApp.stage.addChild(await character.initializeSprite())
+    const gameEntities = [
+        new Character(pixiApp.canvas),
+        new Obstacle(pixiApp.canvas),
+    ]
 
-    pixiApp.stage.addChild(
-        await new Obstacle(pixiApp.canvas).initializeSprite(),
-    )
+    gameEntities.forEach(async (entity) => {
+        pixiApp.stage.addChild(await entity.initialize())
+        pixiApp.ticker.add((ticker) => entity.update(ticker))
+    })
 }

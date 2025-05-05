@@ -2,13 +2,19 @@ import obstacleSpriteImage from '@/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
 import { NotInitializedError } from '@/utils/errors'
+import { GameEntity } from '@/game-entity'
 
-export class Obstacle {
+export class Obstacle extends GameEntity<Sprite> {
     sprite?: Sprite
 
-    constructor(private readonly canvas: HTMLCanvasElement) {}
+    constructor(canvas: HTMLCanvasElement) {
+        super(canvas, {
+            enableCollision: true,
+            enableGravity: false,
+        })
+    }
 
-    async initializeSprite() {
+    async initialize() {
         await Assets.load(obstacleSpriteImage)
         this.sprite = Sprite.from(obstacleSpriteImage)
         this.sprite.setSize(500, 100)
@@ -18,7 +24,7 @@ export class Obstacle {
         return this.sprite
     }
 
-    async dispose() {
+    async destroy() {
         if (!this.sprite) {
             throw new NotInitializedError(
                 'Character sprite pixi object was not ' +

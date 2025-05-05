@@ -3,6 +3,7 @@ import characterSpriteImage from '@/assets/images/character-1.png'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 import { KeyBindings } from '@/utils/key-bindings'
 import { NotInitializedError } from '@/utils/errors'
+import { GameEntity } from '@/game-entity'
 
 interface CharacterMovement {
     isMovingLeft: boolean
@@ -22,9 +23,7 @@ const X_VELOCITY = 8
 const JUMP_VELOCITY = 18
 const JUMP_HEIGHT = 220
 
-export class Character {
-    sprite?: Sprite
-
+export class Character extends GameEntity<Sprite> {
     private keyBindings: KeyBindings
 
     private movement: CharacterMovement = {
@@ -36,10 +35,8 @@ export class Character {
         },
     }
 
-    constructor(
-        private readonly canvas: HTMLCanvasElement,
-        private readonly ticker: Ticker,
-    ) {
+    constructor(canvas: HTMLCanvasElement) {
+        super(canvas, { enableCollision: true, enableGravity: false })
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
@@ -59,7 +56,7 @@ export class Character {
                     if (this.movement.jumpState.status === 'inactive') {
                         this.movement.jumpState = {
                             status: 'jumping',
-                            initialPositionY: this.sprite?.y || 0,
+                            initialPositionY: this.pixiObject?.y || 0,
                         }
                     }
                 },
@@ -67,34 +64,32 @@ export class Character {
         ])
     }
 
-    async initializeSprite() {
+    async initialize() {
         await Assets.load(characterSpriteImage)
 
-        this.sprite = Sprite.from(characterSpriteImage)
+        this.pixiObject = Sprite.from(characterSpriteImage)
 
-        this.sprite.y = this.canvas.height - this.sprite.height
+        this.pixiObject.y = this.canvas.height - this.pixiObject.height
 
         this.keyBindings.initializeEventListeners()
 
-        this.ticker.add((ticker) => this.performMovementTick(ticker))
-
-        return this.sprite
+        return this.pixiObject
     }
 
-    async dispose() {
-        if (!this.sprite) {
+    async destroy() {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character sprite pixi object was not ' +
                     'initialized, so it cannot be destroyed',
             )
         }
 
-        this.sprite.destroy()
+        this.pixiObject.destroy()
         this.keyBindings.disposeEventListeners()
     }
 
-    private performMovementTick(ticker: Ticker) {
-        if (!this.sprite) {
+    update(ticker: Ticker) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Failed to perform movement tick, ' +
                     'character sprite pixi object was not initialized',
@@ -102,34 +97,34 @@ export class Character {
         }
 
         if (this.movement.isMovingLeft) {
-            this.sprite.x = Math.max(
-                this.sprite.x - Math.max(X_VELOCITY * ticker.deltaTime),
+            this.pixiObject.x = Math.max(
+                this.pixiObject.x - Math.max(X_VELOCITY * ticker.deltaTime),
                 0,
             )
         }
 
         if (this.movement.isMovingRight) {
-            const rightBoundaryX = this.canvas.width - this.sprite.width
-            this.sprite.x = Math.min(
-                this.sprite.x + X_VELOCITY * ticker.deltaTime,
+            const rightBoundaryX = this.canvas.width - this.pixiObject.width
+            this.pixiObject.x = Math.min(
+                this.pixiObject.x + X_VELOCITY * ticker.deltaTime,
                 rightBoundaryX,
             )
         }
 
         if (this.movement.jumpState.status === 'jumping') {
-            const newY = this.sprite.y - JUMP_VELOCITY * ticker.deltaTime
+            const newY = this.pixiObject.y - JUMP_VELOCITY * ticker.deltaTime
             const maxDistanceFromGround =
                 this.movement.jumpState.initialPositionY - JUMP_HEIGHT
 
-            this.sprite.y = Math.max(newY, maxDistanceFromGround)
+            this.pixiObject.y = Math.max(newY, maxDistanceFromGround)
 
             if (newY <= maxDistanceFromGround) {
                 this.movement.jumpState.status = 'landing'
             }
         } else if (this.movement.jumpState.status === 'landing') {
-            const newY = this.sprite.y + JUMP_VELOCITY * ticker.deltaTime
+            const newY = this.pixiObject.y + JUMP_VELOCITY * ticker.deltaTime
 
-            this.sprite.y = Math.min(
+            this.pixiObject.y = Math.min(
                 newY,
                 this.movement.jumpState.initialPositionY,
             )
