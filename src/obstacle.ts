@@ -14,7 +14,7 @@ export class Obstacle extends GameEntity<Sprite> {
         })
     }
 
-    async initialize() {
+    async load() {
         await Assets.load(obstacleSpriteImage)
         this.sprite = Sprite.from(obstacleSpriteImage)
         this.sprite.setSize(500, 100)

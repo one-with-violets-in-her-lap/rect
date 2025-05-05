@@ -8,20 +8,9 @@ import { GameEntity } from '@/game-entity'
 interface CharacterMovement {
     isMovingLeft: boolean
     isMovingRight: boolean
-    jumpState:
-        | {
-              status: 'jumping' | 'landing'
-              initialPositionY: number
-          }
-        | {
-              status: 'inactive'
-              initialPositionY: null
-          }
 }
 
 const X_VELOCITY = 8
-const JUMP_VELOCITY = 18
-const JUMP_HEIGHT = 220
 
 export class Character extends GameEntity<Sprite> {
     private keyBindings: KeyBindings
@@ -29,14 +18,11 @@ export class Character extends GameEntity<Sprite> {
     private movement: CharacterMovement = {
         isMovingLeft: false,
         isMovingRight: false,
-        jumpState: {
-            status: 'inactive',
-            initialPositionY: null,
-        },
     }
 
     constructor(canvas: HTMLCanvasElement) {
-        super(canvas, { enableCollision: true, enableGravity: false })
+        super(canvas, { enableCollision: true, enableGravity: true })
+
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
@@ -52,28 +38,19 @@ export class Character extends GameEntity<Sprite> {
 
             {
                 key: ' ',
-                doOnKeyDown: () => {
-                    if (this.movement.jumpState.status === 'inactive') {
-                        this.movement.jumpState = {
-                            status: 'jumping',
-                            initialPositionY: this.pixiObject?.y || 0,
-                        }
-                    }
-                },
+                doOnKeyDown: () => this.jump(),
             },
         ])
     }
 
-    async initialize() {
+    async load() {
         await Assets.load(characterSpriteImage)
 
-        this.pixiObject = Sprite.from(characterSpriteImage)
-
-        this.pixiObject.y = this.canvas.height - this.pixiObject.height
+        const pixiObject = Sprite.from(characterSpriteImage)
 
         this.keyBindings.initializeEventListeners()
 
-        return this.pixiObject
+        return pixiObject
     }
 
     async destroy() {
@@ -89,52 +66,23 @@ export class Character extends GameEntity<Sprite> {
     }
 
     update(ticker: Ticker) {
-        if (!this.pixiObject) {
-            throw new NotInitializedError(
-                'Failed to perform movement tick, ' +
-                    'character sprite pixi object was not initialized',
-            )
-        }
+        const pixiObject = super.update(ticker)
 
         if (this.movement.isMovingLeft) {
-            this.pixiObject.x = Math.max(
-                this.pixiObject.x - Math.max(X_VELOCITY * ticker.deltaTime),
+            pixiObject.x = Math.max(
+                pixiObject.x - Math.max(X_VELOCITY * ticker.deltaTime),
                 0,
             )
         }
 
         if (this.movement.isMovingRight) {
-            const rightBoundaryX = this.canvas.width - this.pixiObject.width
-            this.pixiObject.x = Math.min(
-                this.pixiObject.x + X_VELOCITY * ticker.deltaTime,
+            const rightBoundaryX = this.canvas.width - pixiObject.width
+            pixiObject.x = Math.min(
+                pixiObject.x + X_VELOCITY * ticker.deltaTime,
                 rightBoundaryX,
             )
         }
 
-        if (this.movement.jumpState.status === 'jumping') {
-            const newY = this.pixiObject.y - JUMP_VELOCITY * ticker.deltaTime
-            const maxDistanceFromGround =
-                this.movement.jumpState.initialPositionY - JUMP_HEIGHT
-
-            this.pixiObject.y = Math.max(newY, maxDistanceFromGround)
-
-            if (newY <= maxDistanceFromGround) {
-                this.movement.jumpState.status = 'landing'
-            }
-        } else if (this.movement.jumpState.status === 'landing') {
-            const newY = this.pixiObject.y + JUMP_VELOCITY * ticker.deltaTime
-
-            this.pixiObject.y = Math.min(
-                newY,
-                this.movement.jumpState.initialPositionY,
-            )
-
-            if (newY >= this.movement.jumpState.initialPositionY) {
-                this.movement.jumpState = {
-                    status: 'inactive',
-                    initialPositionY: null,
-                }
-            }
-        }
+        return pixiObject
     }
 }
