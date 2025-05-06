@@ -10,7 +10,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     pixiObject?: TPixiObject
 
     private grounded = false
-    
+
     protected isJumping = false
     protected verticalVelocity = 0
 
@@ -70,11 +70,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             })
 
         const hasCollisionsWithYScreenBounds =
-            newPosition.y &&
+            newPosition.y !== undefined &&
             this.game.pixiApp.canvas.height - pixiObject.height <= newPosition.y
 
         const hasCollisionsWithXScreenBounds =
-            newPosition.x &&
+            newPosition.x !== undefined &&
             (this.game.pixiApp.canvas.width - pixiObject.width <=
                 newPosition.x ||
                 newPosition.x < 0)
@@ -109,16 +109,44 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             this.verticalVelocity += GRAVITY_FORCE * ticker.deltaTime
         }
 
-        const newY = pixiObject.y + this.verticalVelocity * ticker.deltaTime
+        const deltaYToMoveBy = this.verticalVelocity * ticker.deltaTime
+        const direction = Math.sign(deltaYToMoveBy)
+        const moveSteps = Math.abs(Math.floor(deltaYToMoveBy))
+        const remainder = deltaYToMoveBy % 1
 
-        try {
-            this.updatePositionRespectingCollisions({ y: newY })
-            this.grounded = false
-        } catch (error) {
-            if (error instanceof CollisionError) {
-                this.grounded = true
-            } else {
-                throw error
+        for (
+            let deltaYCounter = 0;
+            deltaYCounter < moveSteps;
+            deltaYCounter++
+        ) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    y: pixiObject.y + direction,
+                })
+                this.grounded = false
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    this.grounded = true
+                    return
+                } else {
+                    throw error
+                }
+            }
+        }
+
+        if (remainder !== 0) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    y: pixiObject.y + direction,
+                })
+                this.grounded = false
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    this.grounded = true
+                    return
+                } else {
+                    throw error
+                }
             }
         }
     }

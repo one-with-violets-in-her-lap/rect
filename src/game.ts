@@ -43,7 +43,7 @@ export class Game {
                     newPosition.x,
                     newPosition.y,
                     newPosition.x + entityToCheck.getPixiObjectOrThrow().width,
-                    newPosition.y + entity.getPixiObjectOrThrow().height,
+                    newPosition.y + entityToCheck.getPixiObjectOrThrow().height,
                 ),
             )
         })

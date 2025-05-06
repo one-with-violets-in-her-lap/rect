@@ -18,10 +18,10 @@ export class Obstacle extends GameEntity<Sprite> {
     async load() {
         await Assets.load(obstacleSpriteImage)
         this.sprite = Sprite.from(obstacleSpriteImage)
-        this.sprite.setSize(500, 100)
+        this.sprite.setSize(500, 50)
 
         this.sprite.y =
-            this.game.pixiApp.canvas.height - this.sprite.height - 100
+            this.game.pixiApp.canvas.height - this.sprite.height - 50
 
         return this.sprite
     }
