@@ -3,7 +3,7 @@ import characterSpriteImage from '@/assets/images/character-1.png'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 import { Game } from '@/game'
 import { GameEntity } from '@/game-entity'
-import { KeyBindings } from '@/utils/key-bindings'
+import { CurrentControlledCharacter } from '@/entities/character/controlled-character'
 import { CollisionError, NotInitializedError } from '@/utils/errors'
 
 interface CharacterMovement {
@@ -12,44 +12,27 @@ interface CharacterMovement {
 }
 
 const X_VELOCITY = 8
-
-export class Character extends GameEntity<Sprite> {
-    private keyBindings: KeyBindings
-
-    private movement: CharacterMovement = {
+/**
+ * Base character entity class that implements moving and other interactions.
+ *
+ * Important to note that it doesn;t perform any interactions on its own, it just
+ * provides ways to interact. Actual living characters is built as subclasses of
+ * `BaseCharacter` - {@link CurrentControlledCharacter} and {@link RemoteCharacter}
+ */
+export class BaseCharacter extends GameEntity<Sprite> {
+    protected movement: CharacterMovement = {
         isMovingLeft: false,
         isMovingRight: false,
     }
 
     constructor(game: Game) {
         super(game, { enableCollision: true, enableGravity: true })
-
-        this.keyBindings = new KeyBindings([
-            {
-                key: 'd',
-                doOnKeyDown: () => (this.movement.isMovingRight = true),
-                doOnKeyUp: () => (this.movement.isMovingRight = false),
-            },
-
-            {
-                key: 'a',
-                doOnKeyDown: () => (this.movement.isMovingLeft = true),
-                doOnKeyUp: () => (this.movement.isMovingLeft = false),
-            },
-
-            {
-                key: ' ',
-                doOnKeyDown: () => (this.isJumping = true),
-            },
-        ])
     }
 
     async load() {
         await Assets.load(characterSpriteImage)
 
         const pixiObject = Sprite.from(characterSpriteImage)
-
-        this.keyBindings.initializeEventListeners()
 
         return pixiObject
     }
@@ -63,7 +46,6 @@ export class Character extends GameEntity<Sprite> {
         }
 
         this.pixiObject.destroy()
-        this.keyBindings.disposeEventListeners()
     }
 
     update(ticker: Ticker) {

@@ -1,11 +1,17 @@
 import { Application } from 'pixi.js'
-import { Character } from '@/character'
 import { GameEntity } from '@/game-entity'
 import { Obstacle } from '@/obstacle'
+import { CurrentControlledCharacter } from '@/entities/character/controlled-character'
+import { RemoteCharacter } from '@/entities/character/remote-character'
 
 export async function createGame(canvasElement: HTMLCanvasElement) {
     const game = new Game()
-    game.entities = [new Character(game), new Obstacle(game)]
+
+    game.entities = [
+        new CurrentControlledCharacter(game),
+        new RemoteCharacter(game),
+        new Obstacle(game),
+    ]
     await game.initialize(canvasElement)
 }
 
