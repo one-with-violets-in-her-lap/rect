@@ -75,12 +75,7 @@ export class Character extends GameEntity<Sprite> {
                     x: pixiObject.x - X_VELOCITY * ticker.deltaTime,
                 })
             } catch (error) {
-                if (error instanceof CollisionError) {
-                    console.log(
-                        'Character horizontal collision detected:',
-                        error,
-                    )
-                } else {
+                if (!(error instanceof CollisionError)) {
                     throw error
                 }
             }
@@ -92,12 +87,7 @@ export class Character extends GameEntity<Sprite> {
                     x: pixiObject.x + X_VELOCITY * ticker.deltaTime,
                 })
             } catch (error) {
-                if (error instanceof CollisionError) {
-                    console.log(
-                        'Character horizontal collision detected:',
-                        error,
-                    )
-                } else {
+                if (!(error instanceof CollisionError)) {
                     throw error
                 }
             }
