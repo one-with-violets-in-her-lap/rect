@@ -1,6 +1,7 @@
 import { Container, Ticker } from 'pixi.js'
 import { Game } from '@/game'
-import { NotInitializedError } from '@/utils/errors'
+import { CollisionError, NotInitializedError } from '@/utils/errors'
+import { Position } from '@/utils/position'
 
 const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20
@@ -8,7 +9,9 @@ const JUMP_FORCE = 20
 export abstract class GameEntity<TPixiObject extends Container = Container> {
     pixiObject?: TPixiObject
 
-    private isJumping = false
+    private grounded = false
+    
+    protected isJumping = false
     protected verticalVelocity = 0
 
     constructor(
@@ -28,10 +31,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     abstract destroy(): Promise<void> | void
 
-    protected jump() {
-        this.isJumping = true
-    }
-
     update(ticker: Ticker) {
         if (!this.pixiObject) {
             throw new NotInitializedError(
@@ -44,21 +43,65 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             this.applyGravity(ticker, this.pixiObject)
         }
 
-        if (this.options.enableCollision) {
-            this.handleCollisions(ticker, this.pixiObject)
+        return this.pixiObject
+    }
+
+    getPixiObjectOrThrow() {
+        if (!this.pixiObject) {
+            throw new NotInitializedError(
+                'Failed to perform movement tick, ' +
+                    'character sprite pixi object was not initialized',
+            )
         }
 
         return this.pixiObject
     }
 
-    private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
-        const groundY = this.game.pixiApp.canvas.height - pixiObject.height
-        const entityGrounded = pixiObject.y === groundY
+    protected updatePositionRespectingCollisions(
+        newPosition: Partial<Position>,
+    ) {
+        const pixiObject = this.getPixiObjectOrThrow()
 
-        if (entityGrounded) {
+        const hasCollisionsWithObjects =
+            this.game.checkIfNewEntityPositionColliding(this, {
+                x: pixiObject.x,
+                y: pixiObject.y,
+                ...newPosition,
+            })
+
+        const hasCollisionsWithYScreenBounds =
+            newPosition.y &&
+            this.game.pixiApp.canvas.height - pixiObject.height <= newPosition.y
+
+        const hasCollisionsWithXScreenBounds =
+            newPosition.x &&
+            (this.game.pixiApp.canvas.width - pixiObject.width <=
+                newPosition.x ||
+                newPosition.x < 0)
+
+        if (
+            hasCollisionsWithObjects ||
+            hasCollisionsWithYScreenBounds ||
+            hasCollisionsWithXScreenBounds
+        ) {
+            throw new CollisionError()
+        }
+
+        if (newPosition.x) {
+            pixiObject.x = newPosition.x
+        }
+
+        if (newPosition.y) {
+            pixiObject.y = newPosition.y
+        }
+    }
+
+    private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
+        if (this.grounded) {
             this.verticalVelocity = GRAVITY_FORCE * ticker.deltaTime
 
             if (this.isJumping) {
+                this.grounded = false
                 this.verticalVelocity = -JUMP_FORCE
                 this.isJumping = false
             }
@@ -66,13 +109,17 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             this.verticalVelocity += GRAVITY_FORCE * ticker.deltaTime
         }
 
-        pixiObject.y = Math.min(
-            pixiObject.y + this.verticalVelocity * ticker.deltaTime,
-            groundY,
-        )
-    }
+        const newY = pixiObject.y + this.verticalVelocity * ticker.deltaTime
 
-    private handleCollisions(ticker: Ticker, pixiObject: TPixiObject) {
-        
+        try {
+            this.updatePositionRespectingCollisions({ y: newY })
+            this.grounded = false
+        } catch (error) {
+            if (error instanceof CollisionError) {
+                this.grounded = true
+            } else {
+                throw error
+            }
+        }
     }
 }

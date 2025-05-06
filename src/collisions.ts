@@ -2,7 +2,7 @@ import { Bounds } from 'pixi.js'
 import { GameEntity } from '@/game-entity'
 import { NotInitializedError } from '@/utils/errors'
 
-function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
+export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
     return (
         bounds1.x < bounds2.x + bounds2.width &&
         bounds1.x + bounds1.width > bounds2.x &&

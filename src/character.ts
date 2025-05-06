@@ -4,7 +4,7 @@ import { Assets, Sprite, Ticker } from 'pixi.js'
 import { Game } from '@/game'
 import { GameEntity } from '@/game-entity'
 import { KeyBindings } from '@/utils/key-bindings'
-import { NotInitializedError } from '@/utils/errors'
+import { CollisionError, NotInitializedError } from '@/utils/errors'
 
 interface CharacterMovement {
     isMovingLeft: boolean
@@ -39,7 +39,7 @@ export class Character extends GameEntity<Sprite> {
 
             {
                 key: ' ',
-                doOnKeyDown: () => this.jump(),
+                doOnKeyDown: () => (this.isJumping = true),
             },
         ])
     }
@@ -70,19 +70,37 @@ export class Character extends GameEntity<Sprite> {
         const pixiObject = super.update(ticker)
 
         if (this.movement.isMovingLeft) {
-            pixiObject.x = Math.max(
-                pixiObject.x - Math.max(X_VELOCITY * ticker.deltaTime),
-                0,
-            )
+            try {
+                this.updatePositionRespectingCollisions({
+                    x: pixiObject.x - X_VELOCITY * ticker.deltaTime,
+                })
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    console.log(
+                        'Character horizontal collision detected:',
+                        error,
+                    )
+                } else {
+                    throw error
+                }
+            }
         }
 
         if (this.movement.isMovingRight) {
-            const rightBoundaryX =
-                this.game.pixiApp.canvas.width - pixiObject.width
-            pixiObject.x = Math.min(
-                pixiObject.x + X_VELOCITY * ticker.deltaTime,
-                rightBoundaryX,
-            )
+            try {
+                this.updatePositionRespectingCollisions({
+                    x: pixiObject.x + X_VELOCITY * ticker.deltaTime,
+                })
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    console.log(
+                        'Character horizontal collision detected:',
+                        error,
+                    )
+                } else {
+                    throw error
+                }
+            }
         }
 
         return pixiObject
