@@ -1,6 +1,5 @@
 import { Bounds } from 'pixi.js'
 import { GameEntity } from '@/game-entity'
-import { NotInitializedError } from '@/utils/errors'
 
 export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
     return (
@@ -11,32 +10,40 @@ export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
     )
 }
 
-type Collision = [GameEntity, GameEntity]
-export function getCollisionsBetweenEntities(entities: GameEntity[]): Collision[] {
-    const collisions: Collision[] = []
-
-    entities.forEach((entity, index) => {
-        if (index === 0) {
-            return
+/**
+ * Checks if new position of some entity does not collide with other entities
+ *
+ * @param targetEntityToCheck Entity, which new position will be checked
+ *
+ * @param newPositionToCheck New position to check for collisions
+ *
+ * @param allEntities All entities against which to check for collisions.
+ *
+ * This function automatically filters out the target entity from `allEntities`,
+ * so you don't need to it yourself
+ *
+ * @returns `false` if there are **no** collisions, otherwise `false`
+ */
+export function checkIfNewEntityPositionColliding(
+    targetEntityToCheck: GameEntity,
+    newPositionToCheck: { x: number; y: number },
+    allEntities: GameEntity[],
+) {
+    return allEntities.some((entity) => {
+        if (entity === targetEntityToCheck) {
+            return false
         }
 
-        const previousEntity = entities[index - 1]
-
-        if (!previousEntity.pixiObject || !entity.pixiObject) {
-            throw new NotInitializedError(
-                'Game entities must have their Pixi.js objects initialized',
-            )
-        }
-
-        const hasCollisions = checkIfBoundsColliding(
-            previousEntity.pixiObject.getBounds(),
-            entity.pixiObject.getBounds(),
+        return checkIfBoundsColliding(
+            entity.getPixiObjectOrThrow().getBounds(),
+            new Bounds(
+                newPositionToCheck.x,
+                newPositionToCheck.y,
+                newPositionToCheck.x +
+                    targetEntityToCheck.getPixiObjectOrThrow().width,
+                newPositionToCheck.y +
+                    targetEntityToCheck.getPixiObjectOrThrow().height,
+            ),
         )
-
-        if (hasCollisions) {
-            collisions.push([previousEntity, entity])
-        }
     })
-
-    return collisions
 }

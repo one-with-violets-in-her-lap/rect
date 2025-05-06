@@ -2,6 +2,7 @@ import { Container, Ticker } from 'pixi.js'
 import { Game } from '@/game'
 import { CollisionError, NotInitializedError } from '@/utils/errors'
 import { Position } from '@/utils/position'
+import { checkIfNewEntityPositionColliding } from '@/collisions'
 
 const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20
@@ -62,12 +63,15 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     ) {
         const pixiObject = this.getPixiObjectOrThrow()
 
-        const hasCollisionsWithObjects =
-            this.game.checkIfNewEntityPositionColliding(this, {
+        const hasCollisionsWithObjects = checkIfNewEntityPositionColliding(
+            this,
+            {
                 x: pixiObject.x,
                 y: pixiObject.y,
                 ...newPosition,
-            })
+            },
+            this.game.entities,
+        )
 
         const hasCollisionsWithYScreenBounds =
             newPosition.y !== undefined &&
