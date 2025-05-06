@@ -21,7 +21,7 @@ export class Obstacle extends GameEntity<Sprite> {
         this.sprite.setSize(500, 50)
 
         this.sprite.y =
-            this.game.pixiApp.canvas.height - this.sprite.height - 50
+            this.game.pixiApp.canvas.height - this.sprite.height - 130
 
         return this.sprite
     }
