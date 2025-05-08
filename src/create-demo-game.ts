@@ -1,6 +1,6 @@
 import '@/assets/styles/global.css'
 
-import { createGame } from '@/game'
+import { createGame } from '@/lib/game'
 
 const gameCanvas = document.querySelector('#gameCanvas')
 

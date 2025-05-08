@@ -1,9 +1,9 @@
 import Peer from 'peerjs'
 import { Application } from 'pixi.js'
-import { GameEntity } from '@/game-entity'
-import { Obstacle } from '@/obstacle'
-import { CurrentControlledCharacter } from '@/entities/character/controlled-character'
-import { RemoteCharacter } from '@/entities/character/remote-character'
+import { GameEntity } from '@/lib/game-entity'
+import { Obstacle } from '@/lib/obstacle'
+import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
+import { RemoteCharacter } from '@/lib/entities/character/remote-character'
 
 export async function createGame(canvasElement: HTMLCanvasElement) {
     const game = new Game()

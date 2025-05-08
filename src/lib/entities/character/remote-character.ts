@@ -1,4 +1,4 @@
-import { BaseCharacter } from '@/entities/character'
+import { BaseCharacter } from '@/lib/entities/character'
 
 export class RemoteCharacter extends BaseCharacter {
     async load() {

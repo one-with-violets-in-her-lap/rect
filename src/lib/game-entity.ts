@@ -1,8 +1,8 @@
 import { Container, Ticker } from 'pixi.js'
-import { Game } from '@/game'
-import { CollisionError, NotInitializedError } from '@/utils/errors'
-import { Position } from '@/utils/position'
-import { checkIfNewEntityPositionColliding } from '@/collisions'
+import { Game } from '@/lib/game'
+import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
+import { Position } from '@/lib/utils/position'
+import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 
 const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20

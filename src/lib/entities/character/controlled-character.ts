@@ -1,6 +1,6 @@
-import { Game } from '@/game'
-import { BaseCharacter } from '@/entities/character'
-import { KeyBindings } from '@/utils/key-bindings'
+import { Game } from '@/lib/game'
+import { BaseCharacter } from '@/lib/entities/character'
+import { KeyBindings } from '@/lib/utils/key-bindings'
 
 /**
  * Character entity that is currently being played on. Can be controlled by user input

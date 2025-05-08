@@ -1,9 +1,9 @@
 import obstacleSpriteImage from '@/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
-import { GameEntity } from '@/game-entity'
-import { Game } from '@/game'
-import { NotInitializedError } from '@/utils/errors'
+import { GameEntity } from '@/lib/game-entity'
+import { Game } from '@/lib/game'
+import { NotInitializedError } from '@/lib/utils/errors'
 
 export class Obstacle extends GameEntity<Sprite> {
     sprite?: Sprite
