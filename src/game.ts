@@ -10,6 +10,8 @@ export async function createGame(canvasElement: HTMLCanvasElement) {
 
     // Web RTC testing code
 
+    const searchParams = new URLSearchParams(window.location.search)
+
     const peer = new Peer({
         debug: 2,
     })
@@ -17,33 +19,46 @@ export async function createGame(canvasElement: HTMLCanvasElement) {
     peer.on('open', (id) => {
         console.log('My peer ID is: ' + id)
 
-        const otherEndPeerId = prompt(
-            `Your peer ID is ${id}. Fill in the ID of peer you want to connect to`,
+        alert(
+            `Your room ID is ${id} - http://localhost:5173?peer=${id}`,
         )
 
-        const sendConnection = peer.connect(otherEndPeerId || '')
+        let isConnectingToOtherPeer = searchParams.get('peer') !== null
+        if (isConnectingToOtherPeer) {
+            createSendConnection(searchParams.get('peer') || '')
+        }
 
         peer.on('connection', (receiveConnection) => {
+            if (!isConnectingToOtherPeer) {
+                createSendConnection(receiveConnection.peer)
+            }
+
             console.log(
                 `Connected to ${receiveConnection.peer}. Starting sending and receiving`,
             )
 
             receiveConnection.on('data', (data) => {
-                console.log(`New message from ${receiveConnection.peer}: ${data}`)
+                console.log(
+                    `New message from ${receiveConnection.peer}: ${data}`,
+                )
             })
-
-            sendConnection.on('open', () => {
-                console.log(`Send connection opened`)
-
-                setInterval(() => {
-                    console.log(`Sending hi to ${sendConnection.peer}`)
-                    sendConnection.send(`Hi from ${peer.id}`)
-                }, 1000)
-            })
-            sendConnection.on('error', (e) => console.error(e))
         })
         peer.on('error', (e) => console.error(e))
     })
+
+    function createSendConnection(otherEndPeerId: string) {
+        const sendConnection = peer.connect(otherEndPeerId)
+
+        sendConnection.on('open', () => {
+            console.log(`Send connection opened`)
+
+            setInterval(() => {
+                console.log(`Sending hi to ${sendConnection.peer}`)
+                sendConnection.send(`Hi from ${peer.id}`)
+            }, 1000)
+        })
+        sendConnection.on('error', (e) => console.error(e))
+    }
 
     // End of Web RTC testing code
 
