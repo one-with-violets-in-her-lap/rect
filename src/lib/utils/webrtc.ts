@@ -36,9 +36,7 @@ export function connectToAnotherPeer(
         )
 
         currentPeer.once('connection', (receiveConnection) => {
-            console.log(
-                `Connected to ${receiveConnection.peer}`,
-            )
+            console.log(`Connected to ${receiveConnection.peer}`)
 
             sendConnectionCreationPromise
                 .then((sendDataConnection) =>
