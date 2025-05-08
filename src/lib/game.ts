@@ -1,4 +1,3 @@
-import Peer from 'peerjs'
 import { Application } from 'pixi.js'
 import { GameEntity } from '@/lib/game-entity'
 import { Obstacle } from '@/lib/obstacle'
@@ -7,60 +6,6 @@ import { RemoteCharacter } from '@/lib/entities/character/remote-character'
 
 export async function createGame(canvasElement: HTMLCanvasElement) {
     const game = new Game()
-
-    // Web RTC testing code
-
-    const searchParams = new URLSearchParams(window.location.search)
-
-    const peer = new Peer({
-        debug: 2,
-    })
-
-    peer.on('open', (id) => {
-        console.log('My peer ID is: ' + id)
-
-        alert(
-            `Your room ID is ${id} - http://localhost:5173?peer=${id}`,
-        )
-
-        let isConnectingToOtherPeer = searchParams.get('peer') !== null
-        if (isConnectingToOtherPeer) {
-            createSendConnection(searchParams.get('peer') || '')
-        }
-
-        peer.on('connection', (receiveConnection) => {
-            if (!isConnectingToOtherPeer) {
-                createSendConnection(receiveConnection.peer)
-            }
-
-            console.log(
-                `Connected to ${receiveConnection.peer}. Starting sending and receiving`,
-            )
-
-            receiveConnection.on('data', (data) => {
-                console.log(
-                    `New message from ${receiveConnection.peer}: ${data}`,
-                )
-            })
-        })
-        peer.on('error', (e) => console.error(e))
-    })
-
-    function createSendConnection(otherEndPeerId: string) {
-        const sendConnection = peer.connect(otherEndPeerId)
-
-        sendConnection.on('open', () => {
-            console.log(`Send connection opened`)
-
-            setInterval(() => {
-                console.log(`Sending hi to ${sendConnection.peer}`)
-                sendConnection.send(`Hi from ${peer.id}`)
-            }, 1000)
-        })
-        sendConnection.on('error', (e) => console.error(e))
-    }
-
-    // End of Web RTC testing code
 
     game.entities = [
         new CurrentControlledCharacter(game),
