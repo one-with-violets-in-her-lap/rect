@@ -1,7 +1,7 @@
 import obstacleSpriteImage from '@/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
-import { GameEntity } from '@/lib/game-entity'
+import { GameEntity } from '@/lib/entities'
 import { Game } from '@/lib/game'
 import { NotInitializedError } from '@/lib/utils/errors'
 

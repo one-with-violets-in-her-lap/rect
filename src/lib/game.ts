@@ -1,6 +1,6 @@
 import { Application } from 'pixi.js'
-import { GameEntity } from '@/lib/game-entity'
-import { Obstacle } from '@/lib/obstacle'
+import { GameEntity } from '@/lib/entities'
+import { Obstacle } from '@/lib/entities/obstacle'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
 import { RemoteCharacter } from '@/lib/entities/character/remote-character'
 

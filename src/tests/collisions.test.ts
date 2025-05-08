@@ -3,7 +3,7 @@
 import { Sprite } from 'pixi.js'
 import { expect, test } from 'vitest'
 import { Game } from '@/lib/game'
-import { GameEntity } from '@/lib/game-entity'
+import { GameEntity } from '@/lib/entities'
 import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 
 class MockedGameEntity extends GameEntity {

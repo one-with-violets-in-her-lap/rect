@@ -2,7 +2,7 @@ import characterSpriteImage from '@/assets/images/character-1.png'
 
 import { Assets, Sprite, Ticker } from 'pixi.js'
 import { Game } from '@/lib/game'
-import { GameEntity } from '@/lib/game-entity'
+import { GameEntity } from '@/lib/entities'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
 import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 
