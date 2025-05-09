@@ -1,6 +1,7 @@
 import { Game } from '@/lib/game'
-import { BaseCharacter } from '@/lib/entities/character'
+import { BaseCharacter, CharacterMovement } from '@/lib/entities/character'
 import { KeyBindings } from '@/lib/utils/key-bindings'
+import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
 
 /**
  * Character entity that is currently being played on. Can be controlled by user input
@@ -11,19 +12,31 @@ import { KeyBindings } from '@/lib/utils/key-bindings'
 export class CurrentControlledCharacter extends BaseCharacter {
     keyBindings: KeyBindings
 
-    constructor(game: Game) {
-        super(game)
+    constructor(
+        game: Game,
+        initialPosition: 'left' | 'right',
+        private readonly multiPlayerSession: MultiPlayerSession,
+    ) {
+        super(game, initialPosition)
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
-                doOnKeyDown: () => (this.movement.isMovingRight = true),
-                doOnKeyUp: () => (this.movement.isMovingRight = false),
+                doOnKeyDown: () => this.updateMovementAndSyncMultiPlayer({
+                    isMovingRight: true
+                }),
+                doOnKeyUp: () => this.updateMovementAndSyncMultiPlayer({
+                    isMovingRight: false
+                }),
             },
 
             {
                 key: 'a',
-                doOnKeyDown: () => (this.movement.isMovingLeft = true),
-                doOnKeyUp: () => (this.movement.isMovingLeft = false),
+                doOnKeyDown: () => this.updateMovementAndSyncMultiPlayer({
+                    isMovingLeft: true
+                }),
+                doOnKeyUp: () => this.updateMovementAndSyncMultiPlayer({
+                    isMovingLeft: false
+                }),
             },
 
             {
@@ -37,8 +50,19 @@ export class CurrentControlledCharacter extends BaseCharacter {
         this.keyBindings.initializeEventListeners()
         return await super.load()
     }
+
     async destroy() {
         this.keyBindings.disposeEventListeners()
         await super.destroy()
+    }
+
+    private updateMovementAndSyncMultiPlayer(newMovement: Partial<CharacterMovement>) {
+        const fullNewMovementData = {
+            ...this.movement,
+            ...newMovement
+        } 
+
+        this.movement = fullNewMovementData
+        this.multiPlayerSession.sendConnection.send(JSON.stringify(fullNewMovementData))
     }
 }

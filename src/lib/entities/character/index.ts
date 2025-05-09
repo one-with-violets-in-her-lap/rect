@@ -6,7 +6,7 @@ import { GameEntity } from '@/lib/entities'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
 import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 
-interface CharacterMovement {
+export interface CharacterMovement {
     isMovingLeft: boolean
     isMovingRight: boolean
 }
@@ -25,7 +25,10 @@ export class BaseCharacter extends GameEntity<Sprite> {
         isMovingRight: false,
     }
 
-    constructor(game: Game) {
+    constructor(
+        game: Game,
+        private readonly initialPosition: 'left' | 'right',
+    ) {
         super(game, { enableCollision: true, enableGravity: true })
     }
 
@@ -33,6 +36,11 @@ export class BaseCharacter extends GameEntity<Sprite> {
         await Assets.load(characterSpriteImage)
 
         const pixiObject = Sprite.from(characterSpriteImage)
+
+        pixiObject.x =
+            this.initialPosition === 'left'
+                ? 0
+                : this.game.pixiApp.canvas.width - pixiObject.width
 
         return pixiObject
     }
