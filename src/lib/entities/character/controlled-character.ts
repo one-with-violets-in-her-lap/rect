@@ -5,6 +5,7 @@ import { Game } from '@/lib/game'
 import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { NotInitializedError } from '@/lib/utils/errors'
 import { KeyBindings } from '@/lib/utils/key-bindings'
+import { Position } from '@/lib/utils/position'
 
 /**
  * Character entity that is currently being played on. Can be controlled by user input
@@ -18,8 +19,8 @@ export class CurrentControlledCharacter extends GameEntity {
 
     keyBindings: KeyBindings
 
-    constructor(game: Game, id?: string) {
-        super(game, id)
+    constructor(game: Game, initialPosition: Position, id?: string) {
+        super(game, initialPosition, id)
 
         this.keyBindings = new KeyBindings([
             {

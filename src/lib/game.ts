@@ -15,10 +15,17 @@ export async function createGame(
     game.entities = [
         new CurrentControlledCharacter(
             game,
-            currentCharacterPosition,
+            currentCharacterPosition === 'left'
+                ? { x: 0, y: 0 }
+                : { x: 500, y: 0 },
         ),
-        new RemoteCharacter(game, remoteCharacterPosition),
-        new Obstacle(game),
+        new RemoteCharacter(
+            game,
+            remoteCharacterPosition === 'left'
+                ? { x: 0, y: 0 }
+                : { x: 500, y: 0 }, // TODO: fix hard-coded position
+        ),
+        new Obstacle(game, { x: 0, y: 700 }),
     ]
 
     return game

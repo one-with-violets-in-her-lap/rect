@@ -4,13 +4,14 @@ import { Assets, Sprite } from 'pixi.js'
 import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { NotInitializedError } from '@/lib/utils/errors'
 import { Game } from '@/lib/game'
+import { Position } from '@/lib/utils/position'
 
 export class RemoteCharacter extends GameEntity {
     typeName: EntityTypeName = 'remote-character'
     options = { enableCollision: true, enableGravity: true }
 
-    constructor(game: Game, id?: string) {
-        super(game, id)
+    constructor(game: Game, initialPosition: Position, id?: string) {
+        super(game, initialPosition, id)
     }
 
     async load() {

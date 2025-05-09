@@ -6,7 +6,7 @@ import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 import {
     createEntitySynchronizer,
     EntitySynchronizer,
-} from '@/lib/multi-player-sync'
+} from '@/lib/multi-player-sync/entity'
 
 export type EntityTypeName =
     | 'obstacle'
@@ -51,6 +51,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     constructor(
         protected readonly game: Game,
+        readonly initialPosition: Position,
         id?: string,
     ) {
         this.id = id || crypto.randomUUID()
@@ -64,6 +65,9 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     async initialize() {
         this.pixiObject = await this.load()
+
+        this.pixiObject.position = this.initialPosition
+
         return this.pixiObject
     }
 

@@ -1,9 +1,4 @@
 import { EntityMovement, GameEntity } from '@/lib/entities'
-import { Game } from '@/lib/game'
-import {
-    CreateEntityPacket,
-    handleCreateEntityPacket,
-} from '@/lib/multi-player-sync/entity-creator'
 import {
     addPacketHandler,
     MultiPlayerPacket,
@@ -47,29 +42,6 @@ export function createEntitySynchronizer(
             }
 
             multiPlayerSession.sendConnection.send(movementPacket)
-        },
-    }
-}
-
-export function createGameSynchronizer(
-    game: Game,
-    multiPlayerSession: MultiPlayerSession,
-) {
-    addPacketHandler(
-        multiPlayerSession.receiveConnection,
-        'create-entity',
-        (packet: CreateEntityPacket) => handleCreateEntityPacket(game, packet),
-    )
-
-    return {
-        syncNewEntity(newEntity: GameEntity) {
-            const newEntityPacket: CreateEntityPacket = {
-                type: 'create-entity',
-                entityTypeName: newEntity.typeName,
-                entityId: newEntity.id,
-            }
-
-            multiPlayerSession.sendConnection.send(newEntityPacket)
         },
     }
 }
