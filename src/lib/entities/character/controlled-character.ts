@@ -1,5 +1,5 @@
 import { Game } from '@/lib/game'
-import { BaseCharacter, CharacterMovement } from '@/lib/entities/character'
+import { BaseCharacter } from '@/lib/entities/character'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
 
@@ -21,31 +21,19 @@ export class CurrentControlledCharacter extends BaseCharacter {
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
-                doOnKeyDown: () =>
-                    this.updateMovementAndSyncMultiPlayer({
-                        isMovingRight: true,
-                    }),
-                doOnKeyUp: () =>
-                    this.updateMovementAndSyncMultiPlayer({
-                        isMovingRight: false,
-                    }),
+                doOnKeyDown: () => (this.movementStatus.isMovingRight = true),
+                doOnKeyUp: () => (this.movementStatus.isMovingRight = false),
             },
 
             {
                 key: 'a',
-                doOnKeyDown: () =>
-                    this.updateMovementAndSyncMultiPlayer({
-                        isMovingLeft: true,
-                    }),
-                doOnKeyUp: () =>
-                    this.updateMovementAndSyncMultiPlayer({
-                        isMovingLeft: false,
-                    }),
+                doOnKeyDown: () => (this.movementStatus.isMovingLeft = true),
+                doOnKeyUp: () => (this.movementStatus.isMovingLeft = false),
             },
 
             {
                 key: ' ',
-                doOnKeyDown: () => (this.isJumping = true),
+                doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
     }
@@ -58,19 +46,5 @@ export class CurrentControlledCharacter extends BaseCharacter {
     async destroy() {
         this.keyBindings.disposeEventListeners()
         await super.destroy()
-    }
-
-    private updateMovementAndSyncMultiPlayer(
-        newMovement: Partial<CharacterMovement>,
-    ) {
-        const fullNewMovementData = {
-            ...this.movement,
-            ...newMovement,
-        }
-
-        this.movement = fullNewMovementData
-        this.multiPlayerSession.sendConnection.send(
-            JSON.stringify(fullNewMovementData),
-        )
     }
 }

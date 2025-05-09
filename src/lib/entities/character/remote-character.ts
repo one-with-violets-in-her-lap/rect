@@ -15,7 +15,7 @@ export class RemoteCharacter extends BaseCharacter {
         const pixiObject = await super.load()
 
         this.multiPlayerSession.receiveConnection.on('data', (data) => {
-            this.movement = JSON.parse(String(data))
+            this.movementStatus = JSON.parse(String(data))
         })
 
         return pixiObject

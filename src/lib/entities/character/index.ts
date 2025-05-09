@@ -1,17 +1,11 @@
 import characterSpriteImage from '@/assets/images/character-1.png'
 
-import { Assets, Sprite, Ticker } from 'pixi.js'
+import { Assets, Sprite } from 'pixi.js'
 import { Game } from '@/lib/game'
 import { GameEntity } from '@/lib/entities'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
-import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
+import { NotInitializedError } from '@/lib/utils/errors'
 
-export interface CharacterMovement {
-    isMovingLeft: boolean
-    isMovingRight: boolean
-}
-
-const X_VELOCITY = 8
 /**
  * Base character entity class that implements moving and other interactions.
  *
@@ -20,11 +14,6 @@ const X_VELOCITY = 8
  * `BaseCharacter` - {@link CurrentControlledCharacter} and {@link RemoteCharacter}
  */
 export class BaseCharacter extends GameEntity<Sprite> {
-    protected movement: CharacterMovement = {
-        isMovingLeft: false,
-        isMovingRight: false,
-    }
-
     constructor(
         game: Game,
         private readonly initialPosition: 'left' | 'right',
@@ -54,35 +43,5 @@ export class BaseCharacter extends GameEntity<Sprite> {
         }
 
         this.pixiObject.destroy()
-    }
-
-    update(ticker: Ticker) {
-        const pixiObject = super.update(ticker)
-
-        if (this.movement.isMovingLeft) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    x: pixiObject.x - X_VELOCITY * ticker.deltaTime,
-                })
-            } catch (error) {
-                if (!(error instanceof CollisionError)) {
-                    throw error
-                }
-            }
-        }
-
-        if (this.movement.isMovingRight) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    x: pixiObject.x + X_VELOCITY * ticker.deltaTime,
-                })
-            } catch (error) {
-                if (!(error instanceof CollisionError)) {
-                    throw error
-                }
-            }
-        }
-
-        return pixiObject
     }
 }

@@ -4,16 +4,31 @@ import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 import { Position } from '@/lib/utils/position'
 import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 
+export interface EntityMovement {
+    isMovingLeft: boolean
+    isMovingRight: boolean
+    horizontalVelocity: number
+
+    isJumping: boolean
+    isGrounded: boolean
+    verticalVelocity: number
+}
+
 const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20
 
 export abstract class GameEntity<TPixiObject extends Container = Container> {
     pixiObject?: TPixiObject
 
-    private grounded = false
+    protected movementStatus: EntityMovement = {
+        isMovingLeft: false,
+        isMovingRight: false,
+        horizontalVelocity: 8,
 
-    protected isJumping = false
-    protected verticalVelocity = 0
+        isJumping: false,
+        isGrounded: false,
+        verticalVelocity: 0,
+    }
 
     constructor(
         protected readonly game: Game,
@@ -43,6 +58,8 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         if (this.options.enableGravity) {
             this.applyGravity(ticker, this.pixiObject)
         }
+
+        this.moveHorizontallyIfNeeded(this.pixiObject, ticker)
 
         return this.pixiObject
     }
@@ -101,19 +118,22 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     }
 
     private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
-        if (this.grounded) {
-            this.verticalVelocity = GRAVITY_FORCE * ticker.deltaTime
+        if (this.movementStatus.isGrounded) {
+            this.movementStatus.verticalVelocity =
+                GRAVITY_FORCE * ticker.deltaTime
 
-            if (this.isJumping) {
-                this.grounded = false
-                this.verticalVelocity = -JUMP_FORCE
-                this.isJumping = false
+            if (this.movementStatus.isJumping) {
+                this.movementStatus.isGrounded = false
+                this.movementStatus.verticalVelocity = -JUMP_FORCE
+                this.movementStatus.isJumping = false
             }
         } else {
-            this.verticalVelocity += GRAVITY_FORCE * ticker.deltaTime
+            this.movementStatus.verticalVelocity +=
+                GRAVITY_FORCE * ticker.deltaTime
         }
 
-        const deltaYToMoveBy = this.verticalVelocity * ticker.deltaTime
+        const deltaYToMoveBy =
+            this.movementStatus.verticalVelocity * ticker.deltaTime
         const direction = Math.sign(deltaYToMoveBy)
         const moveSteps = Math.abs(Math.floor(deltaYToMoveBy))
         const remainder = deltaYToMoveBy % 1
@@ -127,10 +147,10 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 this.updatePositionRespectingCollisions({
                     y: pixiObject.y + direction,
                 })
-                this.grounded = false
+                this.movementStatus.isGrounded = false
             } catch (error) {
                 if (error instanceof CollisionError) {
-                    this.grounded = true
+                    this.movementStatus.isGrounded = true
                     return
                 } else {
                     throw error
@@ -143,12 +163,44 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 this.updatePositionRespectingCollisions({
                     y: pixiObject.y + direction,
                 })
-                this.grounded = false
+                this.movementStatus.isGrounded = false
             } catch (error) {
                 if (error instanceof CollisionError) {
-                    this.grounded = true
+                    this.movementStatus.isGrounded = true
                     return
                 } else {
+                    throw error
+                }
+            }
+        }
+    }
+
+    private moveHorizontallyIfNeeded(pixiObject: TPixiObject, ticker: Ticker) {
+        if (this.movementStatus.isMovingLeft) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    x:
+                        pixiObject.x -
+                        this.movementStatus.horizontalVelocity *
+                            ticker.deltaTime,
+                })
+            } catch (error) {
+                if (!(error instanceof CollisionError)) {
+                    throw error
+                }
+            }
+        }
+
+        if (this.movementStatus.isMovingRight) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    x:
+                        pixiObject.x +
+                        this.movementStatus.horizontalVelocity *
+                            ticker.deltaTime,
+                })
+            } catch (error) {
+                if (!(error instanceof CollisionError)) {
                     throw error
                 }
             }
