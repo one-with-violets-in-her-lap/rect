@@ -1,7 +1,6 @@
 import { Game } from '@/lib/game'
 import { BaseCharacter } from '@/lib/entities/character'
 import { KeyBindings } from '@/lib/utils/key-bindings'
-import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
 
 /**
  * Character entity that is currently being played on. Can be controlled by user input
@@ -15,9 +14,9 @@ export class CurrentControlledCharacter extends BaseCharacter {
     constructor(
         game: Game,
         initialPosition: 'left' | 'right',
-        private readonly multiPlayerSession: MultiPlayerSession,
     ) {
         super(game, initialPosition)
+
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',

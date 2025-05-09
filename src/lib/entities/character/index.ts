@@ -18,7 +18,10 @@ export class BaseCharacter extends GameEntity<Sprite> {
         game: Game,
         private readonly initialPosition: 'left' | 'right',
     ) {
-        super(game, { enableCollision: true, enableGravity: true })
+        super(game, {
+            enableCollision: true,
+            enableGravity: true,
+        })
     }
 
     async load() {

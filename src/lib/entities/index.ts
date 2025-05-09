@@ -3,6 +3,7 @@ import { Game } from '@/lib/game'
 import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 import { Position } from '@/lib/utils/position'
 import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
+import { createEntitySync, EntitySynchronizer } from '@/lib/multi-player-sync'
 
 export interface EntityMovement {
     isMovingLeft: boolean
@@ -18,6 +19,8 @@ const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20
 
 export abstract class GameEntity<TPixiObject extends Container = Container> {
+    id: string
+
     pixiObject?: TPixiObject
 
     protected movementStatus: EntityMovement = {
@@ -30,13 +33,23 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         verticalVelocity: 0,
     }
 
+    private sync: EntitySynchronizer
+
     constructor(
         protected readonly game: Game,
         private readonly options: {
             enableCollision: boolean
             enableGravity: boolean
         },
-    ) {}
+    ) {
+        this.id = crypto.randomUUID()
+
+        this.sync = createEntitySync(
+            this,
+            this.game.multiPlayerSession,
+            (newMovement) => (this.movementStatus = newMovement),
+        )
+    }
 
     async initialize() {
         this.pixiObject = await this.load()
@@ -73,6 +86,10 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         }
 
         return this.pixiObject
+    }
+
+    getMovementStatus() {
+        return this.movementStatus
     }
 
     protected updatePositionRespectingCollisions(
@@ -205,5 +222,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 }
             }
         }
+
+        this.sync.syncEntityMovement(this.movementStatus)
     }
 }

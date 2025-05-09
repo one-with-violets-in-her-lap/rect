@@ -10,15 +10,14 @@ export async function createGame(
     currentCharacterPosition: 'left' | 'right',
     remoteCharacterPosition: 'left' | 'right',
 ) {
-    const game = new Game()
+    const game = new Game(multiPlayerSession)
 
     game.entities = [
         new CurrentControlledCharacter(
             game,
             currentCharacterPosition,
-            multiPlayerSession,
         ),
-        new RemoteCharacter(game, remoteCharacterPosition, multiPlayerSession),
+        new RemoteCharacter(game, remoteCharacterPosition),
         new Obstacle(game),
     ]
 
@@ -30,7 +29,7 @@ export class Game {
 
     entities: GameEntity[] = []
 
-    constructor() {
+    constructor(readonly multiPlayerSession: MultiPlayerSession) {
         this.pixiApp = new Application()
     }
 
