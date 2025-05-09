@@ -1,8 +1,34 @@
-import { Game } from '@/lib/game'
-import { BaseCharacter } from '@/lib/entities/character'
+import characterSpriteImage from '@/assets/images/character-1.png'
 
-export class RemoteCharacter extends BaseCharacter {
-    constructor(game: Game, initialPosition: 'left' | 'right') {
-        super(game, initialPosition)
+import { Assets, Sprite } from 'pixi.js'
+import { EntityTypeName, GameEntity } from '@/lib/entities'
+import { NotInitializedError } from '@/lib/utils/errors'
+import { Game } from '@/lib/game'
+
+export class RemoteCharacter extends GameEntity {
+    typeName: EntityTypeName = 'remote-character'
+    options = { enableCollision: true, enableGravity: true }
+
+    constructor(game: Game, id?: string) {
+        super(game, id)
+    }
+
+    async load() {
+        await Assets.load(characterSpriteImage)
+
+        const pixiObject = Sprite.from(characterSpriteImage)
+
+        return pixiObject
+    }
+
+    async destroy() {
+        if (!this.pixiObject) {
+            throw new NotInitializedError(
+                'Character sprite pixi object was not ' +
+                    'initialized, so it cannot be destroyed',
+            )
+        }
+
+        this.pixiObject.destroy()
     }
 }

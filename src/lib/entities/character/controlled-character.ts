@@ -1,5 +1,9 @@
+import characterSpriteImage from '@/assets/images/character-1.png'
+
+import { Assets, Sprite } from 'pixi.js'
 import { Game } from '@/lib/game'
-import { BaseCharacter } from '@/lib/entities/character'
+import { EntityTypeName, GameEntity } from '@/lib/entities'
+import { NotInitializedError } from '@/lib/utils/errors'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 
 /**
@@ -8,14 +12,14 @@ import { KeyBindings } from '@/lib/utils/key-bindings'
  *
  * See also {@link RemoteCharacter}
  */
-export class CurrentControlledCharacter extends BaseCharacter {
+export class CurrentControlledCharacter extends GameEntity {
+    typeName: EntityTypeName = 'current-controlled-character'
+    options = { enableCollision: true, enableGravity: true }
+
     keyBindings: KeyBindings
 
-    constructor(
-        game: Game,
-        initialPosition: 'left' | 'right',
-    ) {
-        super(game, initialPosition)
+    constructor(game: Game, id?: string) {
+        super(game, id)
 
         this.keyBindings = new KeyBindings([
             {
@@ -39,11 +43,24 @@ export class CurrentControlledCharacter extends BaseCharacter {
 
     async load() {
         this.keyBindings.initializeEventListeners()
-        return await super.load()
+
+        await Assets.load(characterSpriteImage)
+
+        const pixiObject = Sprite.from(characterSpriteImage)
+
+        return pixiObject
     }
 
     async destroy() {
+        if (!this.pixiObject) {
+            throw new NotInitializedError(
+                'Character sprite pixi object was not ' +
+                    'initialized, so it cannot be destroyed',
+            )
+        }
+
         this.keyBindings.disposeEventListeners()
-        await super.destroy()
+
+        this.pixiObject.destroy()
     }
 }

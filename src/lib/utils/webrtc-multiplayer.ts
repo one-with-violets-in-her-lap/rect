@@ -5,6 +5,27 @@ export interface MultiPlayerSession {
     sendConnection: DataConnection
 }
 
+export interface MultiPlayerPacket {
+    type: string
+}
+
+export function addPacketHandler<TPacket extends MultiPlayerPacket>(
+    receiveConnection: DataConnection,
+    packetType: TPacket['type'],
+    doOnPacketReceived: (packet: TPacket) => void,
+) {
+    receiveConnection.on('data', (data) => {
+        if (
+            typeof data === 'object' &&
+            data !== null &&
+            'type' in data &&
+            data.type === packetType
+        ) {
+            doOnPacketReceived(data as TPacket) // TODO: fix naive check
+        }
+    })
+}
+
 export async function createMultiPlayerSession() {
     const peer = await createPeer()
 

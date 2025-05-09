@@ -1,18 +1,18 @@
 import obstacleSpriteImage from '@/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
-import { GameEntity } from '@/lib/entities'
+import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { Game } from '@/lib/game'
 import { NotInitializedError } from '@/lib/utils/errors'
 
 export class Obstacle extends GameEntity<Sprite> {
+    typeName: EntityTypeName = 'obstacle'
+    options = { enableGravity: false, enableCollision: true }
+
     sprite?: Sprite
 
-    constructor(game: Game) {
-        super(game, {
-            enableCollision: true,
-            enableGravity: false,
-        })
+    constructor(game: Game, id?: string) {
+        super(game, id)
     }
 
     async load() {

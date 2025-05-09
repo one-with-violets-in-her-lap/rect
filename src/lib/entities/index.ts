@@ -3,7 +3,15 @@ import { Game } from '@/lib/game'
 import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 import { Position } from '@/lib/utils/position'
 import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
-import { createEntitySync, EntitySynchronizer } from '@/lib/multi-player-sync'
+import {
+    createEntitySynchronizer,
+    EntitySynchronizer,
+} from '@/lib/multi-player-sync'
+
+export type EntityTypeName =
+    | 'obstacle'
+    | 'remote-character'
+    | 'current-controlled-character'
 
 export interface EntityMovement {
     isMovingLeft: boolean
@@ -19,6 +27,12 @@ const GRAVITY_FORCE = 0.9
 const JUMP_FORCE = 20
 
 export abstract class GameEntity<TPixiObject extends Container = Container> {
+    abstract typeName: EntityTypeName
+    abstract options: {
+        enableCollision: boolean
+        enableGravity: boolean
+    }
+
     id: string
 
     pixiObject?: TPixiObject
@@ -37,14 +51,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     constructor(
         protected readonly game: Game,
-        private readonly options: {
-            enableCollision: boolean
-            enableGravity: boolean
-        },
+        id?: string,
     ) {
-        this.id = crypto.randomUUID()
+        this.id = id || crypto.randomUUID()
 
-        this.sync = createEntitySync(
+        this.sync = createEntitySynchronizer(
             this,
             this.game.multiPlayerSession,
             (newMovement) => (this.movementStatus = newMovement),
