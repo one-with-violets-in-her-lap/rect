@@ -21,22 +21,26 @@ export class CurrentControlledCharacter extends BaseCharacter {
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
-                doOnKeyDown: () => this.updateMovementAndSyncMultiPlayer({
-                    isMovingRight: true
-                }),
-                doOnKeyUp: () => this.updateMovementAndSyncMultiPlayer({
-                    isMovingRight: false
-                }),
+                doOnKeyDown: () =>
+                    this.updateMovementAndSyncMultiPlayer({
+                        isMovingRight: true,
+                    }),
+                doOnKeyUp: () =>
+                    this.updateMovementAndSyncMultiPlayer({
+                        isMovingRight: false,
+                    }),
             },
 
             {
                 key: 'a',
-                doOnKeyDown: () => this.updateMovementAndSyncMultiPlayer({
-                    isMovingLeft: true
-                }),
-                doOnKeyUp: () => this.updateMovementAndSyncMultiPlayer({
-                    isMovingLeft: false
-                }),
+                doOnKeyDown: () =>
+                    this.updateMovementAndSyncMultiPlayer({
+                        isMovingLeft: true,
+                    }),
+                doOnKeyUp: () =>
+                    this.updateMovementAndSyncMultiPlayer({
+                        isMovingLeft: false,
+                    }),
             },
 
             {
@@ -56,13 +60,17 @@ export class CurrentControlledCharacter extends BaseCharacter {
         await super.destroy()
     }
 
-    private updateMovementAndSyncMultiPlayer(newMovement: Partial<CharacterMovement>) {
+    private updateMovementAndSyncMultiPlayer(
+        newMovement: Partial<CharacterMovement>,
+    ) {
         const fullNewMovementData = {
             ...this.movement,
-            ...newMovement
-        } 
+            ...newMovement,
+        }
 
         this.movement = fullNewMovementData
-        this.multiPlayerSession.sendConnection.send(JSON.stringify(fullNewMovementData))
+        this.multiPlayerSession.sendConnection.send(
+            JSON.stringify(fullNewMovementData),
+        )
     }
 }
