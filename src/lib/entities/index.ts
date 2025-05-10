@@ -59,7 +59,10 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         this.sync = createEntitySynchronizer(
             this,
             this.game.multiPlayerSession,
-            (newMovement) => (this.movementStatus = newMovement),
+            (newPosition) => {
+                console.log(newPosition)
+                this.getPixiObjectOrThrow().position = newPosition
+            },
         )
     }
 
@@ -119,7 +122,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 y: pixiObject.y,
                 ...newPosition,
             },
-            this.game.entities,
+            this.game.getEntities(),
         )
 
         const hasCollisionsWithYScreenBounds =
@@ -147,6 +150,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         if (newPosition.y) {
             pixiObject.y = newPosition.y
         }
+
+        this.sync.syncEntityMove({
+            x: pixiObject.x,
+            y: pixiObject.y,
+        })
     }
 
     private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
@@ -237,7 +245,5 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 }
             }
         }
-
-        this.sync.syncEntityMovement(this.movementStatus)
     }
 }

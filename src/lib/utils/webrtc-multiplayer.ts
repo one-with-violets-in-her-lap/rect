@@ -1,29 +1,37 @@
 import Peer, { DataConnection } from 'peerjs'
 
 export interface MultiPlayerSession {
+    type: 'host' | 'other-end-peer'
     receiveConnection: DataConnection
     sendConnection: DataConnection
 }
 
 export interface MultiPlayerPacket {
-    type: string
+    type: `${string}/${string}`
 }
 
 export function addPacketHandler<TPacket extends MultiPlayerPacket>(
     receiveConnection: DataConnection,
     packetType: TPacket['type'],
     doOnPacketReceived: (packet: TPacket) => void,
+    handleOnce?: boolean,
 ) {
-    receiveConnection.on('data', (data) => {
+    const handleDataEvent = (data: unknown): void => {
         if (
             typeof data === 'object' &&
             data !== null &&
             'type' in data &&
             data.type === packetType
         ) {
-            doOnPacketReceived(data as TPacket) // TODO: fix naive check
+            doOnPacketReceived(data as TPacket)
         }
-    })
+    }
+
+    if (handleOnce) {
+        receiveConnection.once('data', handleDataEvent)
+    } else {
+        receiveConnection.on('data', handleDataEvent)
+    }
 }
 
 export async function createMultiPlayerSession() {
@@ -49,7 +57,11 @@ export function connectToMultiPlayerSession(otherEndPeerId: string) {
 
                     sendConnectionCreationPromise
                         .then((sendConnection) =>
-                            resolve({ sendConnection, receiveConnection }),
+                            resolve({
+                                type: 'other-end-peer',
+                                sendConnection,
+                                receiveConnection,
+                            }),
                         )
                         .catch(reject)
                 })
@@ -58,10 +70,7 @@ export function connectToMultiPlayerSession(otherEndPeerId: string) {
 }
 
 function waitForOtherPlayerConnection(currentPeer: Peer) {
-    return new Promise<{
-        receiveConnection: DataConnection
-        sendConnection: DataConnection
-    }>((resolve, reject) => {
+    return new Promise<MultiPlayerSession>((resolve, reject) => {
         currentPeer.once('connection', async (receiveConnection) => {
             console.log(
                 `Connected to ${receiveConnection.peer}. Creating send connection...`,
@@ -74,7 +83,7 @@ function waitForOtherPlayerConnection(currentPeer: Peer) {
 
             currentPeer.off('error')
 
-            resolve({ receiveConnection, sendConnection })
+            resolve({ type: 'host', receiveConnection, sendConnection })
         })
 
         currentPeer.once('error', reject)

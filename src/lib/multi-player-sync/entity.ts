@@ -1,44 +1,42 @@
-import { EntityMovement, GameEntity } from '@/lib/entities'
+import { GameEntity } from '@/lib/entities'
 import {
     addPacketHandler,
     MultiPlayerPacket,
     MultiPlayerSession,
 } from '@/lib/utils/webrtc-multiplayer'
+import { Position } from '@/lib/utils/position'
 
-interface EntityMovementPacket extends MultiPlayerPacket {
-    type: 'update-entity-movement'
+interface EntityMovePacket extends MultiPlayerPacket {
+    type: 'entity/move'
     entityId: string
-    newMovementStatus: EntityMovement
+    newPosition: Position
 }
 
 export interface EntitySynchronizer {
-    syncEntityMovement(newMovementStatus: Partial<EntityMovement>): void
+    syncEntityMove(newEntityPosition: Position): void
 }
 
 export function createEntitySynchronizer(
     entity: GameEntity,
     multiPlayerSession: MultiPlayerSession,
-    updateMovementStatus: (newStatus: EntityMovement) => void,
+    updatePosition: (newPosition: Position) => void,
 ): EntitySynchronizer {
     addPacketHandler(
         multiPlayerSession.receiveConnection,
-        'update-entity-movement',
-        (packet: EntityMovementPacket) => {
+        'entity/move',
+        (packet: EntityMovePacket) => {
             if (packet.entityId === entity.id) {
-                updateMovementStatus(packet.newMovementStatus)
+                updatePosition(packet.newPosition)
             }
         },
     )
 
     return {
-        syncEntityMovement(newMovementStatus) {
-            const movementPacket: EntityMovementPacket = {
-                type: 'update-entity-movement',
+        syncEntityMove(newPosition) {
+            const movementPacket: EntityMovePacket = {
+                type: 'entity/move',
                 entityId: entity.id,
-                newMovementStatus: {
-                    ...entity.getMovementStatus(),
-                    ...newMovementStatus,
-                },
+                newPosition: newPosition,
             }
 
             multiPlayerSession.sendConnection.send(movementPacket)

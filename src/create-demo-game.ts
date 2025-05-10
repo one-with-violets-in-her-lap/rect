@@ -24,7 +24,7 @@ if (multiPlayerSessionToConnectTo === null) {
 
             const multiPlayer = await waitForOtherPlayerConnection()
 
-            const game = await createGame(multiPlayer, 'left', 'right')
+            const game = await createGame(multiPlayer)
 
             await game.initialize(gameCanvas)
         },
@@ -32,7 +32,7 @@ if (multiPlayerSessionToConnectTo === null) {
 } else {
     connectToMultiPlayerSession(multiPlayerSessionToConnectTo).then(
         async (multiPlayer) => {
-            const game = await createGame(multiPlayer, 'right', 'left')
+            const game = await createGame(multiPlayer)
 
             await game.initialize(gameCanvas)
         },

@@ -8,7 +8,7 @@ import { Position } from '@/lib/utils/position'
 
 export class RemoteCharacter extends GameEntity {
     typeName: EntityTypeName = 'remote-character'
-    options = { enableCollision: true, enableGravity: true }
+    options = { enableCollision: true, enableGravity: false }
 
     constructor(game: Game, initialPosition: Position, id?: string) {
         super(game, initialPosition, id)

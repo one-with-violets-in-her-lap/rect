@@ -11,10 +11,20 @@ import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-
 import { Position } from '@/lib/utils/position'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
-    type: 'create-entity'
+    type: 'game/create-entity'
     entityTypeName: EntityTypeName
     entityId: string
     initialPosition: Position
+}
+
+interface GameInitializationCompletedPacket extends MultiPlayerPacket {
+    type: 'game/initialization-completed'
+}
+
+export interface GameSynchronizer {
+    syncNewEntity(newEntityPacket: CreateEntityPacket): void
+    sendGameInitialization(): void
+    waitForGameInitialization(): Promise<void>
 }
 
 const entityCreatorsByType: Record<
@@ -44,27 +54,45 @@ const entityCreatorsByType: Record<
 export function createGameSynchronizer(
     game: Game,
     multiPlayerSession: MultiPlayerSession,
-) {
+    addNewEntity: (entities: GameEntity) => void,
+): GameSynchronizer {
     addPacketHandler(
         multiPlayerSession.receiveConnection,
-        'create-entity',
-        (packet: CreateEntityPacket) => handleCreateEntityPacket(game, packet),
+        'game/create-entity',
+        (packet: CreateEntityPacket) =>
+            addNewEntity(createEntityFromPacket(game, packet)),
     )
 
     return {
-        syncNewEntity(newEntity: GameEntity) {
-            const newEntityPacket: CreateEntityPacket = {
-                type: 'create-entity',
-                entityTypeName: newEntity.typeName,
-                entityId: newEntity.id,
-                initialPosition: newEntity.initialPosition,
-            }
-
+        syncNewEntity(newEntityPacket) {
             multiPlayerSession.sendConnection.send(newEntityPacket)
+        },
+
+        sendGameInitialization() {
+            const gameInitializationCompletedPacket: GameInitializationCompletedPacket =
+                {
+                    type: 'game/initialization-completed',
+                }
+
+            multiPlayerSession.sendConnection.send(
+                gameInitializationCompletedPacket,
+            )
+        },
+
+        waitForGameInitialization() {
+            return new Promise((resolve) => {
+                addPacketHandler<GameInitializationCompletedPacket>(
+                    multiPlayerSession.receiveConnection,
+                    'game/initialization-completed',
+                    () => {
+                        resolve()
+                    },
+                )
+            })
         },
     }
 }
 
-function handleCreateEntityPacket(game: Game, packet: CreateEntityPacket) {
+function createEntityFromPacket(game: Game, packet: CreateEntityPacket) {
     return entityCreatorsByType[packet.entityTypeName](game, packet)
 }
