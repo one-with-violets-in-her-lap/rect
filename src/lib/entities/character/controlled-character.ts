@@ -7,6 +7,8 @@ import { NotInitializedError } from '@/lib/utils/errors'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 import { Position } from '@/lib/utils/position'
 
+const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
+
 /**
  * Character entity that is currently being played on. Can be controlled by user input
  * (e.g. keyboard)
@@ -57,7 +59,7 @@ export class CurrentControlledCharacter extends GameEntity {
                 fontWeight: '800'
             },
             x: pixiObject.width / 2,
-            y: -18,
+            y: CURRENT_CHARACTER_LABEL_Y_OFFSET,
         })
         currentCharacterLabel.anchor = 0.5
 
