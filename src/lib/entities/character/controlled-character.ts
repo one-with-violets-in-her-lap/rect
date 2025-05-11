@@ -1,6 +1,6 @@
 import characterSpriteImage from '@/assets/images/character-1.png'
 
-import { Assets, Sprite } from 'pixi.js'
+import { Assets, Sprite, Text } from 'pixi.js'
 import { Game } from '@/lib/game'
 import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { NotInitializedError } from '@/lib/utils/errors'
@@ -48,6 +48,20 @@ export class CurrentControlledCharacter extends GameEntity {
         await Assets.load(characterSpriteImage)
 
         const pixiObject = Sprite.from(characterSpriteImage)
+
+        const currentCharacterLabel = new Text({
+            text: 'You',
+            style: {
+                fill: '#00000050',
+                fontSize: '18px',
+                fontWeight: '800'
+            },
+            x: pixiObject.width / 2,
+            y: -18,
+        })
+        currentCharacterLabel.anchor = 0.5
+
+        pixiObject.addChild(currentCharacterLabel)
 
         return pixiObject
     }
