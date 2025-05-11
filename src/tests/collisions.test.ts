@@ -2,9 +2,9 @@
 
 import { Sprite } from 'pixi.js'
 import { expect, test } from 'vitest'
-import { Game } from '@/game'
-import { GameEntity } from '@/game-entity'
-import { checkIfNewEntityPositionColliding } from '@/collisions'
+import { Game } from '@/lib/game'
+import { GameEntity } from '@/lib/entities'
+import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 
 class MockedGameEntity extends GameEntity {
     constructor(game: Game) {

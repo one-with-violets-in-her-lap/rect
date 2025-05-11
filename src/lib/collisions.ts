@@ -1,5 +1,5 @@
 import { Bounds } from 'pixi.js'
-import { GameEntity } from '@/game-entity'
+import { GameEntity } from '@/lib/entities'
 
 export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
     return (
