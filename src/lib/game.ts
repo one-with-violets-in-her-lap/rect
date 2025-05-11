@@ -47,7 +47,9 @@ export class Game {
                 },
             )
         } else {
-            console.warn('Multi-player is not specified, so multi-player is disabled')
+            console.warn(
+                'Multi-player is not specified, so multi-player is disabled',
+            )
         }
     }
 
