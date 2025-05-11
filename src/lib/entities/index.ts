@@ -47,7 +47,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         verticalVelocity: 0,
     }
 
-    private sync: EntitySynchronizer
+    private synchronizer: EntitySynchronizer | null = null
 
     constructor(
         protected readonly game: Game,
@@ -56,14 +56,16 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     ) {
         this.id = id || crypto.randomUUID()
 
-        this.sync = createEntitySynchronizer(
-            this,
-            this.game.multiPlayerSession,
-            (newPosition) => {
-                console.log(newPosition)
-                this.getPixiObjectOrThrow().position = newPosition
-            },
-        )
+        if (this.game.multiPlayerSession) {
+            this.synchronizer = createEntitySynchronizer(
+                this,
+                this.game.multiPlayerSession,
+                (newPosition) => {
+                    console.log(newPosition)
+                    this.getPixiObjectOrThrow().position = newPosition
+                },
+            )
+        }
     }
 
     async initialize() {
@@ -151,7 +153,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             pixiObject.y = newPosition.y
         }
 
-        this.sync.syncEntityMove({
+        this.synchronizer?.syncEntityMove({
             x: pixiObject.x,
             y: pixiObject.y,
         })

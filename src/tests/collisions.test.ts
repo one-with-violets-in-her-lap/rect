@@ -3,16 +3,12 @@
 import { Sprite } from 'pixi.js'
 import { expect, test } from 'vitest'
 import { Game } from '@/lib/game'
-import { GameEntity } from '@/lib/entities'
+import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
 
 class MockedGameEntity extends GameEntity {
-    constructor(game: Game) {
-        super(game, {
-            enableCollision: true,
-            enableGravity: false,
-        })
-    }
+    typeName: EntityTypeName = 'obstacle'
+    options = { enableCollision: true, enableGravity: false }
 
     load() {
         return new Sprite({ width: 20, height: 20 })
@@ -27,39 +23,32 @@ test('Check collision detection between 3 entities', async () => {
 
     const game = new Game()
 
-    const entity1 = new MockedGameEntity(game)
-    const entity2 = new MockedGameEntity(game)
-    const entity3 = new MockedGameEntity(game)
+    const entityToCollide1 = new MockedGameEntity(game, { x: 10, y: 10 })
+    await entityToCollide1.initialize()
 
-    const entity1PixiObject = await entity1.initialize()
-    entity1PixiObject.x = 10
-    entity1PixiObject.y = 10
+    const entityToCollide2 = new MockedGameEntity(game, { x: 30, y: 30 })
+    await entityToCollide2.initialize()
 
-    const entity2PixiObject = await entity2.initialize()
-    entity2PixiObject.x = 30
-    entity2PixiObject.y = 30
+    const entityNotToCollide = new MockedGameEntity(game, { x: 200, y: 200 })
+    await entityNotToCollide.initialize()
 
-    const entity3PixiObject = await entity3.initialize()
-    entity3PixiObject.x = 200
-    entity3PixiObject.y = 200
-
-    game.entities = [entity1, entity2, entity3]
+    const entities = [entityToCollide1, entityToCollide2, entityNotToCollide]
 
     expect(
         checkIfNewEntityPositionColliding(
-            entity1,
+            entityToCollide1,
             ENTITY_1_POSITION_UPDATE,
-            game.entities,
+            entities,
         ),
-        `Entity 1 position update to ${ENTITY_1_POSITION_UPDATE} must be identified as collision`,
+        `Entity 1 position update to ${JSON.stringify(ENTITY_1_POSITION_UPDATE)} must be identified as collision`,
     ).toBe(true)
 
     expect(
         checkIfNewEntityPositionColliding(
-            entity3,
+            entityNotToCollide,
             ENTITY_3_POSITION_UPDATE,
-            game.entities,
+            entities,
         ),
-        `Entity 3 position update to ${ENTITY_3_POSITION_UPDATE} must NOT be identified as collision`,
+        `Entity 3 position update to ${JSON.stringify(ENTITY_3_POSITION_UPDATE)} must NOT be identified as collision`,
     ).toBe(false)
 })
