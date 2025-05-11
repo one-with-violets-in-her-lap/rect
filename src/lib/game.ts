@@ -9,10 +9,10 @@ import {
     GameSynchronizer,
 } from '@/lib/multi-player-sync/game'
 
-export async function createGame(multiPlayerSession: MultiPlayerSession) {
+export async function createGame(multiPlayerSession: MultiPlayerSession | null) {
     const game = new Game(multiPlayerSession)
 
-    if (multiPlayerSession.type === 'host') {
+    if (!multiPlayerSession || multiPlayerSession?.type === 'host') {
         game.addEntity(new CurrentControlledCharacter(game, { x: 0, y: 0 }))
 
         game.addEntity(
@@ -35,7 +35,7 @@ export class Game {
 
     private readonly entities: GameEntity[] = []
 
-    constructor(readonly multiPlayerSession?: MultiPlayerSession) {
+    constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
 
         if (this.multiPlayerSession) {

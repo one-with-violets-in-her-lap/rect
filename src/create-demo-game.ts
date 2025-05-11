@@ -12,14 +12,15 @@ if (!gameCanvas || !(gameCanvas instanceof HTMLCanvasElement)) {
     throw new Error('Game canvas element is missing (#gameCanvas)')
 }
 
-const multiPlayerSessionToConnectTo = new URLSearchParams(
-    window.location.search,
-).get('connect')
-if (multiPlayerSessionToConnectTo === null) {
+const searchParams = new URLSearchParams(window.location.search)
+const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
+const multiPlayerSessionToConnectTo = searchParams.get('connect')
+
+if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
     createMultiPlayerSession().then(
         async ({ sessionId, waitForOtherPlayerConnection }) => {
             alert(
-                `Send your friend the link -> http://localhost:5173?connect=${sessionId}`,
+                `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
             )
 
             const multiPlayer = await waitForOtherPlayerConnection()
@@ -29,7 +30,7 @@ if (multiPlayerSessionToConnectTo === null) {
             await game.initialize(gameCanvas)
         },
     )
-} else {
+} else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
     connectToMultiPlayerSession(multiPlayerSessionToConnectTo).then(
         async (multiPlayer) => {
             const game = await createGame(multiPlayer)
@@ -37,4 +38,7 @@ if (multiPlayerSessionToConnectTo === null) {
             await game.initialize(gameCanvas)
         },
     )
+} else {
+    const game = await createGame(null)
+    await game.initialize(gameCanvas)
 }
