@@ -31,20 +31,24 @@ export async function createGame(multiPlayerSession: MultiPlayerSession) {
 export class Game {
     pixiApp: Application
 
-    synchronizer: GameSynchronizer
+    synchronizer: GameSynchronizer | null = null
 
     private readonly entities: GameEntity[] = []
 
-    constructor(readonly multiPlayerSession: MultiPlayerSession) {
+    constructor(readonly multiPlayerSession?: MultiPlayerSession) {
         this.pixiApp = new Application()
 
-        this.synchronizer = createGameSynchronizer(
-            this,
-            this.multiPlayerSession,
-            (newEntity) => {
-                this.entities.push(newEntity)
-            },
-        )
+        if (this.multiPlayerSession) {
+            this.synchronizer = createGameSynchronizer(
+                this,
+                this.multiPlayerSession,
+                (newEntity) => {
+                    this.entities.push(newEntity)
+                },
+            )
+        } else {
+            console.warn('Multi-player is not specified, so multi-player is disabled')
+        }
     }
 
     async initialize(canvasElement: HTMLCanvasElement) {
@@ -54,10 +58,10 @@ export class Game {
             backgroundColor: '#FFFFFF',
         })
 
-        if (this.multiPlayerSession.type === 'host') {
-            this.synchronizer.sendGameInitialization()
+        if (this.multiPlayerSession?.type === 'host') {
+            this.synchronizer?.sendGameInitialization()
         } else {
-            await this.synchronizer.waitForGameInitialization()
+            await this.synchronizer?.waitForGameInitialization()
         }
 
         this.entities.forEach(async (entity) => {
@@ -74,21 +78,21 @@ export class Game {
         this.entities.push(entity)
 
         if (entity instanceof CurrentControlledCharacter) {
-            this.synchronizer.syncNewEntity({
+            this.synchronizer?.syncNewEntity({
                 type: 'game/create-entity',
                 entityId: entity.id,
                 entityTypeName: 'remote-character',
                 initialPosition: entity.initialPosition,
             })
         } else if (entity instanceof RemoteCharacter) {
-            this.synchronizer.syncNewEntity({
+            this.synchronizer?.syncNewEntity({
                 type: 'game/create-entity',
                 entityId: entity.id,
                 entityTypeName: 'current-controlled-character',
                 initialPosition: entity.initialPosition,
             })
         } else {
-            this.synchronizer.syncNewEntity({
+            this.synchronizer?.syncNewEntity({
                 type: 'game/create-entity',
                 entityId: entity.id,
                 entityTypeName: entity.typeName,
