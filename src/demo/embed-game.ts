@@ -1,14 +1,10 @@
-import '@/assets/styles/global.css'
+import '@/demo/assets/styles/global.css'
 
-import { createGame } from '@/lib/game'
-import {
-    connectToMultiPlayerSession,
-    createMultiPlayerSession,
-} from '@/lib/utils/webrtc-multiplayer'
+import { connectToMultiPlayerSession, createGame, createMultiPlayerSession } from '@/index'
 
-createDemoGame()
+embedGame()
 
-async function createDemoGame() {
+async function embedGame() {
     const gameCanvas = document.querySelector('#gameCanvas')
 
     if (!gameCanvas || !(gameCanvas instanceof HTMLCanvasElement)) {
