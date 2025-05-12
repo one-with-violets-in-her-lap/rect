@@ -14,8 +14,10 @@ const GAME_CANVAS_HEIGHT = 1000
 const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
 
 function resizeCanvas(canvasElement: HTMLCanvasElement) {
-    const canvasWidthFromAspectRatio = window.innerHeight * gameCanvasAspectRatio
-    const canvasHeightFromAspectRatio = window.innerWidth / gameCanvasAspectRatio
+    const canvasWidthFromAspectRatio =
+        window.innerHeight * gameCanvasAspectRatio
+    const canvasHeightFromAspectRatio =
+        window.innerWidth / gameCanvasAspectRatio
 
     if (canvasWidthFromAspectRatio <= window.innerWidth) {
         canvasElement.style.width = `${canvasWidthFromAspectRatio}px`
