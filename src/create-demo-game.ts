@@ -6,39 +6,43 @@ import {
     createMultiPlayerSession,
 } from '@/lib/utils/webrtc-multiplayer'
 
-const gameCanvas = document.querySelector('#gameCanvas')
+createDemoGame()
 
-if (!gameCanvas || !(gameCanvas instanceof HTMLCanvasElement)) {
-    throw new Error('Game canvas element is missing (#gameCanvas)')
-}
+async function createDemoGame() {
+    const gameCanvas = document.querySelector('#gameCanvas')
 
-const searchParams = new URLSearchParams(window.location.search)
-const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
-const multiPlayerSessionToConnectTo = searchParams.get('connect')
+    if (!gameCanvas || !(gameCanvas instanceof HTMLCanvasElement)) {
+        throw new Error('Game canvas element is missing (#gameCanvas)')
+    }
 
-if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
-    createMultiPlayerSession().then(
-        async ({ sessionId, waitForOtherPlayerConnection }) => {
-            alert(
-                `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
-            )
+    const searchParams = new URLSearchParams(window.location.search)
+    const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
+    const multiPlayerSessionToConnectTo = searchParams.get('connect')
 
-            const multiPlayer = await waitForOtherPlayerConnection()
+    if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
+        createMultiPlayerSession().then(
+            async ({ sessionId, waitForOtherPlayerConnection }) => {
+                alert(
+                    `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
+                )
 
-            const game = await createGame(multiPlayer)
+                const multiPlayer = await waitForOtherPlayerConnection()
 
-            await game.initialize(gameCanvas)
-        },
-    )
-} else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
-    connectToMultiPlayerSession(multiPlayerSessionToConnectTo).then(
-        async (multiPlayer) => {
-            const game = await createGame(multiPlayer)
+                const game = await createGame(multiPlayer)
 
-            await game.initialize(gameCanvas)
-        },
-    )
-} else {
-    const game = await createGame(null)
-    await game.initialize(gameCanvas)
+                await game.initialize(gameCanvas)
+            },
+        )
+    } else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
+        connectToMultiPlayerSession(multiPlayerSessionToConnectTo).then(
+            async (multiPlayer) => {
+                const game = await createGame(multiPlayer)
+
+                await game.initialize(gameCanvas)
+            },
+        )
+    } else {
+        const game = await createGame(null)
+        await game.initialize(gameCanvas)
+    }
 }
