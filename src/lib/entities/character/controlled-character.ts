@@ -56,7 +56,7 @@ export class CurrentControlledCharacter extends GameEntity {
             style: {
                 fill: '#00000050',
                 fontSize: '18px',
-                fontWeight: '800'
+                fontWeight: '800',
             },
             x: pixiObject.width / 2,
             y: CURRENT_CHARACTER_LABEL_Y_OFFSET,

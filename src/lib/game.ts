@@ -9,7 +9,28 @@ import {
     GameSynchronizer,
 } from '@/lib/multi-player-sync/game'
 
-export async function createGame(multiPlayerSession: MultiPlayerSession | null) {
+const GAME_CANVAS_WIDTH = 1900
+const GAME_CANVAS_HEIGHT = 1000
+const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
+
+function resizeCanvas(canvasElement: HTMLCanvasElement) {
+    const canvasWidthFromAspectRatio =
+        window.innerHeight * gameCanvasAspectRatio
+    const canvasHeightFromAspectRatio =
+        window.innerWidth / gameCanvasAspectRatio
+
+    if (canvasWidthFromAspectRatio <= window.innerWidth) {
+        canvasElement.style.width = `${canvasWidthFromAspectRatio}px`
+        canvasElement.style.height = `${window.innerHeight}px`
+    } else {
+        canvasElement.style.width = `${window.innerWidth}px`
+        canvasElement.style.height = `${canvasHeightFromAspectRatio}px`
+    }
+}
+
+export async function createGame(
+    multiPlayerSession: MultiPlayerSession | null,
+) {
     const game = new Game(multiPlayerSession)
 
     if (!multiPlayerSession || multiPlayerSession?.type === 'host') {
@@ -34,6 +55,7 @@ export class Game {
     synchronizer: GameSynchronizer | null = null
 
     private readonly entities: GameEntity[] = []
+    private windowResizeHandler?: VoidFunction
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
@@ -56,7 +78,8 @@ export class Game {
     async initialize(canvasElement: HTMLCanvasElement) {
         await this.pixiApp.init({
             canvas: canvasElement,
-            resizeTo: window,
+            width: GAME_CANVAS_WIDTH,
+            height: GAME_CANVAS_HEIGHT,
             backgroundColor: '#FFFFFF',
         })
 
@@ -66,10 +89,22 @@ export class Game {
             await this.synchronizer?.waitForGameInitialization()
         }
 
+        this.windowResizeHandler = () => resizeCanvas(canvasElement)
+        window.addEventListener('resize', this.windowResizeHandler)
+        this.windowResizeHandler()
+
         this.entities.forEach(async (entity) => {
             this.pixiApp.stage.addChild(await entity.initialize())
             this.pixiApp.ticker.add((ticker) => entity.update(ticker))
         })
+    }
+
+    async destroy() {
+        if (this.windowResizeHandler) {
+            window.removeEventListener('resize', this.windowResizeHandler)
+        }
+
+        this.pixiApp.destroy()
     }
 
     getEntities() {

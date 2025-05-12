@@ -5,3 +5,7 @@
  */
 
 export { createGame } from '@/lib/game'
+export {
+    connectToMultiPlayerSession,
+    createMultiPlayerSession,
+} from '@/lib/utils/webrtc-multiplayer'
