@@ -5,6 +5,8 @@ body {
 }
 
 #gameCanvas {
-    width: 100%;
-    max-height: 100%;
+    display: block;
+    margin: 0 auto;
+    outline: 1px solid rgb(138, 138, 138);
+    height: 100vh;
 }

@@ -9,7 +9,9 @@ import {
     GameSynchronizer,
 } from '@/lib/multi-player-sync/game'
 
-export async function createGame(multiPlayerSession: MultiPlayerSession | null) {
+export async function createGame(
+    multiPlayerSession: MultiPlayerSession | null,
+) {
     const game = new Game(multiPlayerSession)
 
     if (!multiPlayerSession || multiPlayerSession?.type === 'host') {
@@ -56,7 +58,8 @@ export class Game {
     async initialize(canvasElement: HTMLCanvasElement) {
         await this.pixiApp.init({
             canvas: canvasElement,
-            resizeTo: window,
+            width: 1900,
+            height: 900,
             backgroundColor: '#FFFFFF',
         })
 
