@@ -1,6 +1,10 @@
 import '@/demo/assets/styles/global.css'
 
-import { connectToMultiPlayerSession, createGame, createMultiPlayerSession } from '@/index'
+import {
+    connectToMultiPlayerSession,
+    createGame,
+    createMultiPlayerSession,
+} from '@/index'
 
 embedGame()
 
