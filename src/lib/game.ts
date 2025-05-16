@@ -1,4 +1,4 @@
-import { Application, Ticker, TickerCallback } from 'pixi.js'
+import { Application, Rectangle, Ticker, TickerCallback } from 'pixi.js'
 import { GameEntity } from '@/lib/entities'
 import { Obstacle } from '@/lib/entities/obstacle'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
@@ -71,9 +71,7 @@ export class Game {
             this.synchronizer = createGameSynchronizer(
                 this,
                 this.multiPlayerSession,
-                (newEntity) => {
-                    this.entities.push(newEntity)
-                },
+                (newEntity) => this.addEntityToPixiApp(newEntity),
             )
         } else {
             console.warn(
@@ -90,7 +88,13 @@ export class Game {
             backgroundColor: '#FFFFFF',
         })
 
-        this.pixiApp.stage.eventMode = 'static'
+        this.pixiApp.stage.interactive = true
+        this.pixiApp.stage.hitArea = new Rectangle(
+            0,
+            0,
+            GAME_CANVAS_WIDTH,
+            GAME_CANVAS_HEIGHT,
+        )
 
         if (this.multiPlayerSession?.type === 'host') {
             this.synchronizer?.sendGameInitialization()
@@ -102,10 +106,7 @@ export class Game {
         window.addEventListener('resize', this.windowResizeHandler)
         this.windowResizeHandler()
 
-        this.entities.forEach(async (entity) => {
-            this.pixiApp.stage.addChild(await entity.initialize())
-            this.addTickerCallback(entity, (ticker) => entity.update(ticker))
-        })
+        this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
     async destroy() {
@@ -147,12 +148,7 @@ export class Game {
         }
 
         if (this.pixiApp.ticker) {
-            entity.initialize().then((pixiObject) => {
-                this.pixiApp.stage.addChild(pixiObject)
-                this.addTickerCallback(entity, (ticker) =>
-                    entity.update(ticker),
-                )
-            })
+            this.addEntityToPixiApp(entity)
         }
     }
 
@@ -172,5 +168,13 @@ export class Game {
     ) {
         this.tickerCallbacksByEntityId[entity.id] = callback
         this.pixiApp.ticker.add(callback)
+    }
+
+    private async addEntityToPixiApp(entity: GameEntity) {
+        const pixiObject = await entity.initialize()
+
+        this.pixiApp.stage.addChild(pixiObject)
+
+        this.addTickerCallback(entity, (ticker) => entity.update(ticker))
     }
 }

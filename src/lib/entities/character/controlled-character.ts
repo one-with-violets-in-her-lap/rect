@@ -1,6 +1,6 @@
 import characterSpriteImage from '@/assets/images/character-1.png'
 
-import { Assets, Sprite, Text } from 'pixi.js'
+import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
 import { Game } from '@/lib/game'
 import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { KeyBindings } from '@/lib/utils/key-bindings'
@@ -67,9 +67,9 @@ export class CurrentControlledCharacter extends GameEntity {
         })
         currentCharacterLabel.anchor = 0.5
 
-        this.game.pixiApp.canvas.addEventListener(
-            'click',
-            this.shoot.bind(this),
+        this.game.pixiApp.stage.addEventListener(
+            'pointerdown',
+            event => this.shoot(event),
             {
                 signal: this.abortController.signal,
             },
@@ -88,11 +88,11 @@ export class CurrentControlledCharacter extends GameEntity {
         this.abortController?.abort()
     }
 
-    private async shoot(pointerEvent: MouseEvent) {
+    private async shoot(pointerEvent: FederatedPointerEvent) {
         const pixiObject = this.getPixiObjectOrThrow()
 
-        const distanceX = pointerEvent.x - pixiObject.x
-        const distanceY = pointerEvent.y - pixiObject.y
+        const distanceX = pointerEvent.globalX - pixiObject.x
+        const distanceY = pointerEvent.globalY - pixiObject.y
         const aimAngleRadians = Math.atan2(distanceY, distanceX)
 
         const muzzleOffset = pixiObject.width
