@@ -8,22 +8,27 @@ import {
     createGameSynchronizer,
     GameSynchronizer,
 } from '@/lib/multi-player-sync/game'
+import { RectGameError } from '@/lib/utils/errors'
 
 const GAME_CANVAS_WIDTH = 1900
 const GAME_CANVAS_HEIGHT = 1000
 const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
 
 function resizeCanvas(canvasElement: HTMLCanvasElement) {
-    const canvasWidthFromAspectRatio =
-        window.innerHeight * gameCanvasAspectRatio
-    const canvasHeightFromAspectRatio =
-        window.innerWidth / gameCanvasAspectRatio
+    if (!canvasElement.parentElement) {
+        throw new RectGameError('Canvas element must have a container')
+    }
 
-    if (canvasWidthFromAspectRatio <= window.innerWidth) {
+    const canvasWidthFromAspectRatio =
+        canvasElement.parentElement.clientHeight * gameCanvasAspectRatio
+    const canvasHeightFromAspectRatio =
+        canvasElement.parentElement.clientWidth / gameCanvasAspectRatio
+
+    if (canvasWidthFromAspectRatio <= canvasElement.parentElement.clientWidth) {
         canvasElement.style.width = `${canvasWidthFromAspectRatio}px`
-        canvasElement.style.height = `${window.innerHeight}px`
+        canvasElement.style.height = `${canvasElement.parentElement.clientHeight}px`
     } else {
-        canvasElement.style.width = `${window.innerWidth}px`
+        canvasElement.style.width = `${canvasElement.parentElement.clientWidth}px`
         canvasElement.style.height = `${canvasHeightFromAspectRatio}px`
     }
 }
