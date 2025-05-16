@@ -9,6 +9,7 @@ import {
 } from '@/lib/utils/webrtc-multiplayer'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
 import { Position } from '@/lib/utils/position'
+import { Bullet } from '@/lib/entities/bullet'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
@@ -27,6 +28,7 @@ export interface GameSynchronizer {
     waitForGameInitialization(): Promise<void>
 }
 
+// TODO: remove code duplication by just dynamically passing params in GameEntity constructor
 const entityCreatorsByType: Record<
     CreateEntityPacket['entityTypeName'],
     (game: Game, createEntityPacket: CreateEntityPacket) => GameEntity
@@ -45,6 +47,12 @@ const entityCreatorsByType: Record<
         ),
     'current-controlled-character': (game, createEntityPacket) =>
         new CurrentControlledCharacter(
+            game,
+            createEntityPacket.initialPosition,
+            createEntityPacket.entityId,
+        ),
+    bullet: (game, createEntityPacket) =>
+        new Bullet(
             game,
             createEntityPacket.initialPosition,
             createEntityPacket.entityId,
