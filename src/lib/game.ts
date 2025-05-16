@@ -11,7 +11,7 @@ import {
 import { RectGameError } from '@/lib/utils/errors'
 
 const GAME_CANVAS_WIDTH = 1900
-const GAME_CANVAS_HEIGHT = 1000
+const GAME_CANVAS_HEIGHT = 950
 const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
 
 function resizeCanvas(canvasElement: HTMLCanvasElement) {
