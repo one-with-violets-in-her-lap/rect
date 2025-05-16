@@ -21,15 +21,21 @@ export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
  *
  * This function automatically filters out the target entity from `allEntities`,
  * so you don't need to it yourself
- *
- * @returns `false` if there are **no** collisions, otherwise `false`
  */
 export function checkIfNewEntityPositionColliding(
     targetEntityToCheck: GameEntity,
     newPositionToCheck: { x: number; y: number },
     allEntities: GameEntity[],
-) {
-    return allEntities.some((entity) => {
+):
+    | {
+          isColliding: true
+          collidingEntity: GameEntity
+      }
+    | {
+          isColliding: false
+          collidingEntity: null
+      } {
+    const collidingEntity = allEntities.find((entity) => {
         if (entity === targetEntityToCheck) {
             return false
         }
@@ -46,4 +52,14 @@ export function checkIfNewEntityPositionColliding(
             ),
         )
     })
+
+    return collidingEntity
+        ? {
+              collidingEntity,
+              isColliding: true,
+          }
+        : {
+              collidingEntity: null,
+              isColliding: false,
+          }
 }

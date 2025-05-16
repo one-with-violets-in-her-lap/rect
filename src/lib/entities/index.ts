@@ -79,7 +79,10 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     protected abstract load(): Promise<TPixiObject> | TPixiObject
 
-    abstract destroy(): Promise<void> | void
+    async destroy() {
+        this.pixiObject?.destroy()
+        this.game.deleteEntity(this)
+    }
 
     update(ticker: Ticker) {
         if (!this.pixiObject) {
@@ -139,11 +142,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 newPosition.x < 0)
 
         if (
-            hasCollisionsWithObjects ||
+            hasCollisionsWithObjects.isColliding ||
             hasCollisionsWithYScreenBounds ||
             hasCollisionsWithXScreenBounds
         ) {
-            throw new CollisionError()
+            throw new CollisionError(hasCollisionsWithObjects.collidingEntity)
         }
 
         if (newPosition.x) {

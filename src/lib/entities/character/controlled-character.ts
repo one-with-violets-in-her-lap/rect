@@ -82,18 +82,11 @@ export class CurrentControlledCharacter extends GameEntity {
     }
 
     async destroy() {
-        if (!this.pixiObject) {
-            throw new NotInitializedError(
-                'Character sprite pixi object was not ' +
-                    'initialized, so it cannot be destroyed',
-            )
-        }
+        super.destroy()
 
         this.keyBindings.disposeEventListeners()
 
         this.abortController?.abort()
-
-        this.pixiObject.destroy()
     }
 
     private async shoot(pointerEvent: MouseEvent) {

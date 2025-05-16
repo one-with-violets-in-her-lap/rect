@@ -1,7 +1,7 @@
 import bulletSpriteImage from '@/assets/images/bullet.png'
 
 import { EntityTypeName, GameEntity } from '@/lib/entities'
-import { NotInitializedError } from '@/lib/utils/errors'
+import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 
 const BULLET_VELOCITY = 60
@@ -36,19 +36,14 @@ export class Bullet extends GameEntity {
 
         try {
             this.updatePositionRespectingCollisions({ x: newX, y: newY })
-        } catch (error) {}
-
-        return pixiObject
-    }
-
-    destroy() {
-        if (!this.pixiObject) {
-            throw new NotInitializedError(
-                'Character sprite pixi object was not ' +
-                    'initialized, so it cannot be destroyed',
-            )
+        } catch (error) {
+            if (error instanceof CollisionError) {
+                this.destroy()
+            } else {
+                throw error
+            }
         }
 
-        this.pixiObject.destroy()
+        return pixiObject
     }
 }

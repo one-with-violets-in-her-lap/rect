@@ -1,4 +1,4 @@
-import { Application } from 'pixi.js'
+import { Application, Ticker, TickerCallback } from 'pixi.js'
 import { GameEntity } from '@/lib/entities'
 import { Obstacle } from '@/lib/entities/obstacle'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
@@ -59,7 +59,9 @@ export class Game {
 
     synchronizer: GameSynchronizer | null = null
 
-    private readonly entities: GameEntity[] = []
+    private entities: GameEntity[] = []
+    private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
+        {}
     private windowResizeHandler?: VoidFunction
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
@@ -102,7 +104,7 @@ export class Game {
 
         this.entities.forEach(async (entity) => {
             this.pixiApp.stage.addChild(await entity.initialize())
-            this.pixiApp.ticker.add((ticker) => entity.update(ticker))
+            this.addTickerCallback(entity, (ticker) => entity.update(ticker))
         })
     }
 
@@ -147,8 +149,28 @@ export class Game {
         if (this.pixiApp.ticker) {
             entity.initialize().then((pixiObject) => {
                 this.pixiApp.stage.addChild(pixiObject)
-                this.pixiApp.ticker.add((ticker) => entity.update(ticker))
+                this.addTickerCallback(entity, (ticker) =>
+                    entity.update(ticker),
+                )
             })
         }
+    }
+
+    deleteEntity(entityToDelete: GameEntity) {
+        this.entities = this.entities.filter(
+            (entity) => entity.id !== entityToDelete.id,
+        )
+
+        this.pixiApp.ticker.remove(
+            this.tickerCallbacksByEntityId[entityToDelete.id],
+        )
+    }
+
+    private addTickerCallback(
+        entity: GameEntity,
+        callback: TickerCallback<Ticker>,
+    ) {
+        this.tickerCallbacksByEntityId[entity.id] = callback
+        this.pixiApp.ticker.add(callback)
     }
 }
