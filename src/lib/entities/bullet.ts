@@ -4,6 +4,8 @@ import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { NotInitializedError } from '@/lib/utils/errors'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 
+const BULLET_VELOCITY = 60
+
 export class Bullet extends GameEntity {
     typeName: EntityTypeName = 'bullet'
     options = { enableCollision: true, enableGravity: false }
@@ -21,11 +23,20 @@ export class Bullet extends GameEntity {
     }
 
     update(ticker: Ticker) {
-        console.log(this.pixiObject)
         const pixiObject = super.update(ticker)
 
         pixiObject.rotation = this.radiansAngle
-        this.movementStatus.isMovingRight = true
+
+        const newX =
+            pixiObject.x +
+            Math.cos(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
+        const newY =
+            pixiObject.y +
+            Math.sin(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
+
+        try {
+            this.updatePositionRespectingCollisions({ x: newX, y: newY })
+        } catch (error) {}
 
         return pixiObject
     }

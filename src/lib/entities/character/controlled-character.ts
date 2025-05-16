@@ -98,17 +98,27 @@ export class CurrentControlledCharacter extends GameEntity {
 
     private async shoot(pointerEvent: MouseEvent) {
         const pixiObject = this.getPixiObjectOrThrow()
-        const bulletRadians = Math.atan2(
-            pointerEvent.y - pixiObject.y,
-            pointerEvent.x - pixiObject.x,
-        )
+
+        const distanceX = pointerEvent.x - pixiObject.x
+        const distanceY = pointerEvent.y - pixiObject.y
+        const aimAngleRadians = Math.atan2(distanceY, distanceX)
+
+        const muzzleOffset = pixiObject.width
+
+        const xMoveAmount = Math.cos(aimAngleRadians)
+        const yMoveAmount = Math.sin(aimAngleRadians)
+
+        const bulletX =
+            pixiObject.x + xMoveAmount * (xMoveAmount >= 0 ? muzzleOffset : 1)
+        const bulletY =
+            pixiObject.y + yMoveAmount * (yMoveAmount >= 0 ? muzzleOffset : 1)
 
         const bullet = new Bullet(this.game, {
-            x: pixiObject.x + 150,
-            y: pixiObject.y,
+            x: bulletX,
+            y: bulletY,
         })
+        bullet.radiansAngle = aimAngleRadians
         await bullet.initialize()
-        bullet.radiansAngle = bulletRadians
 
         this.game.addEntity(bullet)
     }

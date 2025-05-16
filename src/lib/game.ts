@@ -146,10 +146,9 @@ export class Game {
 
         if (this.pixiApp.ticker) {
             entity.initialize().then((pixiObject) => {
-            console.log(this.pixiApp)
-            this.pixiApp.stage.addChild(pixiObject)
-            this.pixiApp.ticker.add((ticker) => entity.update(ticker))
-        })
+                this.pixiApp.stage.addChild(pixiObject)
+                this.pixiApp.ticker.add((ticker) => entity.update(ticker))
+            })
         }
     }
 }
