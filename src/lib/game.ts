@@ -88,6 +88,8 @@ export class Game {
             backgroundColor: '#FFFFFF',
         })
 
+        this.pixiApp.stage.eventMode = 'static'
+
         if (this.multiPlayerSession?.type === 'host') {
             this.synchronizer?.sendGameInitialization()
         } else {
@@ -140,6 +142,14 @@ export class Game {
                 entityTypeName: entity.typeName,
                 initialPosition: entity.initialPosition,
             })
+        }
+
+        if (this.pixiApp.ticker) {
+            entity.initialize().then((pixiObject) => {
+            console.log(this.pixiApp)
+            this.pixiApp.stage.addChild(pixiObject)
+            this.pixiApp.ticker.add((ticker) => entity.update(ticker))
+        })
         }
     }
 }

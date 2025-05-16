@@ -6,6 +6,7 @@ import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { NotInitializedError } from '@/lib/utils/errors'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 import { Position } from '@/lib/utils/position'
+import { Bullet } from '@/lib/entities/bullet'
 
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
@@ -20,6 +21,8 @@ export class CurrentControlledCharacter extends GameEntity {
     options = { enableCollision: true, enableGravity: true }
 
     keyBindings: KeyBindings
+
+    private abortController?: AbortController
 
     constructor(game: Game, initialPosition: Position, id?: string) {
         super(game, initialPosition, id)
@@ -45,6 +48,8 @@ export class CurrentControlledCharacter extends GameEntity {
     }
 
     async load() {
+        this.abortController = new AbortController()
+
         this.keyBindings.initializeEventListeners()
 
         await Assets.load(characterSpriteImage)
@@ -63,6 +68,14 @@ export class CurrentControlledCharacter extends GameEntity {
         })
         currentCharacterLabel.anchor = 0.5
 
+        this.game.pixiApp.canvas.addEventListener(
+            'click',
+            this.shoot.bind(this),
+            {
+                signal: this.abortController.signal,
+            },
+        )
+
         pixiObject.addChild(currentCharacterLabel)
 
         return pixiObject
@@ -78,6 +91,25 @@ export class CurrentControlledCharacter extends GameEntity {
 
         this.keyBindings.disposeEventListeners()
 
+        this.abortController?.abort()
+
         this.pixiObject.destroy()
+    }
+
+    private async shoot(pointerEvent: MouseEvent) {
+        const pixiObject = this.getPixiObjectOrThrow()
+        const bulletRadians = Math.atan2(
+            pointerEvent.y - pixiObject.y,
+            pointerEvent.x - pixiObject.x,
+        )
+
+        const bullet = new Bullet(this.game, {
+            x: pixiObject.x + 150,
+            y: pixiObject.y,
+        })
+        await bullet.initialize()
+        bullet.radiansAngle = bulletRadians
+
+        this.game.addEntity(bullet)
     }
 }

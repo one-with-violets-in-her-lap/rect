@@ -12,6 +12,7 @@ export type EntityTypeName =
     | 'obstacle'
     | 'remote-character'
     | 'current-controlled-character'
+    | 'bullet'
 
 export interface EntityMovement {
     isMovingLeft: boolean
