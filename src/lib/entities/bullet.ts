@@ -1,7 +1,7 @@
 import bulletSpriteImage from '@/assets/images/bullet.png'
 
 import { EntityTypeName, GameEntity } from '@/lib/entities'
-import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
+import { CollisionError } from '@/lib/utils/errors'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 
 const BULLET_VELOCITY = 60
