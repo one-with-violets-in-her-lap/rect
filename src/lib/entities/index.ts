@@ -10,7 +10,6 @@ import {
 
 export type EntityTypeName =
     | 'obstacle'
-    | 'remote-character'
     | 'current-controlled-character'
     | 'bullet'
 
@@ -54,6 +53,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         protected readonly game: Game,
         readonly initialPosition: Position,
         id?: string,
+        readonly isRemote = false,
     ) {
         this.id = id || crypto.randomUUID()
 
@@ -62,7 +62,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 this,
                 this.game.multiPlayerSession,
                 (newPosition) => {
-                    console.log(newPosition)
                     this.getPixiObjectOrThrow().position = newPosition
                 },
             )
@@ -92,11 +91,13 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             )
         }
 
-        if (this.options.enableGravity) {
-            this.applyGravity(ticker, this.pixiObject)
-        }
+        if (!this.isRemote) {
+            if (this.options.enableGravity) {
+                this.applyGravity(ticker, this.pixiObject)
+            }
 
-        this.moveHorizontallyIfNeeded(this.pixiObject, ticker)
+            this.moveHorizontallyIfNeeded(this.pixiObject, ticker)
+        }
 
         return this.pixiObject
     }

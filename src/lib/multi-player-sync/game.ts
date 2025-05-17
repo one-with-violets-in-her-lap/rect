@@ -1,7 +1,6 @@
 import { Game } from '@/lib/game'
 import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { Obstacle } from '@/lib/entities/obstacle'
-import { RemoteCharacter } from '@/lib/entities/character/remote-character'
 import {
     addPacketHandler,
     MultiPlayerPacket,
@@ -16,6 +15,7 @@ interface CreateEntityPacket extends MultiPlayerPacket {
     entityTypeName: EntityTypeName
     entityId: string
     initialPosition: Position
+    isRemote: boolean
 }
 
 interface GameInitializationCompletedPacket extends MultiPlayerPacket {
@@ -38,24 +38,21 @@ const entityCreatorsByType: Record<
             game,
             createEntityPacket.initialPosition,
             createEntityPacket.entityId,
-        ),
-    'remote-character': (game, createEntityPacket) =>
-        new RemoteCharacter(
-            game,
-            createEntityPacket.initialPosition,
-            createEntityPacket.entityId,
+            createEntityPacket.isRemote,
         ),
     'current-controlled-character': (game, createEntityPacket) =>
         new CurrentControlledCharacter(
             game,
             createEntityPacket.initialPosition,
             createEntityPacket.entityId,
+            createEntityPacket.isRemote,
         ),
     bullet: (game, createEntityPacket) =>
         new Bullet(
             game,
             createEntityPacket.initialPosition,
             createEntityPacket.entityId,
+            createEntityPacket.isRemote,
         ),
 }
 

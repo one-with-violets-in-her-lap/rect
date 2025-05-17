@@ -23,8 +23,13 @@ export class CurrentControlledCharacter extends GameEntity {
 
     private abortController?: AbortController
 
-    constructor(game: Game, initialPosition: Position, id?: string) {
-        super(game, initialPosition, id)
+    constructor(
+        game: Game,
+        initialPosition: Position,
+        id?: string,
+        isRemote = false,
+    ) {
+        super(game, initialPosition, id, isRemote)
 
         this.keyBindings = new KeyBindings([
             {
@@ -49,33 +54,33 @@ export class CurrentControlledCharacter extends GameEntity {
     async load() {
         this.abortController = new AbortController()
 
-        this.keyBindings.initializeEventListeners()
-
         await Assets.load(characterSpriteImage)
 
         const pixiObject = Sprite.from(characterSpriteImage)
 
-        const currentCharacterLabel = new Text({
-            text: 'You',
-            style: {
-                fill: '#00000050',
-                fontSize: '18px',
-                fontWeight: '800',
-            },
-            x: pixiObject.width / 2,
-            y: CURRENT_CHARACTER_LABEL_Y_OFFSET,
-        })
-        currentCharacterLabel.anchor = 0.5
+        if (!this.isRemote) {
+            const currentCharacterLabel = new Text({
+                text: 'You',
+                style: {
+                    fill: '#00000050',
+                    fontSize: '18px',
+                    fontWeight: '800',
+                },
+                x: pixiObject.width / 2,
+                y: CURRENT_CHARACTER_LABEL_Y_OFFSET,
+            })
+            currentCharacterLabel.anchor = 0.5
+            pixiObject.addChild(currentCharacterLabel)
 
-        this.game.pixiApp.stage.addEventListener(
-            'pointerdown',
-            event => this.shoot(event),
-            {
-                signal: this.abortController.signal,
-            },
-        )
-
-        pixiObject.addChild(currentCharacterLabel)
+            this.game.pixiApp.stage.addEventListener(
+                'pointerdown',
+                (event) => this.shoot(event),
+                {
+                    signal: this.abortController.signal,
+                },
+            )
+            this.keyBindings.initializeEventListeners()
+        }
 
         return pixiObject
     }
@@ -112,6 +117,6 @@ export class CurrentControlledCharacter extends GameEntity {
         bullet.radiansAngle = aimAngleRadians
         await bullet.initialize()
 
-        this.game.addEntity(bullet)
+        this.game.addEntityAndSyncMultiPlayer(bullet)
     }
 }

@@ -25,22 +25,24 @@ export class Bullet extends GameEntity {
     update(ticker: Ticker) {
         const pixiObject = super.update(ticker)
 
-        pixiObject.rotation = this.radiansAngle
+        if (!this.isRemote) {
+            pixiObject.rotation = this.radiansAngle
 
-        const newX =
-            pixiObject.x +
-            Math.cos(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
-        const newY =
-            pixiObject.y +
-            Math.sin(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
+            const newX =
+                pixiObject.x +
+                Math.cos(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
+            const newY =
+                pixiObject.y +
+                Math.sin(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
 
-        try {
-            this.updatePositionRespectingCollisions({ x: newX, y: newY })
-        } catch (error) {
-            if (error instanceof CollisionError) {
-                this.destroy()
-            } else {
-                throw error
+            try {
+                this.updatePositionRespectingCollisions({ x: newX, y: newY })
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    this.destroy()
+                } else {
+                    throw error
+                }
             }
         }
 

@@ -2,7 +2,6 @@ import { Application, Rectangle, Ticker, TickerCallback } from 'pixi.js'
 import { GameEntity } from '@/lib/entities'
 import { Obstacle } from '@/lib/entities/obstacle'
 import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
-import { RemoteCharacter } from '@/lib/entities/character/remote-character'
 import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
@@ -38,17 +37,21 @@ export async function createGame(
 ) {
     const game = new Game(multiPlayerSession)
 
-    if (!multiPlayerSession || multiPlayerSession?.type === 'host') {
-        game.addEntity(new CurrentControlledCharacter(game, { x: 0, y: 0 }))
-
-        game.addEntity(
-            new RemoteCharacter(
-                game,
-                { x: 500, y: 0 }, // TODO: fix hard-coded position
-            ),
+    if (!multiPlayerSession || multiPlayerSession.type === 'host') {
+        game.addEntityAndSyncMultiPlayer(
+            new CurrentControlledCharacter(game, { x: 0, y: 0 }),
         )
 
-        game.addEntity(new Obstacle(game, { x: 0, y: 700 }))
+        game.addEntityAndSyncMultiPlayer(new Obstacle(game, { x: 0, y: 700 }))
+
+        game.addEntityAndSyncMultiPlayer(
+            new CurrentControlledCharacter(
+                game,
+                { x: 500, y: 0 }, // TODO: fix hard-coded position
+                undefined,
+                true,
+            ),
+        )
     }
 
     return game
@@ -75,6 +78,7 @@ export class Game {
                 this,
                 this.multiPlayerSession,
                 (newEntity) => {
+                    console.log(newEntity)
                     this.entities.push(newEntity)
                     this.addEntityToPixiApp(newEntity)
                 },
@@ -94,8 +98,6 @@ export class Game {
             backgroundColor: '#FFFFFF',
         })
 
-        this.initialized = true
-
         this.pixiApp.stage.interactive = true
         this.pixiApp.stage.hitArea = new Rectangle(
             0,
@@ -114,6 +116,7 @@ export class Game {
         window.addEventListener('resize', this.windowResizeHandler)
         this.windowResizeHandler()
 
+        this.initialized = true
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
@@ -129,31 +132,16 @@ export class Game {
         return this.entities
     }
 
-    addEntity(entity: GameEntity) {
+    addEntityAndSyncMultiPlayer(entity: GameEntity) {
         this.entities.push(entity)
 
-        if (entity instanceof CurrentControlledCharacter) {
-            this.synchronizer?.syncNewEntity({
-                type: 'game/create-entity',
-                entityId: entity.id,
-                entityTypeName: 'remote-character',
-                initialPosition: entity.initialPosition,
-            })
-        } else if (entity instanceof RemoteCharacter) {
-            this.synchronizer?.syncNewEntity({
-                type: 'game/create-entity',
-                entityId: entity.id,
-                entityTypeName: 'current-controlled-character',
-                initialPosition: entity.initialPosition,
-            })
-        } else {
-            this.synchronizer?.syncNewEntity({
-                type: 'game/create-entity',
-                entityId: entity.id,
-                entityTypeName: entity.typeName,
-                initialPosition: entity.initialPosition,
-            })
-        }
+        this.synchronizer?.syncNewEntity({
+            type: 'game/create-entity',
+            entityId: entity.id,
+            entityTypeName: entity.typeName,
+            initialPosition: entity.initialPosition,
+            isRemote: !entity.isRemote,
+        })
 
         this.addEntityToPixiApp(entity)
     }
