@@ -37,6 +37,7 @@ export class Bullet extends GameEntity {
 
             try {
                 this.updatePositionRespectingCollisions({ x: newX, y: newY })
+                this.syncStateWithMultiPlayer(pixiObject)
             } catch (error) {
                 if (error instanceof CollisionError) {
                     this.destroy()
@@ -44,8 +45,6 @@ export class Bullet extends GameEntity {
                     throw error
                 }
             }
-
-            this.syncStateWithMultiPlayer(pixiObject)
         }
 
         return pixiObject
