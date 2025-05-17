@@ -57,15 +57,15 @@ export async function createGame(
 
 export class Game {
     pixiApp: Application
-
     synchronizer: GameSynchronizer | null = null
+
+    doOnStop: VoidFunction | null = null
 
     entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
 
     private windowResizeHandler?: VoidFunction
-
     private initialized = false
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
@@ -115,6 +115,11 @@ export class Game {
 
     async stopWithAnimation() {
         this.pixiApp.ticker.speed = 0.3
+
+        if (this.doOnStop) {
+            this.doOnStop()
+        }
+
         setTimeout(() => {
             this.pixiApp.stop()
         }, 1000)
@@ -146,6 +151,21 @@ export class Game {
         this.addEntityToPixiApp(entity)
     }
 
+    async addEntityToPixiApp(entity: GameEntity) {
+        if (this.initialized) {
+            const pixiObject = await entity.initialize()
+
+            this.pixiApp.stage.addChild(pixiObject)
+
+            this.addTickerCallback(entity, (ticker) => entity.update(ticker))
+        } else {
+            console.log(
+                'Adding entity to an app operation was deferred until the app will' +
+                    ' be initialized',
+            )
+        }
+    }
+
     async destroyEntity(
         entityToDelete: GameEntity,
         syncWithMultiPlayer = true,
@@ -162,21 +182,6 @@ export class Game {
 
         if (syncWithMultiPlayer) {
             this.synchronizer?.syncEntityDestroy(entityToDelete.id)
-        }
-    }
-
-    async addEntityToPixiApp(entity: GameEntity) {
-        if (this.initialized) {
-            const pixiObject = await entity.initialize()
-
-            this.pixiApp.stage.addChild(pixiObject)
-
-            this.addTickerCallback(entity, (ticker) => entity.update(ticker))
-        } else {
-            console.log(
-                'Adding entity to an app operation was deferred until the app will' +
-                    ' be initialized',
-            )
         }
     }
 
