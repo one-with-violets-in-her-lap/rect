@@ -51,6 +51,7 @@ export class Character extends GameEntity {
 
         if (this.health === 0) {
             this.game.destroyEntity(this)
+            this.game.stopWithAnimation()
         }
     }
 

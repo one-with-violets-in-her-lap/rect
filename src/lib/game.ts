@@ -113,6 +113,13 @@ export class Game {
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
+    async stopWithAnimation() {
+        this.pixiApp.ticker.speed = 0.3
+        setTimeout(() => {
+            this.pixiApp.stop()
+        }, 1000)
+    }
+
     async destroy() {
         if (this.windowResizeHandler) {
             window.removeEventListener('resize', this.windowResizeHandler)
