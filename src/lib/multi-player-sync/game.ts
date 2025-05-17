@@ -9,7 +9,7 @@ import {
 import { Character } from '@/lib/entities/character'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
-import { MultiPlayerError, RectGameError } from '@/lib/utils/errors'
+import { MultiPlayerError } from '@/lib/utils/errors'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'

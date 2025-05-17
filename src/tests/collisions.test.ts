@@ -13,8 +13,6 @@ class MockedGameEntity extends GameEntity {
     load() {
         return new Sprite({ width: 20, height: 20 })
     }
-
-    cleanup() {}
 }
 
 test('Check collision detection between 3 entities', async () => {
@@ -34,21 +32,28 @@ test('Check collision detection between 3 entities', async () => {
 
     const entities = [entityToCollide1, entityToCollide2, entityNotToCollide]
 
+    const collisionInfo1 = checkIfNewEntityPositionColliding(
+        entityToCollide1,
+        ENTITY_1_POSITION_UPDATE,
+        entities,
+    )
     expect(
-        checkIfNewEntityPositionColliding(
-            entityToCollide1,
-            ENTITY_1_POSITION_UPDATE,
-            entities,
-        ),
-        `Entity 1 position update to ${JSON.stringify(ENTITY_1_POSITION_UPDATE)} must be identified as collision`,
-    ).toBe(true)
+        collisionInfo1.isColliding === true &&
+            collisionInfo1.collidingEntity !== null,
+        `Entity 1 position update to ${JSON.stringify(ENTITY_1_POSITION_UPDATE)} must ` +
+            `be identified as collision and the check must return a collidingEntity`,
+    ) // TODO: check if colliding entity is the expected one
 
+    const collisionInfo2 = checkIfNewEntityPositionColliding(
+        entityNotToCollide,
+        ENTITY_3_POSITION_UPDATE,
+        entities,
+    )
     expect(
-        checkIfNewEntityPositionColliding(
-            entityNotToCollide,
-            ENTITY_3_POSITION_UPDATE,
-            entities,
-        ),
-        `Entity 3 position update to ${JSON.stringify(ENTITY_3_POSITION_UPDATE)} must NOT be identified as collision`,
-    ).toBe(false)
+        collisionInfo2.isColliding === false &&
+            collisionInfo2.collidingEntity === false,
+        `Entity 3 position update to ${JSON.stringify(ENTITY_3_POSITION_UPDATE)} must ` +
+            `NOT be identified as collision and the check result must NOT have ` +
+            `collidingEntity returned (must be null)`,
+    )
 })
