@@ -40,7 +40,7 @@ export class Bullet extends GameEntity {
                 this.syncStateWithMultiPlayer(pixiObject)
             } catch (error) {
                 if (error instanceof CollisionError) {
-                    this.destroy()
+                    this.game.destroyEntity(this)
                 } else {
                     throw error
                 }

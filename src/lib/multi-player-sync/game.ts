@@ -9,6 +9,7 @@ import {
 import { Character } from '@/lib/entities/character'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
+import { RectGameError } from '@/lib/utils/errors'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
@@ -22,8 +23,14 @@ interface GameInitializationCompletedPacket extends MultiPlayerPacket {
     type: 'game/initialization-completed'
 }
 
+interface DestroyEntityPacket extends MultiPlayerPacket {
+    type: 'game/destroy-entity'
+    entityId: string
+}
+
 export interface GameSynchronizer {
     syncNewEntity(newEntityPacket: CreateEntityPacket): void
+    syncEntityDestroy(entityId: string): void
     sendGameInitialization(): void
     waitForGameInitialization(): Promise<void>
 }
@@ -59,18 +66,46 @@ const entityCreatorsByType: Record<
 export function createGameSynchronizer(
     game: Game,
     multiPlayerSession: MultiPlayerSession,
-    addNewEntity: (entities: GameEntity) => void,
 ): GameSynchronizer {
     addPacketHandler(
         multiPlayerSession.receiveConnection,
         'game/create-entity',
-        (packet: CreateEntityPacket) =>
-            addNewEntity(createEntityFromPacket(game, packet)),
+        (packet: CreateEntityPacket) => {
+            const entity = createEntityFromPacket(game, packet)
+            game.entities.push(entity)
+            game.addEntityToPixiApp(entity)
+        },
+    )
+
+    addPacketHandler(
+        multiPlayerSession.receiveConnection,
+        'game/destroy-entity',
+        (packet: DestroyEntityPacket) => {
+            console.log(game.entities)
+            const entity = game.entities.find(
+                (entity) => entity.id === packet.entityId,
+            )
+
+            if (!entity) {
+                throw new RectGameError()
+            }
+
+            game.destroyEntity(entity, false)
+        },
     )
 
     return {
         syncNewEntity(newEntityPacket) {
             multiPlayerSession.sendConnection.send(newEntityPacket)
+        },
+
+        syncEntityDestroy(entityId) {
+            const destroyPacket: DestroyEntityPacket = {
+                type: 'game/destroy-entity',
+                entityId,
+            }
+
+            multiPlayerSession.sendConnection.send(destroyPacket)
         },
 
         sendGameInitialization() {

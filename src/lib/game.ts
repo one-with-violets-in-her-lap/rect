@@ -38,9 +38,7 @@ export async function createGame(
     const game = new Game(multiPlayerSession)
 
     if (!multiPlayerSession || multiPlayerSession.type === 'host') {
-        game.addEntityAndSyncMultiPlayer(
-            new Character(game, { x: 0, y: 0 }),
-        )
+        game.addEntityAndSyncMultiPlayer(new Character(game, { x: 0, y: 0 }))
 
         game.addEntityAndSyncMultiPlayer(new Obstacle(game, { x: 0, y: 700 }))
 
@@ -62,7 +60,7 @@ export class Game {
 
     synchronizer: GameSynchronizer | null = null
 
-    private entities: GameEntity[] = []
+    entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
 
@@ -77,11 +75,6 @@ export class Game {
             this.synchronizer = createGameSynchronizer(
                 this,
                 this.multiPlayerSession,
-                (newEntity) => {
-                    console.log(newEntity)
-                    this.entities.push(newEntity)
-                    this.addEntityToPixiApp(newEntity)
-                },
             )
         } else {
             console.warn(
@@ -146,25 +139,26 @@ export class Game {
         this.addEntityToPixiApp(entity)
     }
 
-    deleteEntity(entityToDelete: GameEntity) {
+    async destroyEntity(
+        entityToDelete: GameEntity,
+        syncWithMultiPlayer = true,
+    ) {
+        this.pixiApp.ticker.remove(
+            this.tickerCallbacksByEntityId[entityToDelete.id],
+        )
+
         this.entities = this.entities.filter(
             (entity) => entity.id !== entityToDelete.id,
         )
 
-        this.pixiApp.ticker.remove(
-            this.tickerCallbacksByEntityId[entityToDelete.id],
-        )
+        entityToDelete.cleanup()
+
+        if (syncWithMultiPlayer) {
+            this.synchronizer?.syncEntityDestroy(entityToDelete.id)
+        }
     }
 
-    private addTickerCallback(
-        entity: GameEntity,
-        callback: TickerCallback<Ticker>,
-    ) {
-        this.tickerCallbacksByEntityId[entity.id] = callback
-        this.pixiApp.ticker.add(callback)
-    }
-
-    private async addEntityToPixiApp(entity: GameEntity) {
+    async addEntityToPixiApp(entity: GameEntity) {
         if (this.initialized) {
             const pixiObject = await entity.initialize()
 
@@ -173,9 +167,17 @@ export class Game {
             this.addTickerCallback(entity, (ticker) => entity.update(ticker))
         } else {
             console.log(
-                'Adding entity to app operation was deferred until the app will' +
+                'Adding entity to an app operation was deferred until the app will' +
                     ' be initialized',
             )
         }
+    }
+
+    private addTickerCallback(
+        entity: GameEntity,
+        callback: TickerCallback<Ticker>,
+    ) {
+        this.tickerCallbacksByEntityId[entity.id] = callback
+        this.pixiApp.ticker.add(callback)
     }
 }

@@ -79,8 +79,8 @@ export class Character extends GameEntity {
         return pixiObject
     }
 
-    async destroy() {
-        super.destroy()
+    async cleanup() {
+        super.cleanup()
 
         this.keyBindings.disposeEventListeners()
 

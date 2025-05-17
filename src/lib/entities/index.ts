@@ -72,9 +72,8 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     protected abstract load(): Promise<TPixiObject> | TPixiObject
 
-    async destroy() {
+    async cleanup() {
         this.pixiObject?.destroy()
-        this.game.deleteEntity(this)
     }
 
     update(ticker: Ticker) {

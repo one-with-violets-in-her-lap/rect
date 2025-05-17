@@ -14,7 +14,7 @@ class MockedGameEntity extends GameEntity {
         return new Sprite({ width: 20, height: 20 })
     }
 
-    destroy() {}
+    cleanup() {}
 }
 
 test('Check collision detection between 3 entities', async () => {
