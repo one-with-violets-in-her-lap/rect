@@ -10,7 +10,7 @@ import {
 
 export type EntityTypeName =
     | 'obstacle'
-    | 'current-controlled-character'
+    | 'character'
     | 'bullet'
 
 export interface EntityMovement {

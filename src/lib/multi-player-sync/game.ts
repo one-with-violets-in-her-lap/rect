@@ -6,7 +6,7 @@ import {
     MultiPlayerPacket,
     MultiPlayerSession,
 } from '@/lib/utils/webrtc-multiplayer'
-import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
+import { Character } from '@/lib/entities/character'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
 
@@ -40,8 +40,8 @@ const entityCreatorsByType: Record<
             createEntityPacket.entityId,
             createEntityPacket.isRemote,
         ),
-    'current-controlled-character': (game, createEntityPacket) =>
-        new CurrentControlledCharacter(
+    character: (game, createEntityPacket) =>
+        new Character(
             game,
             createEntityPacket.initialPosition,
             createEntityPacket.entityId,

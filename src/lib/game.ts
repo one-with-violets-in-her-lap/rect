@@ -1,7 +1,7 @@
 import { Application, Rectangle, Ticker, TickerCallback } from 'pixi.js'
 import { GameEntity } from '@/lib/entities'
 import { Obstacle } from '@/lib/entities/obstacle'
-import { CurrentControlledCharacter } from '@/lib/entities/character/controlled-character'
+import { Character } from '@/lib/entities/character'
 import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
@@ -39,13 +39,13 @@ export async function createGame(
 
     if (!multiPlayerSession || multiPlayerSession.type === 'host') {
         game.addEntityAndSyncMultiPlayer(
-            new CurrentControlledCharacter(game, { x: 0, y: 0 }),
+            new Character(game, { x: 0, y: 0 }),
         )
 
         game.addEntityAndSyncMultiPlayer(new Obstacle(game, { x: 0, y: 700 }))
 
         game.addEntityAndSyncMultiPlayer(
-            new CurrentControlledCharacter(
+            new Character(
                 game,
                 { x: 500, y: 0 }, // TODO: fix hard-coded position
                 undefined,

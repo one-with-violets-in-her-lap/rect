@@ -9,14 +9,8 @@ import { Bullet } from '@/lib/entities/bullet'
 
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
-/**
- * Character entity that is currently being played on. Can be controlled by user input
- * (e.g. keyboard)
- *
- * See also {@link RemoteCharacter}
- */
-export class CurrentControlledCharacter extends GameEntity {
-    typeName: EntityTypeName = 'current-controlled-character'
+export class Character extends GameEntity {
+    typeName: EntityTypeName = 'character'
     options = { enableCollision: true, enableGravity: true }
 
     keyBindings: KeyBindings
