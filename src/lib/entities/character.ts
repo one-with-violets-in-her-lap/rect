@@ -16,6 +16,7 @@ export class Character extends GameEntity {
     keyBindings: KeyBindings
 
     private abortController?: AbortController
+    private health = 100
 
     constructor(
         game: Game,
@@ -43,6 +44,14 @@ export class Character extends GameEntity {
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
+    }
+
+    damage(damagePoints: number) {
+        this.health = Math.max(this.health - damagePoints, 0)
+
+        if (this.health === 0) {
+            this.game.destroyEntity(this)
+        }
     }
 
     async load() {

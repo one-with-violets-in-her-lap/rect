@@ -115,7 +115,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     ) {
         const pixiObject = this.getPixiObjectOrThrow()
 
-        const hasCollisionsWithObjects = checkIfNewEntityPositionColliding(
+        const collisionInfo = checkIfNewEntityPositionColliding(
             this,
             {
                 x: pixiObject.x,
@@ -136,11 +136,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 newPosition.x < 0)
 
         if (
-            hasCollisionsWithObjects.isColliding ||
+            collisionInfo.isColliding ||
             hasCollisionsWithYScreenBounds ||
             hasCollisionsWithXScreenBounds
         ) {
-            throw new CollisionError(hasCollisionsWithObjects.collidingEntity)
+            throw new CollisionError(collisionInfo.collidingEntity)
         }
 
         if (newPosition.x) {

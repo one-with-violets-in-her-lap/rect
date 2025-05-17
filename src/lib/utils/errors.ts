@@ -2,6 +2,8 @@ import { GameEntity } from '@/lib/entities'
 
 export class RectGameError extends Error {}
 
+export class MultiPlayerError extends RectGameError {}
+
 export class NotInitializedError extends RectGameError {}
 
 export class CollisionError extends RectGameError {
@@ -17,5 +19,7 @@ export class CollisionError extends RectGameError {
             : 'Collision with screen bounds was detected'
 
         super(errorMessage)
+
+        this.collidingEntity = collidingEntity
     }
 }

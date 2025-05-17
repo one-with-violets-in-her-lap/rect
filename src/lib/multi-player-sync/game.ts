@@ -9,7 +9,7 @@ import {
 import { Character } from '@/lib/entities/character'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
-import { RectGameError } from '@/lib/utils/errors'
+import { MultiPlayerError, RectGameError } from '@/lib/utils/errors'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
@@ -81,13 +81,15 @@ export function createGameSynchronizer(
         multiPlayerSession.receiveConnection,
         'game/destroy-entity',
         (packet: DestroyEntityPacket) => {
-            console.log(game.entities)
             const entity = game.entities.find(
                 (entity) => entity.id === packet.entityId,
             )
 
             if (!entity) {
-                throw new RectGameError()
+                throw new MultiPlayerError(
+                    `Failed to find an entity with ${packet.entityId} from entity ` +
+                        `destroy packet. Game is probably out of sync`,
+                )
             }
 
             game.destroyEntity(entity, false)

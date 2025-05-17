@@ -1,10 +1,12 @@
 import bulletSpriteImage from '@/assets/images/bullet.png'
 
 import { EntityTypeName, GameEntity } from '@/lib/entities'
+import { Character } from '@/lib/entities/character'
 import { CollisionError } from '@/lib/utils/errors'
 import { Assets, Sprite, Ticker } from 'pixi.js'
 
 const BULLET_VELOCITY = 60
+const BULLET_DAMAGE = 10
 
 export class Bullet extends GameEntity {
     typeName: EntityTypeName = 'bullet'
@@ -41,6 +43,10 @@ export class Bullet extends GameEntity {
             } catch (error) {
                 if (error instanceof CollisionError) {
                     this.game.destroyEntity(this)
+
+                    if (error.collidingEntity instanceof Character) {
+                        error.collidingEntity.damage(BULLET_DAMAGE)
+                    }
                 } else {
                     throw error
                 }
