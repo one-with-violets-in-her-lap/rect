@@ -8,10 +8,7 @@ import {
     EntitySynchronizer,
 } from '@/lib/multi-player-sync/entity'
 
-export type EntityTypeName =
-    | 'obstacle'
-    | 'character'
-    | 'bullet'
+export type EntityTypeName = 'obstacle' | 'character' | 'bullet'
 
 export interface EntityMovement {
     isMovingLeft: boolean
@@ -61,9 +58,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             this.synchronizer = createEntitySynchronizer(
                 this,
                 this.game.multiPlayerSession,
-                (newPosition) => {
-                    this.getPixiObjectOrThrow().position = newPosition
-                },
             )
         }
     }
@@ -157,11 +151,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         if (newPosition.y) {
             pixiObject.y = newPosition.y
         }
-
-        this.synchronizer?.syncEntityMove({
-            x: pixiObject.x,
-            y: pixiObject.y,
-        })
     }
 
     private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
@@ -198,7 +187,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             } catch (error) {
                 if (error instanceof CollisionError) {
                     this.movementStatus.isGrounded = true
-                    return
+                    break
                 } else {
                     throw error
                 }
@@ -214,12 +203,13 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             } catch (error) {
                 if (error instanceof CollisionError) {
                     this.movementStatus.isGrounded = true
-                    return
                 } else {
                     throw error
                 }
             }
         }
+
+        this.syncStateWithMultiPlayer(pixiObject)
     }
 
     private moveHorizontallyIfNeeded(pixiObject: TPixiObject, ticker: Ticker) {
@@ -252,5 +242,17 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 }
             }
         }
+
+        this.syncStateWithMultiPlayer(pixiObject)
+    }
+
+    protected syncStateWithMultiPlayer(pixiObject: TPixiObject) {
+        this.synchronizer?.syncEntityUpdate({
+            newPosition: {
+                x: pixiObject.x,
+                y: pixiObject.y,
+            },
+            newRotationRadians: pixiObject.rotation,
+        })
     }
 }

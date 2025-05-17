@@ -44,6 +44,8 @@ export class Bullet extends GameEntity {
                     throw error
                 }
             }
+
+            this.syncStateWithMultiPlayer(pixiObject)
         }
 
         return pixiObject

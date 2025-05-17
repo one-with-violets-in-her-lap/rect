@@ -6,37 +6,48 @@ import {
 } from '@/lib/utils/webrtc-multiplayer'
 import { Position } from '@/lib/utils/position'
 
-interface EntityMovePacket extends MultiPlayerPacket {
-    type: 'entity/move'
+interface EntityUpdatePacket extends MultiPlayerPacket {
+    type: 'entity/update'
     entityId: string
-    newPosition: Position
+    newEntityState: {
+        newPosition?: Position
+        newRotationRadians?: number
+    }
 }
 
 export interface EntitySynchronizer {
-    syncEntityMove(newEntityPosition: Position): void
+    syncEntityUpdate(newState: EntityUpdatePacket['newEntityState']): void
 }
 
 export function createEntitySynchronizer(
     entity: GameEntity,
     multiPlayerSession: MultiPlayerSession,
-    updatePosition: (newPosition: Position) => void,
 ): EntitySynchronizer {
     addPacketHandler(
         multiPlayerSession.receiveConnection,
-        'entity/move',
-        (packet: EntityMovePacket) => {
+        'entity/update',
+        (packet: EntityUpdatePacket) => {
             if (packet.entityId === entity.id) {
-                updatePosition(packet.newPosition)
+                const pixiObject = entity.getPixiObjectOrThrow()
+
+                if (packet.newEntityState.newPosition) {
+                    pixiObject.position = packet.newEntityState.newPosition
+                }
+
+                if (packet.newEntityState.newRotationRadians) {
+                    pixiObject.rotation =
+                        packet.newEntityState.newRotationRadians
+                }
             }
         },
     )
 
     return {
-        syncEntityMove(newPosition) {
-            const movementPacket: EntityMovePacket = {
-                type: 'entity/move',
+        syncEntityUpdate(newState) {
+            const movementPacket: EntityUpdatePacket = {
+                type: 'entity/update',
                 entityId: entity.id,
-                newPosition: newPosition,
+                newEntityState: newState,
             }
 
             multiPlayerSession.sendConnection.send(movementPacket)
