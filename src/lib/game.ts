@@ -62,7 +62,10 @@ export class Game {
     private entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
+
     private windowResizeHandler?: VoidFunction
+
+    private initialized = false
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
@@ -71,7 +74,10 @@ export class Game {
             this.synchronizer = createGameSynchronizer(
                 this,
                 this.multiPlayerSession,
-                (newEntity) => this.addEntityToPixiApp(newEntity),
+                (newEntity) => {
+                    this.entities.push(newEntity)
+                    this.addEntityToPixiApp(newEntity)
+                },
             )
         } else {
             console.warn(
@@ -87,6 +93,8 @@ export class Game {
             height: GAME_CANVAS_HEIGHT,
             backgroundColor: '#FFFFFF',
         })
+
+        this.initialized = true
 
         this.pixiApp.stage.interactive = true
         this.pixiApp.stage.hitArea = new Rectangle(
@@ -147,9 +155,7 @@ export class Game {
             })
         }
 
-        if (this.pixiApp.ticker) {
-            this.addEntityToPixiApp(entity)
-        }
+        this.addEntityToPixiApp(entity)
     }
 
     deleteEntity(entityToDelete: GameEntity) {
@@ -171,10 +177,17 @@ export class Game {
     }
 
     private async addEntityToPixiApp(entity: GameEntity) {
-        const pixiObject = await entity.initialize()
+        if (this.initialized) {
+            const pixiObject = await entity.initialize()
 
-        this.pixiApp.stage.addChild(pixiObject)
+            this.pixiApp.stage.addChild(pixiObject)
 
-        this.addTickerCallback(entity, (ticker) => entity.update(ticker))
+            this.addTickerCallback(entity, (ticker) => entity.update(ticker))
+        } else {
+            console.log(
+                'Adding entity to app operation was deferred until the app will' +
+                    ' be initialized',
+            )
+        }
     }
 }
