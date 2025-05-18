@@ -116,11 +116,11 @@ export class Game {
     async stopWithAnimation() {
         this.pixiApp.ticker.speed = 0.3
 
-        if (this.doOnStop) {
-            this.doOnStop()
-        }
-
         setTimeout(() => {
+            if (this.doOnStop) {
+                this.doOnStop()
+            }
+
             this.pixiApp.stop()
         }, 1000)
     }
@@ -129,6 +129,8 @@ export class Game {
         if (this.windowResizeHandler) {
             window.removeEventListener('resize', this.windowResizeHandler)
         }
+
+        this.synchronizer?.cleanup()
 
         for (const entity of this.entities) {
             await entity.cleanup()

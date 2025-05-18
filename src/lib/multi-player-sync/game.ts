@@ -33,6 +33,7 @@ export interface GameSynchronizer {
     syncEntityDestroy(entityId: string): void
     sendGameInitialization(): void
     waitForGameInitialization(): Promise<void>
+    cleanup(): void
 }
 
 // TODO: remove code duplication by just dynamically passing params in GameEntity constructor
@@ -132,6 +133,10 @@ export function createGameSynchronizer(
                 )
             })
         },
+
+        cleanup() {
+            multiPlayerSession.receiveConnection.removeAllListeners()
+        }
     }
 }
 
