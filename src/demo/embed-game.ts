@@ -5,6 +5,7 @@ import {
     createGame,
     createMultiPlayerSession,
 } from '@/index'
+import { Game } from '@/lib/game'
 
 embedGame()
 
@@ -19,30 +20,34 @@ async function embedGame() {
     const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
     const multiPlayerSessionToConnectTo = searchParams.get('connect')
 
+    let game: Game
+
     if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
-        createMultiPlayerSession().then(
-            async ({ sessionId, waitForOtherPlayerConnection }) => {
-                alert(
-                    `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
-                )
+        const { sessionId, waitForOtherPlayerConnection } =
+            await createMultiPlayerSession()
 
-                const multiPlayer = await waitForOtherPlayerConnection()
-
-                const game = await createGame(multiPlayer)
-
-                await game.initialize(gameCanvas)
-            },
+        alert(
+            `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
         )
-    } else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
-        connectToMultiPlayerSession(multiPlayerSessionToConnectTo).then(
-            async (multiPlayer) => {
-                const game = await createGame(multiPlayer)
 
-                await game.initialize(gameCanvas)
-            },
+        game = await createGame(await waitForOtherPlayerConnection())
+    } else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
+        game = await createGame(
+            await connectToMultiPlayerSession(multiPlayerSessionToConnectTo),
         )
     } else {
-        const game = await createGame(null)
-        await game.initialize(gameCanvas)
+        game = await createGame(null)
     }
+
+    game.doOnEnd = async () => {
+        await game.destroy()
+
+        const gameCanvasClone = gameCanvas.cloneNode()
+        gameCanvas.insertAdjacentElement('afterend', gameCanvasClone as Element)
+        gameCanvas.remove()
+
+        embedGame()
+    }
+
+    await game.initialize(gameCanvas)
 }

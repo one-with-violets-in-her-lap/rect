@@ -6,6 +6,10 @@ import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
+import {
+    CharacterSynchronizer,
+    createCharacterSynchronizer,
+} from '@/lib/multi-player-sync/character'
 
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
@@ -16,6 +20,8 @@ export class Character extends GameEntity {
     keyBindings: KeyBindings
 
     private abortController?: AbortController
+    private characterSynchronizer: CharacterSynchronizer | null = null
+
     private health = 100
 
     constructor(
@@ -44,13 +50,29 @@ export class Character extends GameEntity {
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
+
+        if (this.game.multiPlayerSession) {
+            this.characterSynchronizer = createCharacterSynchronizer(
+                this,
+                this.game.multiPlayerSession,
+            )
+        }
+    }
+
+    damageAndSync(damagePoints: number) {
+        this.damage(damagePoints)
+
+        this.characterSynchronizer?.syncCharacterUpdate({
+            damage: damagePoints,
+        })
     }
 
     damage(damagePoints: number) {
         this.health = Math.max(this.health - damagePoints, 0)
 
         if (this.health === 0) {
-            this.game.destroyEntity(this)
+            this.game.destroyEntity(this, false)
+            this.game.endWithAnimation(this.id)
         }
     }
 
@@ -103,15 +125,17 @@ export class Character extends GameEntity {
         const distanceY = pointerEvent.globalY - pixiObject.y
         const aimAngleRadians = Math.atan2(distanceY, distanceX)
 
-        const muzzleOffset = pixiObject.width
+        const bulletOffset = pixiObject.width
 
-        const xMoveAmount = Math.cos(aimAngleRadians)
-        const yMoveAmount = Math.sin(aimAngleRadians)
+        const xMultiplier = Math.cos(aimAngleRadians)
+        const yMultiplier = Math.sin(aimAngleRadians)
 
         const bulletX =
-            pixiObject.x + xMoveAmount * (xMoveAmount >= 0 ? muzzleOffset : 1)
+            pixiObject.x +
+            xMultiplier * (xMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
         const bulletY =
-            pixiObject.y + yMoveAmount * (yMoveAmount >= 0 ? muzzleOffset : 1)
+            pixiObject.y +
+            yMultiplier * (yMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
 
         const bullet = new Bullet(this.game, {
             x: bulletX,

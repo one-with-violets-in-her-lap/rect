@@ -57,15 +57,15 @@ export async function createGame(
 
 export class Game {
     pixiApp: Application
-
     synchronizer: GameSynchronizer | null = null
+
+    doOnEnd: ((loserPeerId: string) => void) | null = null
 
     entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
 
     private windowResizeHandler?: VoidFunction
-
     private initialized = false
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
@@ -113,9 +113,27 @@ export class Game {
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
+    async endWithAnimation(loserPeerId: string) {
+        this.pixiApp.ticker.speed = 0.3
+
+        setTimeout(() => {
+            if (this.doOnEnd) {
+                this.doOnEnd(loserPeerId)
+            }
+
+            this.pixiApp.stop()
+        }, 1000)
+    }
+
     async destroy() {
         if (this.windowResizeHandler) {
             window.removeEventListener('resize', this.windowResizeHandler)
+        }
+
+        this.synchronizer?.cleanup()
+
+        for (const entity of this.entities) {
+            await entity.cleanup()
         }
 
         this.pixiApp.destroy()
@@ -139,25 +157,6 @@ export class Game {
         this.addEntityToPixiApp(entity)
     }
 
-    async destroyEntity(
-        entityToDelete: GameEntity,
-        syncWithMultiPlayer = true,
-    ) {
-        this.pixiApp.ticker.remove(
-            this.tickerCallbacksByEntityId[entityToDelete.id],
-        )
-
-        this.entities = this.entities.filter(
-            (entity) => entity.id !== entityToDelete.id,
-        )
-
-        entityToDelete.cleanup()
-
-        if (syncWithMultiPlayer) {
-            this.synchronizer?.syncEntityDestroy(entityToDelete.id)
-        }
-    }
-
     async addEntityToPixiApp(entity: GameEntity) {
         if (this.initialized) {
             const pixiObject = await entity.initialize()
@@ -170,6 +169,22 @@ export class Game {
                 'Adding entity to an app operation was deferred until the app will' +
                     ' be initialized',
             )
+        }
+    }
+
+    destroyEntity(entityToDelete: GameEntity, syncWithMultiPlayer = true) {
+        this.pixiApp.ticker.remove(
+            this.tickerCallbacksByEntityId[entityToDelete.id],
+        )
+
+        this.entities = this.entities.filter(
+            (entity) => entity.id !== entityToDelete.id,
+        )
+
+        entityToDelete.cleanup()
+
+        if (syncWithMultiPlayer) {
+            this.synchronizer?.syncEntityDestroy(entityToDelete.id)
         }
     }
 
