@@ -74,8 +74,6 @@ export class Character extends GameEntity {
             this.game.destroyEntity(this, false)
             this.game.endWithAnimation(this.id)
         }
-
-        console.log(this.health)
     }
 
     async load() {
