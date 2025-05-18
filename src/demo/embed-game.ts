@@ -39,7 +39,7 @@ async function embedGame() {
         game = await createGame(null)
     }
 
-    game.doOnStop = async () => {
+    game.doOnEnd = async () => {
         await game.destroy()
 
         const gameCanvasClone = gameCanvas.cloneNode()
