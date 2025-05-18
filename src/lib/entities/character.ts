@@ -72,7 +72,7 @@ export class Character extends GameEntity {
 
         if (this.health === 0) {
             this.game.destroyEntity(this, false)
-            this.game.stopWithAnimation()
+            this.game.endWithAnimation(this.id)
         }
 
         console.log(this.health)

@@ -59,7 +59,7 @@ export class Game {
     pixiApp: Application
     synchronizer: GameSynchronizer | null = null
 
-    doOnStop: VoidFunction | null = null
+    doOnStop: ((loserPeerId: string) => void) | null = null
 
     entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
@@ -113,12 +113,12 @@ export class Game {
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
-    async stopWithAnimation() {
+    async endWithAnimation(loserPeerId: string) {
         this.pixiApp.ticker.speed = 0.3
 
         setTimeout(() => {
             if (this.doOnStop) {
-                this.doOnStop()
+                this.doOnStop(loserPeerId)
             }
 
             this.pixiApp.stop()
