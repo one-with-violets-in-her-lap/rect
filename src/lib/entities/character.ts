@@ -129,15 +129,15 @@ export class Character extends GameEntity {
 
         const bulletOffset = pixiObject.width
 
-        const xMoveAmount = Math.cos(aimAngleRadians)
-        const yMoveAmount = Math.sin(aimAngleRadians)
+        const xMultiplier = Math.cos(aimAngleRadians)
+        const yMultiplier = Math.sin(aimAngleRadians)
 
         const bulletX =
             pixiObject.x +
-            xMoveAmount * (xMoveAmount >= 0 ? bulletOffset : bulletOffset / 2)
+            xMultiplier * (xMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
         const bulletY =
             pixiObject.y +
-            yMoveAmount * (yMoveAmount >= 0 ? bulletOffset : bulletOffset / 2)
+            yMultiplier * (yMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
 
         const bullet = new Bullet(this.game, {
             x: bulletX,
