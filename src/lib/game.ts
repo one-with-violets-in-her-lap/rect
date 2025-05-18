@@ -130,6 +130,10 @@ export class Game {
             window.removeEventListener('resize', this.windowResizeHandler)
         }
 
+        for (const entity of this.entities) {
+            await entity.cleanup()
+        }
+
         this.pixiApp.destroy()
     }
 
