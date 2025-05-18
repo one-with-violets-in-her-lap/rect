@@ -136,7 +136,7 @@ export function createGameSynchronizer(
 
         cleanup() {
             multiPlayerSession.receiveConnection.removeAllListeners()
-        }
+        },
     }
 }
 
