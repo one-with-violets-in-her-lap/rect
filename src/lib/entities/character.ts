@@ -127,15 +127,17 @@ export class Character extends GameEntity {
         const distanceY = pointerEvent.globalY - pixiObject.y
         const aimAngleRadians = Math.atan2(distanceY, distanceX)
 
-        const muzzleOffset = pixiObject.width
+        const bulletOffset = pixiObject.width
 
         const xMoveAmount = Math.cos(aimAngleRadians)
         const yMoveAmount = Math.sin(aimAngleRadians)
 
         const bulletX =
-            pixiObject.x + xMoveAmount * (xMoveAmount >= 0 ? muzzleOffset : 1)
+            pixiObject.x +
+            xMoveAmount * (xMoveAmount >= 0 ? bulletOffset : bulletOffset / 2)
         const bulletY =
-            pixiObject.y + yMoveAmount * (yMoveAmount >= 0 ? muzzleOffset : 1)
+            pixiObject.y +
+            yMoveAmount * (yMoveAmount >= 0 ? bulletOffset : bulletOffset / 2)
 
         const bullet = new Bullet(this.game, {
             x: bulletX,
