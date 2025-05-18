@@ -170,7 +170,7 @@ export class Game {
         }
     }
 
-    async destroyEntity(
+    destroyEntity(
         entityToDelete: GameEntity,
         syncWithMultiPlayer = true,
     ) {

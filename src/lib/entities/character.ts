@@ -6,6 +6,10 @@ import { EntityTypeName, GameEntity } from '@/lib/entities'
 import { KeyBindings } from '@/lib/utils/key-bindings'
 import { Position } from '@/lib/utils/position'
 import { Bullet } from '@/lib/entities/bullet'
+import {
+    CharacterSynchronizer,
+    createCharacterSynchronizer,
+} from '@/lib/multi-player-sync/character'
 
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
@@ -16,6 +20,8 @@ export class Character extends GameEntity {
     keyBindings: KeyBindings
 
     private abortController?: AbortController
+    private characterSynchronizer: CharacterSynchronizer | null = null
+
     private health = 100
 
     constructor(
@@ -44,15 +50,32 @@ export class Character extends GameEntity {
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
+
+        if (this.game.multiPlayerSession) {
+            this.characterSynchronizer = createCharacterSynchronizer(
+                this,
+                this.game.multiPlayerSession,
+            )
+        }
+    }
+
+    damageAndSync(damagePoints: number) {
+        this.damage(damagePoints)
+
+        this.characterSynchronizer?.syncCharacterUpdate({
+            damage: damagePoints,
+        })
     }
 
     damage(damagePoints: number) {
         this.health = Math.max(this.health - damagePoints, 0)
 
         if (this.health === 0) {
-            this.game.destroyEntity(this)
+            this.game.destroyEntity(this, false)
             this.game.stopWithAnimation()
         }
+
+        console.log(this.health)
     }
 
     async load() {
@@ -77,7 +100,7 @@ export class Character extends GameEntity {
             pixiObject.addChild(currentCharacterLabel)
 
             this.game.pixiApp.stage.addEventListener(
-                'pointerdown',
+                'click',
                 (event) => this.shoot(event),
                 {
                     signal: this.abortController.signal,

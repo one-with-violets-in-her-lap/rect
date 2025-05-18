@@ -45,7 +45,7 @@ export class Bullet extends GameEntity {
                     this.game.destroyEntity(this)
 
                     if (error.collidingEntity instanceof Character) {
-                        error.collidingEntity.damage(BULLET_DAMAGE)
+                        error.collidingEntity.damageAndSync(BULLET_DAMAGE)
                     }
                 } else {
                     throw error
