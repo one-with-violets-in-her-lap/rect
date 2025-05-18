@@ -100,7 +100,7 @@ export class Character extends GameEntity {
             pixiObject.addChild(currentCharacterLabel)
 
             this.game.pixiApp.stage.addEventListener(
-                'click',
+                'pointerdown',
                 (event) => this.shoot(event),
                 {
                     signal: this.abortController.signal,
