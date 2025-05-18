@@ -170,10 +170,7 @@ export class Game {
         }
     }
 
-    destroyEntity(
-        entityToDelete: GameEntity,
-        syncWithMultiPlayer = true,
-    ) {
+    destroyEntity(entityToDelete: GameEntity, syncWithMultiPlayer = true) {
         this.pixiApp.ticker.remove(
             this.tickerCallbacksByEntityId[entityToDelete.id],
         )
