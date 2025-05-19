@@ -6,7 +6,7 @@ function App() {
 
                 <p className="text-xl mb-5">1v1 shooter game</p>
 
-                <button className="transition-all duration-300 text-xl px-8 py-2 border-2 border-transparent bg-primary text-background rounded-lg w-2xs hover:cursor-pointer hover:bg-primary/80 hover:scale-105 active:scale-95 active:duration-100">
+                <button className="transition-all duration-300 text-xl px-8 py-2 border-2 border-transparent bg-primary text-background rounded-lg w-2xs shadow-lg shadow-black/10 hover:cursor-pointer hover:bg-primary/80 hover:scale-105 active:scale-95 active:duration-100 active:shadow-transparent">
                     Start
                 </button>
             </div>
