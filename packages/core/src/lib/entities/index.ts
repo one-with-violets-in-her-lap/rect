@@ -1,12 +1,12 @@
 import { Container, Ticker } from 'pixi.js'
-import { Game } from '@/lib/game'
-import { CollisionError, NotInitializedError } from '@/lib/utils/errors'
-import { Position } from '@/lib/utils/position'
-import { checkIfNewEntityPositionColliding } from '@/lib/collisions'
+import { Game } from '@core/lib/game'
+import { CollisionError, NotInitializedError } from '@core/lib/utils/errors'
+import { Position } from '@core/lib/utils/position'
+import { checkIfNewEntityPositionColliding } from '@core/lib/collisions'
 import {
     createEntitySynchronizer,
     EntitySynchronizer,
-} from '@/lib/multi-player-sync/entity'
+} from '@core/lib/multi-player-sync/entity'
 
 export type EntityTypeName = 'obstacle' | 'character' | 'bullet'
 

@@ -1,15 +1,15 @@
-import { Game } from '@/lib/game'
-import { EntityTypeName, GameEntity } from '@/lib/entities'
-import { Obstacle } from '@/lib/entities/obstacle'
+import { Game } from '@core/lib/game'
+import { EntityTypeName, GameEntity } from '@core/lib/entities'
+import { Obstacle } from '@core/lib/entities/obstacle'
 import {
     addPacketHandler,
     MultiPlayerPacket,
     MultiPlayerSession,
-} from '@/lib/utils/webrtc-multiplayer'
-import { Character } from '@/lib/entities/character'
-import { Position } from '@/lib/utils/position'
-import { Bullet } from '@/lib/entities/bullet'
-import { MultiPlayerError } from '@/lib/utils/errors'
+} from '@core/lib/utils/webrtc-multiplayer'
+import { Character } from '@core/lib/entities/character'
+import { Position } from '@core/lib/utils/position'
+import { Bullet } from '@core/lib/entities/bullet'
+import { MultiPlayerError } from '@core/lib/utils/errors'
 
 interface CreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'

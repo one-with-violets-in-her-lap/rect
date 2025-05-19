@@ -1,13 +1,13 @@
 import { Application, Rectangle, Ticker, TickerCallback } from 'pixi.js'
-import { GameEntity } from '@/lib/entities'
-import { Obstacle } from '@/lib/entities/obstacle'
-import { Character } from '@/lib/entities/character'
-import { MultiPlayerSession } from '@/lib/utils/webrtc-multiplayer'
+import { GameEntity } from '@core/lib/entities'
+import { Obstacle } from '@core/lib/entities/obstacle'
+import { Character } from '@core/lib/entities/character'
+import { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
     GameSynchronizer,
-} from '@/lib/multi-player-sync/game'
-import { RectGameError } from '@/lib/utils/errors'
+} from '@core/lib/multi-player-sync/game'
+import { RectGameError } from '@core/lib/utils/errors'
 
 const GAME_CANVAS_WIDTH = 1900
 const GAME_CANVAS_HEIGHT = 950

@@ -1,4 +1,4 @@
-import { GameEntity } from '@/lib/entities'
+import { GameEntity } from '@core/lib/entities'
 
 export class RectGameError extends Error {}
 

@@ -1,10 +1,10 @@
-import { Character } from '@/lib/entities/character'
-import { MultiPlayerError } from '@/lib/utils/errors'
+import { Character } from '@core/lib/entities/character'
+import { MultiPlayerError } from '@core/lib/utils/errors'
 import {
     addPacketHandler,
     MultiPlayerPacket,
     MultiPlayerSession,
-} from '@/lib/utils/webrtc-multiplayer'
+} from '@core/lib/utils/webrtc-multiplayer'
 
 interface CharacterUpdatePacket extends MultiPlayerPacket {
     type: 'character/update'

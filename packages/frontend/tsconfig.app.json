@@ -21,11 +21,8 @@
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true,
-
-        "paths": {
-            "@/*": ["./src/*"]
-        }
+        "noUncheckedSideEffectImports": true
     },
-    "include": ["src"]
+    "include": ["src"],
+    "extends": ["../../tsconfig.base.json"]
 }

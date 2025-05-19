@@ -1,7 +1,7 @@
-import obstacleSpriteImage from '@/assets/images/obstacle.png'
+import obstacleSpriteImage from '@core/assets/images/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
-import { EntityTypeName, GameEntity } from '@/lib/entities'
+import { EntityTypeName, GameEntity } from '@core/lib/entities'
 
 export class Obstacle extends GameEntity<Sprite> {
     typeName: EntityTypeName = 'obstacle'
