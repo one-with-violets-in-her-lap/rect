@@ -1,7 +1,9 @@
+import { CopyIcon, QrCodeIcon } from 'lucide-react'
+import { useState } from 'react'
+import { toast, Toaster } from 'sonner'
+import { createMultiPlayerSession } from 'rect'
 import { AppButton } from '@frontend/components/ui/AppButton'
 import { buildClassName } from '@frontend/utils/class-names'
-import { useState } from 'react'
-import { createMultiPlayerSession } from 'rect'
 
 type MultiPlayerSetupStatus =
     | {
@@ -44,17 +46,40 @@ function App() {
                 status: 'complete',
             })
         } catch (error) {
-            alert(error)
+            toast.error('An unknown error occurred')
             setMultiPlayerStatus({
                 status: 'idle',
             })
+            throw error
         } finally {
             setLoading(false)
         }
     }
 
+    async function handleCopy() {
+        if (multiPlayerStatus.status === 'waiting-for-another-player') {
+            try {
+                await navigator.clipboard.writeText(
+                    multiPlayerStatus.connectUrl,
+                )
+                toast.success('Copied')
+            } catch (error) {
+                toast.error('Failed to copy')
+            }
+        }
+    }
+
     return (
         <>
+            <Toaster
+                richColors
+                className="text-xl"
+                toastOptions={{
+                    style: { fontSize: '18px' },
+                    closeButton: true,
+                }}
+            />
+
             <div className="mx-auto max-w-4xl px-6 py-46">
                 <section
                     className={buildClassName(
@@ -92,9 +117,27 @@ function App() {
 
                     <p className="mb-5 text-xl">Give your friend this link:</p>
 
-                    <AppButton>
-                        Copy link <span>[|]</span>
-                    </AppButton>
+                    <div className="text-primary flex max-w-lg items-center gap-x-4 rounded-lg bg-pink-50 px-4 py-3">
+                        <div className="grow overflow-x-hidden text-nowrap">
+                            {multiPlayerStatus.status ===
+                            'waiting-for-another-player'
+                                ? multiPlayerStatus.connectUrl
+                                : ''}
+                        </div>
+
+                        <div className="flex items-center gap-x-2">
+                            <button
+                                className="hover:cursor-pointer"
+                                onClick={handleCopy}
+                            >
+                                <CopyIcon size="20px" />
+                            </button>
+
+                            <button className="hover:cursor-pointer">
+                                <QrCodeIcon size="20px" />
+                            </button>
+                        </div>
+                    </div>
                 </section>
             </div>
         </>

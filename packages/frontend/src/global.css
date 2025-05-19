@@ -2,6 +2,7 @@
 
 @theme {
     --color-background: #fffbff;
+    --color-background-tinted: var(--color-pink-50);
     --color-stroke: var(--color-neutral-900);
     --color-primary: var(--color-pink-500);
 }
