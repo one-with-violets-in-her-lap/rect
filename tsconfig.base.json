@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "composite": true, 
+        "composite": true,
         "paths": {
             "@frontend/*": ["./packages/frontend/src/*"],
             "@core/*": ["./packages/core/src/*"]
         }
-    },
+    }
 }
