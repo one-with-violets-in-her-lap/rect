@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-background: #fffbff;
+    --color-background-tinted: var(--color-pink-50);
+    --color-stroke: var(--color-neutral-900);
+    --color-stroke-tertiary: var(--color-neutral-300);
+
+    --color-primary: var(--color-pink-500);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-stroke);
+}
