@@ -4,8 +4,9 @@
  * Rect - embeddable simple multi-player platformer game
  */
 
-export { createGame } from '@core/lib/game'
+export { createGame, Game } from '@core/lib/game'
 export {
     connectToMultiPlayerSession,
     createMultiPlayerSession,
+    type MultiPlayerSession
 } from '@core/lib/utils/webrtc-multiplayer'

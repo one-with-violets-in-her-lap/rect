@@ -1,4 +1,4 @@
-import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
+import type { MultiPlayerSession } from 'rect'
 
 export type MultiPlayerState =
     | {
