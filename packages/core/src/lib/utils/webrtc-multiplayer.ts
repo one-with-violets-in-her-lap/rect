@@ -4,6 +4,7 @@ export interface MultiPlayerSession {
     type: 'host' | 'other-end-peer'
     receiveConnection: DataConnection
     sendConnection: DataConnection
+    destroy: VoidFunction
 }
 
 export interface MultiPlayerPacket {
@@ -61,6 +62,10 @@ export function connectToMultiPlayerSession(otherEndPeerId: string) {
                                 type: 'other-end-peer',
                                 sendConnection,
                                 receiveConnection,
+                                destroy() {
+                                    sendConnection.close()
+                                    receiveConnection.close()
+                                },
                             }),
                         )
                         .catch(reject)
@@ -83,7 +88,15 @@ function waitForOtherPlayerConnection(currentPeer: Peer) {
 
             currentPeer.off('error')
 
-            resolve({ type: 'host', receiveConnection, sendConnection })
+            resolve({
+                type: 'host',
+                receiveConnection,
+                sendConnection,
+                destroy() {
+                    sendConnection.close()
+                    receiveConnection.close()
+                },
+            })
         })
 
         currentPeer.once('error', reject)
