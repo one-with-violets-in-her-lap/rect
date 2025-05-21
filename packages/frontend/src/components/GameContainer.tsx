@@ -8,52 +8,49 @@ export function GameContainer({
 }: {
     multiPlayerSession: MultiPlayerSession
 }) {
-    // const gameCanvas = useRef<HTMLCanvasElement>(null)
-    // const game = useRef<Game>(null)
+    const gameCanvas = useRef<HTMLCanvasElement>(null)
 
-    // useEffect(() => {
-    //     let destroyed = false
+    useEffect(() => {
+        let destroyed = false
+        let game: Game | undefined = undefined
 
-    //     async function initializeGame() {
-    //         if (!gameCanvas.current) {
-    //             throw new Error(
-    //                 'Canvas element with ref `gameCanvas` is not initialized',
-    //             )
-    //         }
+        async function initializeGame() {
+            if (!gameCanvas.current) {
+                throw new Error(
+                    'Canvas element with ref `gameCanvas` is not initialized',
+                )
+            }
 
-    //         game.current = await createGame(multiPlayerSession)
-        
-    //         console.log('Initializing game')
+            game = await createGame(multiPlayerSession)
 
-    //         if (!destroyed) {
-    //             await game.current.initialize(gameCanvas.current)
-    //         } else {
-    //             console.log('Component is destroyed, game init cancelled')
-    //             await game.current.destroy()
-    //             return
-    //         }
+            if (destroyed) {
+                console.log('Component is destroyed, game init cancelled')
+                return
+            }
 
-    //         if (destroyed) {
-    //             console.log('Component is destroyed, game will be destroyed')
-    //             await game.current.destroy()
-    //         }
-    //     }
+            await game.initialize(gameCanvas.current)
 
-    //     initializeGame()
+            if (destroyed) {
+                console.log('Component is destroyed, destroying the game')
+                await game.destroy()
+            }
+        }
 
-    //     return () => {
-    //         destroyed = true
+        initializeGame()
 
-    //         if (game.current) {
-    //             console.log('Destroying')
-    //             game.current.destroy()
-    //         }
-    //     }
-    // }, [])
+        return () => {
+            destroyed = true
+
+            if (game) {
+                console.log('Component is destroyed, destroying the game')
+                game.destroy()
+            }
+        }
+    }, [])
 
     return (
-        <div className="bg-pink-700 w-full mx-auto min-h-96">
-            
+        <div className="w-ful mx-auto min-h-96">
+            <canvas ref={gameCanvas}></canvas>
         </div>
     )
 }
