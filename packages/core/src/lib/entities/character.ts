@@ -72,7 +72,10 @@ export class Character extends GameEntity {
 
         if (this.health === 0) {
             this.game.destroyEntity(this, false)
-            this.game.endWithAnimation(this.id)
+
+            // If character is remote entity that died, then the opponent lost
+            // and the current player won
+            this.game.endWithAnimation(this.isRemote)
         }
     }
 

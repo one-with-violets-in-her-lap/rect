@@ -4,6 +4,7 @@ import { connectToMultiPlayerSession } from 'rect'
 import { CreateGameView } from '@frontend/components/CreateGameView'
 import { GameContainer } from '@frontend/components/GameContainer'
 import type { MultiPlayerState } from '@frontend/models/multi-player-state'
+import { AppSpinner } from '@frontend/components/ui/AppSpinner'
 
 export function App() {
     const [multiPlayer, setMultiPlayer] = useState<MultiPlayerState>({
@@ -52,11 +53,12 @@ export function App() {
                 toastOptions={{
                     style: { fontSize: '18px' },
                     closeButton: true,
+                    duration: 3000,
                 }}
             />
 
             {multiPlayer.status === 'loading' ? (
-                <span></span>
+                <AppSpinner className="mx-auto my-24" />
             ) : multiPlayer.status === 'connected' ? (
                 <GameContainer
                     multiPlayerSession={multiPlayer.multiPlayerSession}
