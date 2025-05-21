@@ -10,10 +10,10 @@ import { Game } from '@core/lib/game'
 embedGame()
 
 async function embedGame() {
-    const gameCanvas = document.querySelector('#gameCanvas')
+    const gameContainer = document.querySelector('#gameContainer')
 
-    if (!gameCanvas || !(gameCanvas instanceof HTMLCanvasElement)) {
-        throw new Error('Game canvas element is missing (#gameCanvas)')
+    if (!gameContainer || !(gameContainer instanceof HTMLElement)) {
+        throw new Error('Game container element is missing (#gameContainer)')
     }
 
     const searchParams = new URLSearchParams(window.location.search)
@@ -41,13 +41,8 @@ async function embedGame() {
 
     game.doOnEnd = async () => {
         await game.destroy()
-
-        const gameCanvasClone = gameCanvas.cloneNode()
-        gameCanvas.insertAdjacentElement('afterend', gameCanvasClone as Element)
-        gameCanvas.remove()
-
         embedGame()
     }
 
-    await game.initialize(gameCanvas)
+    await game.initialize(gameContainer)
 }

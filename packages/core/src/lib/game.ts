@@ -70,9 +70,7 @@ export class Game {
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
-    }
 
-    async initialize(canvasElement: HTMLCanvasElement) {
         if (this.multiPlayerSession) {
             this.synchronizer = createGameSynchronizer(
                 this,
@@ -83,13 +81,15 @@ export class Game {
                 'Multi-player is not specified, so multi-player is disabled',
             )
         }
+    }
 
+    async initialize(containerElement: HTMLElement) {
         await this.pixiApp.init({
-            canvas: canvasElement,
             width: GAME_CANVAS_WIDTH,
             height: GAME_CANVAS_HEIGHT,
             backgroundColor: '#FFFFFF',
         })
+        containerElement.replaceChildren(this.pixiApp.canvas)
 
         this.pixiApp.stage.interactive = true
         this.pixiApp.stage.hitArea = new Rectangle(
@@ -105,7 +105,7 @@ export class Game {
             await this.synchronizer?.waitForGameInitialization()
         }
 
-        this.windowResizeHandler = () => resizeCanvas(canvasElement)
+        this.windowResizeHandler = () => resizeCanvas(this.pixiApp.canvas)
         window.addEventListener('resize', this.windowResizeHandler)
         this.windowResizeHandler()
 
