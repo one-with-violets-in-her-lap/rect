@@ -54,7 +54,7 @@ export function CreateGameView({
             try {
                 await navigator.clipboard.writeText(connectUrl)
                 toast.success('Copied')
-            } catch (error) {
+            } catch {
                 toast.error('Failed to copy')
             }
         }
