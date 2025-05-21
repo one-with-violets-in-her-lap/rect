@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createGame } from 'rect'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
-import type { Game } from '@core/lib/game'
 
 export function GameContainer({
     multiPlayerSession,
@@ -9,43 +8,28 @@ export function GameContainer({
     multiPlayerSession: MultiPlayerSession
 }) {
     const gameCanvas = useRef<HTMLCanvasElement>(null)
+    const isGameInitialized = useRef(false)
 
     useEffect(() => {
-        let destroyed = false
-        let game: Game | undefined = undefined
-
         async function initializeGame() {
+            if (isGameInitialized.current) {
+                console.log('Game was already initialized. Skipping init')
+                return
+            }
+
+            isGameInitialized.current = true
+
             if (!gameCanvas.current) {
                 throw new Error(
                     'Canvas element with ref `gameCanvas` is not initialized',
                 )
             }
 
-            game = await createGame(multiPlayerSession)
-
-            if (destroyed) {
-                console.log('Component is destroyed, game init cancelled')
-                return
-            }
-
+            const game = await createGame(multiPlayerSession)
             await game.initialize(gameCanvas.current)
-
-            if (destroyed) {
-                console.log('Component is destroyed, destroying the game')
-                await game.destroy()
-            }
         }
 
         initializeGame()
-
-        return () => {
-            destroyed = true
-
-            if (game) {
-                console.log('Component is destroyed, destroying the game')
-                game.destroy()
-            }
-        }
     }, [])
 
     return (

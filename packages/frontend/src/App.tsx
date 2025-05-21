@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { connectToMultiPlayerSession } from 'rect'
 import { CreateGameView } from '@frontend/components/CreateGameView'
 import { GameContainer } from '@frontend/components/GameContainer'
@@ -8,26 +8,38 @@ export function App() {
     const [multiPlayer, setMultiPlayer] = useState<MultiPlayerState>({
         status: 'loading',
     })
-
-    async function connectToGame() {
-        const searchParams = new URLSearchParams(window.location.search)
-        const multiPlayerSessionToConnectTo = searchParams.get('connect')
-
-        if (multiPlayerSessionToConnectTo !== null) {
-            setMultiPlayer({
-                status: 'connected',
-                multiPlayerSession: await connectToMultiPlayerSession(
-                    multiPlayerSessionToConnectTo,
-                ),
-            })
-        } else {
-            setMultiPlayer({
-                status: 'not-initialized',
-            })
-        }
-    }
+    const isMultiPlayerInitializing = useRef(false)
 
     useEffect(() => {
+        async function connectToGame() {
+            if (isMultiPlayerInitializing.current) {
+                console.log(
+                    'Multi-player is already initializing. Skipping init',
+                )
+                return
+            }
+
+            isMultiPlayerInitializing.current = true
+
+            const searchParams = new URLSearchParams(window.location.search)
+            const multiPlayerSessionToConnectTo = searchParams.get('connect')
+
+            if (multiPlayerSessionToConnectTo !== null) {
+                const multiPlayerSession = await connectToMultiPlayerSession(
+                    multiPlayerSessionToConnectTo,
+                )
+
+                setMultiPlayer({
+                    status: 'connected',
+                    multiPlayerSession: multiPlayerSession,
+                })
+            } else {
+                setMultiPlayer({
+                    status: 'not-initialized',
+                })
+            }
+        }
+
         connectToGame()
     }, [])
 
