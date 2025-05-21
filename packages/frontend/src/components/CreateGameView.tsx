@@ -1,6 +1,6 @@
 import { CopyIcon, QrCodeIcon } from 'lucide-react'
 import { useState } from 'react'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import { createMultiPlayerSession } from 'rect'
 import { AppButton } from '@frontend/components/ui/AppButton'
 import { buildClassName } from '@frontend/utils/class-names'
@@ -61,16 +61,7 @@ export function CreateGameView({
     }
 
     return (
-        <>
-            <Toaster
-                richColors
-                className="text-xl"
-                toastOptions={{
-                    style: { fontSize: '18px' },
-                    closeButton: true,
-                }}
-            />
-
+        <div className="mx-auto max-w-4xl px-6 py-46">
             <section
                 className={buildClassName(
                     'transition-all',
@@ -124,6 +115,6 @@ export function CreateGameView({
                     </div>
                 </div>
             </section>
-        </>
+        </div>
     )
 }

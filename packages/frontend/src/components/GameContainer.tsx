@@ -13,7 +13,7 @@ export function GameContainer({
     useEffect(() => {
         async function initializeGame() {
             if (isGameInitialized.current) {
-                console.log('Game was already initialized. Skipping init')
+                console.log('Game is already being initialized. Skipping init')
                 return
             }
 
@@ -33,8 +33,8 @@ export function GameContainer({
     }, [])
 
     return (
-        <div className="w-ful mx-auto min-h-96">
-            <canvas ref={gameCanvas}></canvas>
+        <div className="w-full h-screen flex items-center justify-center">
+            <canvas ref={gameCanvas} className="border border-stroke-tertiary"></canvas>
         </div>
     )
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Toaster } from 'sonner'
 import { connectToMultiPlayerSession } from 'rect'
 import { CreateGameView } from '@frontend/components/CreateGameView'
 import { GameContainer } from '@frontend/components/GameContainer'
@@ -44,9 +45,18 @@ export function App() {
     }, [])
 
     return (
-        <div className="mx-auto max-w-4xl px-6 py-46">
+        <div>
+            <Toaster
+                richColors
+                className="text-xl"
+                toastOptions={{
+                    style: { fontSize: '18px' },
+                    closeButton: true,
+                }}
+            />
+
             {multiPlayer.status === 'loading' ? (
-                <span>Loading...</span>
+                <span></span>
             ) : multiPlayer.status === 'connected' ? (
                 <GameContainer
                     multiPlayerSession={multiPlayer.multiPlayerSession}
