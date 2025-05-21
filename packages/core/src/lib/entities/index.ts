@@ -37,7 +37,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     protected movementStatus: EntityMovement = {
         isMovingLeft: false,
         isMovingRight: false,
-        horizontalVelocity: 8,
+        horizontalVelocity: 10,
 
         isJumping: false,
         isGrounded: false,

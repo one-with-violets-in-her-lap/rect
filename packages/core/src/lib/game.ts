@@ -1,7 +1,5 @@
 import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
 import { GameEntity } from '@core/lib/entities'
-import { Obstacle } from '@core/lib/entities/obstacle'
-import { Character } from '@core/lib/entities/character'
 import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
@@ -9,9 +7,9 @@ import {
 } from '@core/lib/multi-player-sync/game'
 import { RectGameError } from '@core/lib/utils/errors'
 
-const GAME_CANVAS_WIDTH = 1900
-const GAME_CANVAS_HEIGHT = 950
-const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
+export const GAME_CANVAS_WIDTH = 1900
+export const GAME_CANVAS_HEIGHT = 950
+export const gameCanvasAspectRatio = GAME_CANVAS_WIDTH / GAME_CANVAS_HEIGHT
 
 function resizeCanvas(canvasElement: HTMLCanvasElement) {
     if (!canvasElement.parentElement) {
@@ -30,29 +28,6 @@ function resizeCanvas(canvasElement: HTMLCanvasElement) {
         canvasElement.style.width = `${canvasElement.parentElement.clientWidth}px`
         canvasElement.style.height = `${canvasHeightFromAspectRatio}px`
     }
-}
-
-export async function createGame(
-    multiPlayerSession: MultiPlayerSession | null,
-) {
-    const game = new Game(multiPlayerSession)
-
-    if (!multiPlayerSession || multiPlayerSession.type === 'host') {
-        game.addEntityAndSyncMultiPlayer(new Character(game, { x: 0, y: 0 }))
-
-        game.addEntityAndSyncMultiPlayer(new Obstacle(game, { x: 0, y: 700 }))
-
-        game.addEntityAndSyncMultiPlayer(
-            new Character(
-                game,
-                { x: 500, y: 0 }, // TODO: fix hard-coded position
-                undefined,
-                true,
-            ),
-        )
-    }
-
-    return game
 }
 
 export class Game {

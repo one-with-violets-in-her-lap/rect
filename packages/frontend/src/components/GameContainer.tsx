@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createGame, type Game, type MultiPlayerSession } from 'rect'
+import { Game, loadMapIfHost, type MultiPlayerSession } from 'rect'
 import { buildClassName } from '@frontend/utils/class-names'
 
 export function GameContainer({
@@ -29,13 +29,15 @@ export function GameContainer({
             )
         }
 
-        game.current = await createGame(multiPlayerSession)
+        game.current = new Game(multiPlayerSession)
 
         game.current.doOnEnd = (isWinner) => {
             setGameStatus(isWinner ? 'won' : 'lost')
 
             scheduleGameRestart()
         }
+
+        loadMapIfHost(game.current, multiPlayerSession)
 
         await game.current.initialize(gameCanvasContainer.current)
     }

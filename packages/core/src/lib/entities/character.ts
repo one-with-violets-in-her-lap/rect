@@ -11,6 +11,7 @@ import {
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
 
+export const CHARACTER_SIZE = { width: 112, height: 116 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
 export class Character extends GameEntity {
@@ -85,6 +86,7 @@ export class Character extends GameEntity {
         await Assets.load(characterSpriteImage)
 
         const pixiObject = Sprite.from(characterSpriteImage)
+        pixiObject.setSize(CHARACTER_SIZE)
 
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
