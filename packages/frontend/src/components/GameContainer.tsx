@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { createGame } from 'rect'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { buildClassName } from '@frontend/utils/class-names'
-import { AppButton } from '@frontend/components/ui/AppButton'
 import type { Game } from '@core/lib/game'
 
 export function GameContainer({
