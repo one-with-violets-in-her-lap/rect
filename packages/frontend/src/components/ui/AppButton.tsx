@@ -12,7 +12,11 @@ const BUTTON_SIZE_CLASSES: Record<ButtonSize, string> = {
     large: 'text-xl px-8 py-3',
 }
 
-export function AppButton({ size = 'default', loading, ...props }: AppButtonProps) {
+export function AppButton({
+    size = 'default',
+    loading,
+    ...props
+}: AppButtonProps) {
     return (
         <button
             {...props}

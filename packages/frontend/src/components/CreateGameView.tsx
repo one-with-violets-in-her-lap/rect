@@ -42,6 +42,7 @@ export function CreateGameView({
             onMultiPlayerStateUpdate({
                 status: 'not-initialized',
             })
+
             throw error
         } finally {
             setLoading(false)
