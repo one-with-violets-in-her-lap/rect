@@ -70,7 +70,9 @@ export class Game {
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
+    }
 
+    async initialize(canvasElement: HTMLCanvasElement) {
         if (this.multiPlayerSession) {
             this.synchronizer = createGameSynchronizer(
                 this,
@@ -81,9 +83,7 @@ export class Game {
                 'Multi-player is not specified, so multi-player is disabled',
             )
         }
-    }
 
-    async initialize(canvasElement: HTMLCanvasElement) {
         await this.pixiApp.init({
             canvas: canvasElement,
             width: GAME_CANVAS_WIDTH,
