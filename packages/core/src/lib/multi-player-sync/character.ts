@@ -2,8 +2,8 @@ import { Character } from '@core/lib/entities/character'
 import { MultiPlayerError } from '@core/lib/utils/errors'
 import {
     addPacketHandler,
-    MultiPlayerPacket,
-    MultiPlayerSession,
+    type MultiPlayerPacket,
+    type MultiPlayerSession,
 } from '@core/lib/utils/webrtc-multiplayer'
 
 interface CharacterUpdatePacket extends MultiPlayerPacket {

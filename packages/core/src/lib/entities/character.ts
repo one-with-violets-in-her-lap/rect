@@ -2,12 +2,12 @@ import characterSpriteImage from '@core/assets/images/character-1.png'
 
 import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
 import { Game } from '@core/lib/game'
-import { EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
-import { Position } from '@core/lib/utils/position'
+import { type Position } from '@core/lib/utils/position'
 import { Bullet } from '@core/lib/entities/bullet'
 import {
-    CharacterSynchronizer,
+    type CharacterSynchronizer,
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
 

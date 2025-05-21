@@ -1,10 +1,10 @@
 import { GameEntity } from '@core/lib/entities'
 import {
     addPacketHandler,
-    MultiPlayerPacket,
-    MultiPlayerSession,
+    type MultiPlayerPacket,
+    type MultiPlayerSession,
 } from '@core/lib/utils/webrtc-multiplayer'
-import { Position } from '@core/lib/utils/position'
+import { type Position } from '@core/lib/utils/position'
 
 interface EntityUpdatePacket extends MultiPlayerPacket {
     type: 'entity/update'

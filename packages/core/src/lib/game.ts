@@ -1,11 +1,11 @@
-import { Application, Rectangle, Ticker, TickerCallback } from 'pixi.js'
+import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
 import { GameEntity } from '@core/lib/entities'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character } from '@core/lib/entities/character'
-import { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
+import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
-    GameSynchronizer,
+    type GameSynchronizer,
 } from '@core/lib/multi-player-sync/game'
 import { RectGameError } from '@core/lib/utils/errors'
 

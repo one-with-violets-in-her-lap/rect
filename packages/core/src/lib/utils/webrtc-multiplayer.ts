@@ -1,4 +1,4 @@
-import Peer, { DataConnection } from 'peerjs'
+import Peer, { type DataConnection } from 'peerjs'
 
 export interface MultiPlayerSession {
     type: 'host' | 'other-end-peer'

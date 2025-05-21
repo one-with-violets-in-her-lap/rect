@@ -1,13 +1,13 @@
 import { Game } from '@core/lib/game'
-import { EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import {
     addPacketHandler,
-    MultiPlayerPacket,
-    MultiPlayerSession,
+    type MultiPlayerPacket,
+    type MultiPlayerSession,
 } from '@core/lib/utils/webrtc-multiplayer'
 import { Character } from '@core/lib/entities/character'
-import { Position } from '@core/lib/utils/position'
+import { type Position } from '@core/lib/utils/position'
 import { Bullet } from '@core/lib/entities/bullet'
 import { MultiPlayerError } from '@core/lib/utils/errors'
 

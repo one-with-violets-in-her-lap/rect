@@ -1,6 +1,6 @@
 import bulletSpriteImage from '@core/assets/images/bullet.png'
 
-import { EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { Character } from '@core/lib/entities/character'
 import { CollisionError } from '@core/lib/utils/errors'
 import { Assets, Sprite, Ticker } from 'pixi.js'
