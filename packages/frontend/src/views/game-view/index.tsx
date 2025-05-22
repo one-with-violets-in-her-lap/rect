@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Game, loadMapIfHost, type MultiPlayerSession } from 'rect'
 import { buildClassName } from '@frontend/utils/class-names'
+import { GameOverlay } from '@frontend/views/game-view/GameOverlay'
 
-export function GameContainer({
+export function GameView({
     multiPlayerSession,
 }: {
     multiPlayerSession: MultiPlayerSession
@@ -69,6 +70,8 @@ export function GameContainer({
                 className="flex h-svh w-screen items-center justify-center"
                 ref={gameCanvasContainer}
             ></div>
+
+            <GameOverlay multiPlayerSession={multiPlayerSession} />
 
             <div
                 className={buildClassName(
