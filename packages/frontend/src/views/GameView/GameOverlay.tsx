@@ -9,10 +9,11 @@ export function GameOverlay({
     multiPlayerSession: MultiPlayerSession
 }) {
     const [muted, setMuted] = useState(true)
-    const [microphoneTipVisible, setMicrophoneTipVisible] = useState(false)
+    const [muteToggleShortcutTipVisible, setMuteToggleShortcutTipVisible] =
+        useState(false)
 
     function handleVoiceMuteUpdate(isMuted: boolean) {
-        setMicrophoneTipVisible(false)
+        setMuteToggleShortcutTipVisible(false)
         setMuted(isMuted)
     }
 
@@ -20,7 +21,7 @@ export function GameOverlay({
         multiPlayerSession.doOnVoiceMuteUpdate = handleVoiceMuteUpdate
 
         let microphoneTipShowTimeoutId = window.setTimeout(() => {
-            setMicrophoneTipVisible(true)
+            setMuteToggleShortcutTipVisible(true)
         }, 2000)
 
         return () => {
@@ -38,13 +39,14 @@ export function GameOverlay({
                 )}
             >
                 Speaking
-                <MicIcon className="animate-pulse" />   
+                <MicIcon className="animate-pulse" />
             </div>
 
             <div
                 className={buildClassName(
-                    'bg-background text-stroke border border-primary/50 shadow-2xl shadow-primary/40 flex items-center gap-x-2 rounded-3xl px-5 py-1 text-lg transition-all duration-300 ease-out',
-                    !microphoneTipVisible && 'absolute -translate-x-20 opacity-0',
+                    'bg-background text-stroke border-primary/50 shadow-primary/40 flex items-center gap-x-2 rounded-3xl border px-5 py-1 text-lg shadow-2xl transition-all duration-300 ease-out',
+                    !muteToggleShortcutTipVisible &&
+                        'absolute -translate-x-20 opacity-0',
                 )}
             >
                 Press K to talk
