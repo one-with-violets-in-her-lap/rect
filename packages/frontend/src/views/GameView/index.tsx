@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Game, loadMapIfHost, type MultiPlayerSession } from 'rect'
 import { buildClassName } from '@frontend/utils/class-names'
-import { GameOverlay } from '@frontend/views/game-view/GameOverlay'
+import { GameOverlay } from '@frontend/views/GameView/GameOverlay'
 
 export function GameView({
     multiPlayerSession,

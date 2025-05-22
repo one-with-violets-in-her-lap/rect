@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'sonner'
 import { connectToMultiPlayerSession } from 'rect'
 import { CreateGameView } from '@frontend/views/CreateGameView'
-import { GameView } from '@frontend/views/game-view'
+import { GameView } from '@frontend/views/GameView'
 import type { MultiPlayerState } from '@frontend/models/multi-player-state'
 import { AppSpinner } from '@frontend/components/ui/AppSpinner'
 
