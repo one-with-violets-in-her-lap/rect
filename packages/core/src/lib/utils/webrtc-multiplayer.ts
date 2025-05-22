@@ -53,22 +53,31 @@ export function connectToMultiPlayerSession(otherEndPeerId: string) {
                     otherEndPeerId,
                 )
 
-                currentPeer.once('connection', (receiveConnection) => {
+                currentPeer.once('connection', async (receiveConnection) => {
                     console.log(`Connected to ${receiveConnection.peer}`)
 
-                    sendConnectionCreationPromise
-                        .then((sendConnection) =>
-                            resolve({
-                                type: 'other-end-peer',
-                                sendConnection,
-                                receiveConnection,
-                                destroy() {
-                                    sendConnection.close()
-                                    receiveConnection.close()
-                                },
-                            }),
+                    try {
+                        const sendConnection =
+                            await sendConnectionCreationPromise
+
+                        setupVoiceChat(
+                            'other-end-peer',
+                            currentPeer,
+                            receiveConnection.peer,
                         )
-                        .catch(reject)
+
+                        resolve({
+                            type: 'other-end-peer',
+                            sendConnection,
+                            receiveConnection,
+                            destroy() {
+                                sendConnection.close()
+                                receiveConnection.close()
+                            },
+                        })
+                    } catch (error) {
+                        reject(error)
+                    }
                 })
             }),
     )
@@ -81,22 +90,28 @@ function waitForOtherPlayerConnection(currentPeer: Peer) {
                 `Connected to ${receiveConnection.peer}. Creating send connection...`,
             )
 
-            const sendConnection = await createSendDataConnection(
-                currentPeer,
-                receiveConnection.peer,
-            )
+            try {
+                const sendConnection = await createSendDataConnection(
+                    currentPeer,
+                    receiveConnection.peer,
+                )
 
-            currentPeer.off('error')
+                currentPeer.off('error')
 
-            resolve({
-                type: 'host',
-                receiveConnection,
-                sendConnection,
-                destroy() {
-                    sendConnection.close()
-                    receiveConnection.close()
-                },
-            })
+                setupVoiceChat('host', currentPeer, receiveConnection.peer)
+
+                resolve({
+                    type: 'host',
+                    receiveConnection,
+                    sendConnection,
+                    destroy() {
+                        sendConnection.close()
+                        receiveConnection.close()
+                    },
+                })
+            } catch (error) {
+                reject(error)
+            }
         })
 
         currentPeer.once('error', reject)
@@ -136,4 +151,56 @@ function createPeer() {
             reject(error)
         })
     })
+}
+
+function setupVoiceChat(
+    peerType: MultiPlayerSession['type'],
+    currentPeer: Peer,
+    otherEndPeerId: string,
+) {
+    return navigator.mediaDevices
+        .getUserMedia({
+            audio: true,
+            video: false,
+            preferCurrentTab: true,
+        })
+        .then(
+            (userMediaStream) =>
+                new Promise<void>((resolve) => {
+                    if (peerType === 'host') {
+                        console.log('Calling a peer')
+
+                        const audioCallConnection = currentPeer.call(
+                            otherEndPeerId,
+                            userMediaStream,
+                        )
+
+                        console.log(`Call accepted: ${audioCallConnection}`)
+
+                        audioCallConnection.addListener('stream', (stream) => {
+                            const audio = new Audio()
+                            audio.srcObject = stream
+                            audio.play()
+                        })
+
+                        resolve()
+                    } else {
+                        console.log('Waiting for a call')
+
+                        currentPeer.addListener('call', (call) => {
+                            console.log('Answering the call')
+
+                            call.answer(userMediaStream)
+
+                            call.addListener('stream', (stream) => {
+                                const audio = new Audio()
+                                audio.srcObject = stream
+                                audio.play()
+                            })
+
+                            resolve()
+                        })
+                    }
+                }),
+        )
 }
