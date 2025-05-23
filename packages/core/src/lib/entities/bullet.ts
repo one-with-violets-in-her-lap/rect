@@ -17,24 +17,12 @@ export class Bullet extends GameEntity {
 
     radiansAngle = 0
 
-    private damageSound?: Sound
-    private obstacleHitSound?: Sound
-
     protected async load() {
         await Assets.load(bulletSpriteImage)
 
         const pixiObject = Sprite.from(bulletSpriteImage)
         pixiObject.width = 40
         pixiObject.height = 19
-
-        this.damageSound = Sound.from({
-            url: hitFleshSound,
-            volume: 0.7,
-        })
-        this.obstacleHitSound = Sound.from({
-            url: metalHitSound,
-            volume: 0.3,
-        })
 
         return pixiObject
     }
@@ -61,9 +49,11 @@ export class Bullet extends GameEntity {
 
                     if (error.collidingEntity instanceof Character) {
                         error.collidingEntity.damageAndSync(BULLET_DAMAGE)
-                        this.damageSound?.play()
+                        this.game.soundManager.playAndSync('damage')
                     } else {
-                        this.obstacleHitSound?.play()
+                        this.game.soundManager.playAndSync(
+                            'bulletObstacleHit',
+                        )
                     }
                 } else {
                     throw error

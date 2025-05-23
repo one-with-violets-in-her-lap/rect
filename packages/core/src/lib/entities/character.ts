@@ -1,9 +1,6 @@
 import characterSpriteImage from '@core/assets/images/character-1.png'
-import gunShotSound from '@core/assets/audio/22-caliber-with-ricochet.mp3'
-import stabSound from '@core/assets/audio/sword-stab-flesh.mp3'
 
 import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
-import { Sound } from '@pixi/sound'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
@@ -27,9 +24,6 @@ export class Character extends GameEntity {
     private characterSynchronizer: CharacterSynchronizer | null = null
 
     private health = 100
-
-    private shotSound?: Sound
-    private deathSound?: Sound
 
     constructor(
         game: Game,
@@ -79,7 +73,7 @@ export class Character extends GameEntity {
 
         if (this.health === 0) {
             this.game.destroyEntity(this, false)
-            this.deathSound?.play()
+            this.game.soundManager.playAndSync('kill')
 
             // If character is remote entity that died, then the opponent lost
             // and the current player won
@@ -94,15 +88,6 @@ export class Character extends GameEntity {
 
         const pixiObject = Sprite.from(characterSpriteImage)
         pixiObject.setSize(CHARACTER_SIZE)
-
-        this.shotSound = Sound.from({
-            url: gunShotSound,
-            volume: 0.45,
-        })
-        this.deathSound = Sound.from({
-            url: stabSound,
-            volume: 0.7,
-        })
 
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
@@ -158,7 +143,7 @@ export class Character extends GameEntity {
             pixiObject.y +
             yMultiplier * (yMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
 
-        this.shotSound?.play()
+        this.game.soundManager.playAndSync('shot')
 
         const bullet = new Bullet(this.game, {
             x: bulletX,
