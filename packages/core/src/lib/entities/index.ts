@@ -72,7 +72,8 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
         this.pixiObject.position = this.initialPosition
 
-        this.jumpSound = Sound.from({ // TODO: move to character entity class
+        this.jumpSound = Sound.from({
+            // TODO: move to character entity class
             url: jumpSound,
             volume: 1,
         })
