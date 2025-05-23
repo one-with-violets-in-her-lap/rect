@@ -29,7 +29,7 @@ export class Bullet extends GameEntity {
 
         this.damageSound = Sound.from({
             url: hitFleshSound,
-            volume: 0.9,
+            volume: 0.7,
         })
         this.obstacleHitSound = Sound.from({
             url: metalHitSound,
