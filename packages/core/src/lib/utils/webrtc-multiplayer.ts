@@ -1,11 +1,6 @@
-import Peer, { type DataConnection } from 'peerjs'
-
-export interface MultiPlayerSession {
-    type: 'host' | 'other-end-peer'
-    receiveConnection: DataConnection
-    sendConnection: DataConnection
-    destroy: VoidFunction
-}
+import { MultiPlayerError } from '@core/lib/utils/errors'
+import { KeyBindings } from '@core/lib/utils/key-bindings'
+import Peer, { type MediaConnection, type DataConnection } from 'peerjs'
 
 export interface MultiPlayerPacket {
     type: `${string}/${string}`
@@ -53,22 +48,27 @@ export function connectToMultiPlayerSession(otherEndPeerId: string) {
                     otherEndPeerId,
                 )
 
-                currentPeer.once('connection', (receiveConnection) => {
+                currentPeer.once('connection', async (receiveConnection) => {
                     console.log(`Connected to ${receiveConnection.peer}`)
 
-                    sendConnectionCreationPromise
-                        .then((sendConnection) =>
-                            resolve({
-                                type: 'other-end-peer',
-                                sendConnection,
-                                receiveConnection,
-                                destroy() {
-                                    sendConnection.close()
-                                    receiveConnection.close()
-                                },
-                            }),
+                    try {
+                        const sendConnection =
+                            await sendConnectionCreationPromise
+
+                        const multiPlayerSession = new MultiPlayerSession(
+                            'other-end-peer',
+                            sendConnection,
+                            receiveConnection,
+                            currentPeer,
+                            receiveConnection.peer,
                         )
-                        .catch(reject)
+
+                        multiPlayerSession.setupVoiceChat()
+
+                        resolve(multiPlayerSession)
+                    } catch (error) {
+                        reject(error)
+                    }
                 })
             }),
     )
@@ -81,22 +81,28 @@ function waitForOtherPlayerConnection(currentPeer: Peer) {
                 `Connected to ${receiveConnection.peer}. Creating send connection...`,
             )
 
-            const sendConnection = await createSendDataConnection(
-                currentPeer,
-                receiveConnection.peer,
-            )
+            try {
+                const sendConnection = await createSendDataConnection(
+                    currentPeer,
+                    receiveConnection.peer,
+                )
 
-            currentPeer.off('error')
+                currentPeer.off('error')
 
-            resolve({
-                type: 'host',
-                receiveConnection,
-                sendConnection,
-                destroy() {
-                    sendConnection.close()
-                    receiveConnection.close()
-                },
-            })
+                const multiPlayerSession = new MultiPlayerSession(
+                    'host',
+                    sendConnection,
+                    receiveConnection,
+                    currentPeer,
+                    receiveConnection.peer,
+                )
+
+                multiPlayerSession.setupVoiceChat()
+
+                resolve(multiPlayerSession)
+            } catch (error) {
+                reject(error)
+            }
         })
 
         currentPeer.once('error', reject)
@@ -136,4 +142,139 @@ function createPeer() {
             reject(error)
         })
     })
+}
+
+export class MultiPlayerSession {
+    private voiceChat?: {
+        userMediaStream: MediaStream
+        isMuted: boolean
+        mediaRtcConnection: MediaConnection | null
+    }
+
+    doOnVoiceMuteUpdate: ((isMuted: boolean) => void) | null = null
+
+    private keyBindings: KeyBindings
+
+    constructor(
+        readonly type: 'host' | 'other-end-peer',
+        readonly sendConnection: DataConnection,
+        readonly receiveConnection: DataConnection,
+        readonly currentPeer: Peer,
+        readonly otherEndPeerId: string,
+    ) {
+        this.keyBindings = new KeyBindings([
+            {
+                // Press to talk
+                key: 'k',
+                doOnKeyDown: () => this.unmuteVoice(),
+                doOnKeyUp: () => this.muteVoice(),
+            },
+        ])
+    }
+
+    setupVoiceChat() {
+        return navigator.mediaDevices
+            .getUserMedia({
+                audio: true,
+                video: false,
+                preferCurrentTab: true,
+            })
+            .then(
+                (userMediaStream) =>
+                    new Promise<void>((resolve) => {
+                        this.voiceChat = {
+                            userMediaStream,
+                            mediaRtcConnection: null,
+                            isMuted: true,
+                        }
+                        this.muteVoice()
+
+                        if (this.type === 'host') {
+                            console.log('Calling a peer')
+
+                            this.voiceChat.mediaRtcConnection =
+                                this.currentPeer.call(
+                                    this.otherEndPeerId,
+                                    userMediaStream,
+                                )
+
+                            console.log(
+                                `Call accepted: ${this.voiceChat.mediaRtcConnection}`,
+                            )
+
+                            this.voiceChat.mediaRtcConnection.addListener(
+                                'stream',
+                                (stream) => {
+                                    const audio = new Audio()
+                                    audio.srcObject = stream
+                                    audio.play()
+                                },
+                            )
+
+                            resolve()
+                        } else {
+                            console.log('Waiting for a call')
+
+                            this.currentPeer.addListener('call', (call) => {
+                                console.log('Answering the call')
+
+                                if (!this.voiceChat) {
+                                    throw new MultiPlayerError(
+                                        'Voice chat is not initialized at time two peers ' +
+                                            'are connected. `this.voiceChat` is undefined',
+                                    )
+                                }
+                                this.voiceChat.mediaRtcConnection = call
+
+                                call.answer(userMediaStream)
+
+                                call.addListener('stream', (stream) => {
+                                    const audio = new Audio()
+                                    audio.srcObject = stream
+                                    audio.play()
+                                })
+
+                                resolve()
+                            })
+                        }
+
+                        this.keyBindings.initializeEventListeners()
+                    }),
+            )
+    }
+
+    destroy() {
+        this.sendConnection.close()
+        this.receiveConnection.close()
+        this.voiceChat?.mediaRtcConnection?.close()
+        this.keyBindings.disposeEventListeners()
+    }
+
+    muteVoice() {
+        if (this.voiceChat?.mediaRtcConnection === undefined) {
+            throw new MultiPlayerError('Voice chat is not initialized yet')
+        }
+
+        this.voiceChat.userMediaStream
+            .getAudioTracks()
+            .forEach((track) => (track.enabled = false))
+
+        if (this.doOnVoiceMuteUpdate) {
+            this.doOnVoiceMuteUpdate(true)
+        }
+    }
+
+    unmuteVoice() {
+        if (this.voiceChat?.userMediaStream === undefined) {
+            throw new MultiPlayerError('Voice chat is not initialized yet')
+        }
+
+        this.voiceChat.userMediaStream
+            .getAudioTracks()
+            .forEach((track) => (track.enabled = true))
+
+        if (this.doOnVoiceMuteUpdate) {
+            this.doOnVoiceMuteUpdate(false)
+        }
+    }
 }

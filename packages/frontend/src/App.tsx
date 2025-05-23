@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'sonner'
 import { connectToMultiPlayerSession } from 'rect'
-import { CreateGameView } from '@frontend/components/CreateGameView'
-import { GameContainer } from '@frontend/components/GameContainer'
+import { CreateGameView } from '@frontend/views/CreateGameView'
+import { GameView } from '@frontend/views/GameView'
 import type { MultiPlayerState } from '@frontend/models/multi-player-state'
 import { AppSpinner } from '@frontend/components/ui/AppSpinner'
 
@@ -60,9 +60,7 @@ export function App() {
             {multiPlayer.status === 'loading' ? (
                 <AppSpinner className="mx-auto my-24" />
             ) : multiPlayer.status === 'connected' ? (
-                <GameContainer
-                    multiPlayerSession={multiPlayer.multiPlayerSession}
-                />
+                <GameView multiPlayerSession={multiPlayer.multiPlayerSession} />
             ) : (
                 <CreateGameView
                     multiPlayer={multiPlayer}
