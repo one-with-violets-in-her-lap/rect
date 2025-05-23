@@ -126,6 +126,9 @@ function createPeer() {
     return new Promise<Peer>((resolve, reject) => {
         const peer = new Peer({
             debug: 2,
+            config: {
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+            },
         })
 
         peer.once('open', (peerId) => {
