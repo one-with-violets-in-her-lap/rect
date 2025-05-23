@@ -44,6 +44,7 @@ export function GameView({
     }
 
     useEffect(() => {
+        document.title = 'Rect | In-game'
         initializeGame()
     }, [])
 
