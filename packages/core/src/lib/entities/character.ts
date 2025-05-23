@@ -94,6 +94,7 @@ export class Character extends GameEntity {
 
         this.shotSound = Sound.from({
             url: gunShotSound,
+            volume: 0.7,
         })
 
         if (!this.isRemote) {
