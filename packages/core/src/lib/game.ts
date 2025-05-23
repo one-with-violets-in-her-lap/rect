@@ -62,7 +62,7 @@ export class Game {
         await this.pixiApp.init({
             width: GAME_CANVAS_WIDTH,
             height: GAME_CANVAS_HEIGHT,
-            backgroundColor: '#FFFFFF',
+            backgroundAlpha: 0,
         })
         containerElement.replaceChildren(this.pixiApp.canvas)
 
