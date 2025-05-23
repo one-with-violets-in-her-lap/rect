@@ -1,5 +1,4 @@
 import { Container, Ticker } from 'pixi.js'
-import { Sound } from '@pixi/sound'
 import { Game } from '@core/lib/game'
 import { CollisionError, NotInitializedError } from '@core/lib/utils/errors'
 import { type Position } from '@core/lib/utils/position'
