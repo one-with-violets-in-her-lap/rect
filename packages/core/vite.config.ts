@@ -7,4 +7,8 @@ export default defineConfig({
             '@core': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
+
+    optimizeDeps: {
+        include: ['pixi.js'],
+    },
 })

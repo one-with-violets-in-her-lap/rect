@@ -1,4 +1,7 @@
+import jumpSound from '@core/assets/audio/jump.mp3'
+
 import { Container, Ticker } from 'pixi.js'
+import { Sound } from '@pixi/sound'
 import { Game } from '@core/lib/game'
 import { CollisionError, NotInitializedError } from '@core/lib/utils/errors'
 import { type Position } from '@core/lib/utils/position'
@@ -46,6 +49,8 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     private synchronizer: EntitySynchronizer | null = null
 
+    private jumpSound?: Sound
+
     constructor(
         protected readonly game: Game,
         readonly initialPosition: Position,
@@ -66,6 +71,12 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         this.pixiObject = await this.load()
 
         this.pixiObject.position = this.initialPosition
+
+        this.jumpSound = Sound.from({
+            // TODO: move to character entity class
+            url: jumpSound,
+            volume: 1,
+        })
 
         return this.pixiObject
     }
@@ -158,6 +169,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 GRAVITY_FORCE * ticker.deltaTime
 
             if (this.movementStatus.isJumping) {
+                this.jumpSound?.play()
                 this.movementStatus.isGrounded = false
                 this.movementStatus.verticalVelocity = -JUMP_FORCE
                 this.movementStatus.isJumping = false
