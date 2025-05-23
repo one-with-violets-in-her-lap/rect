@@ -20,7 +20,7 @@ export function GameOverlay({
     useEffect(() => {
         multiPlayerSession.doOnVoiceMuteUpdate = handleVoiceMuteUpdate
 
-        let microphoneTipShowTimeoutId = window.setTimeout(() => {
+        const microphoneTipShowTimeoutId = window.setTimeout(() => {
             setMuteToggleShortcutTipVisible(true)
         }, 2000)
 
