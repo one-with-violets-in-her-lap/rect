@@ -1,5 +1,6 @@
 import characterSpriteImage from '@core/assets/images/character-1.png'
-import gunShotSound from '@core/assets/audio/gun-shot.mp3'
+import gunShotSound from '@core/assets/audio/22-caliber-with-ricochet.mp3'
+import stabSound from '@core/assets/audio/sword-stab-flesh.mp3'
 
 import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
 import { Sound } from '@pixi/sound'
@@ -28,6 +29,7 @@ export class Character extends GameEntity {
     private health = 100
 
     private shotSound?: Sound
+    private deathSound?: Sound
 
     constructor(
         game: Game,
@@ -77,6 +79,7 @@ export class Character extends GameEntity {
 
         if (this.health === 0) {
             this.game.destroyEntity(this, false)
+            this.deathSound?.play()
 
             // If character is remote entity that died, then the opponent lost
             // and the current player won
@@ -94,6 +97,10 @@ export class Character extends GameEntity {
 
         this.shotSound = Sound.from({
             url: gunShotSound,
+            volume: 0.45,
+        })
+        this.deathSound = Sound.from({
+            url: stabSound,
             volume: 0.7,
         })
 
