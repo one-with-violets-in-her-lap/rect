@@ -1,6 +1,8 @@
 import characterSpriteImage from '@core/assets/images/character-1.png'
+import gunShotSound from '@core/assets/audio/gun-shot.mp3'
 
 import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
+import { Sound } from '@pixi/sound'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
@@ -24,6 +26,8 @@ export class Character extends GameEntity {
     private characterSynchronizer: CharacterSynchronizer | null = null
 
     private health = 100
+
+    private shotSound?: Sound
 
     constructor(
         game: Game,
@@ -88,6 +92,10 @@ export class Character extends GameEntity {
         const pixiObject = Sprite.from(characterSpriteImage)
         pixiObject.setSize(CHARACTER_SIZE)
 
+        this.shotSound = Sound.from({
+            url: gunShotSound,
+        })
+
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
                 text: 'You',
@@ -141,6 +149,8 @@ export class Character extends GameEntity {
         const bulletY =
             pixiObject.y +
             yMultiplier * (yMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
+
+        this.shotSound?.play()
 
         const bullet = new Bullet(this.game, {
             x: bulletX,
