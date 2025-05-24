@@ -9,7 +9,12 @@
     --color-primary: var(--color-pink-500);
 }
 
+html {
+    height: 100%;
+}
+
 body {
     background-color: var(--color-background);
     color: var(--color-stroke);
+    height: 100%;
 }

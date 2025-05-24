@@ -61,7 +61,7 @@ export function CreateGameView({
     }
 
     return (
-        <div className="mx-auto max-w-4xl px-6 py-46">
+        <div className="mx-auto flex h-full max-w-4xl items-center px-4 py-6">
             <section
                 className={buildClassName(
                     'transition-all',

@@ -46,7 +46,7 @@ export function App() {
     }, [])
 
     return (
-        <div>
+        <>
             <Toaster
                 richColors
                 className="text-xl"
@@ -67,6 +67,6 @@ export function App() {
                     onMultiPlayerStateUpdate={setMultiPlayer}
                 />
             )}
-        </div>
+        </>
     )
 }
