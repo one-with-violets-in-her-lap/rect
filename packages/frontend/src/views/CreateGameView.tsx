@@ -85,9 +85,10 @@ export function CreateGameView({
 
             <section
                 className={buildClassName(
-                    'pointer-events-none -translate-x-96 opacity-0 transition-all delay-500 duration-500',
-                    multiPlayer.status === 'waiting-for-peer-to-connect' &&
-                        'translate-x-0 opacity-100 pointer-events-auto',
+                    'transition-all delay-500 duration-500',
+                    multiPlayer.status === 'waiting-for-peer-to-connect'
+                        ? 'pointer-events-auto translate-x-0 opacity-100'
+                        : 'pointer-events-none -translate-x-96 opacity-0',
                 )}
             >
                 <h2 className="mb-7 text-5xl font-semibold max-md:text-4xl">
