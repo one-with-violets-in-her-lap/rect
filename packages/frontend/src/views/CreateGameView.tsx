@@ -67,7 +67,7 @@ export function CreateGameView({
                     'transition-all',
                     'duration-700',
                     multiPlayer.status === 'waiting-for-peer-to-connect' &&
-                        'absolute -translate-y-96 opacity-0',
+                        'pointer-events-none absolute -translate-y-96 opacity-0',
                 )}
             >
                 <h1 className="mb-5 text-6xl font-semibold">Rect</h1>
@@ -85,7 +85,7 @@ export function CreateGameView({
 
             <section
                 className={buildClassName(
-                    '-translate-x-96 opacity-0 transition-all delay-500 duration-500',
+                    'pointer-events-none -translate-x-96 opacity-0 transition-all delay-500 duration-500',
                     multiPlayer.status === 'waiting-for-peer-to-connect' &&
                         'translate-x-0 opacity-100',
                 )}
