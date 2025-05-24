@@ -129,6 +129,9 @@ function createPeer() {
             config: {
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
             },
+            host: 'peerjs-signaling-server.onrender.com',
+            referrerPolicy: 'no-referrer',
+            secure: true,
         })
 
         peer.once('open', (peerId) => {
