@@ -90,14 +90,14 @@ export function CreateGameView({
                         'translate-x-0 opacity-100',
                 )}
             >
-                <h2 className="mb-7 text-5xl font-semibold">
+                <h2 className="mb-7 text-5xl font-semibold max-md:text-4xl">
                     Waiting for another player to connect
                 </h2>
 
                 <p className="mb-5 text-xl">Give your friend this link:</p>
 
-                <div className="text-primary flex max-w-lg items-center gap-x-4 rounded-lg bg-pink-50 px-4 py-3">
-                    <div className="grow overflow-x-hidden text-nowrap">
+                <div className="text-primary grid max-w-lg grid-cols-[1fr_48px] items-center gap-x-4 rounded-lg bg-pink-50 px-4 py-3">
+                    <div className="max-w-full grow overflow-x-hidden text-nowrap">
                         {connectUrl}
                     </div>
 
