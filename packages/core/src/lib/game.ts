@@ -6,6 +6,7 @@ import {
     type GameSynchronizer,
 } from '@core/lib/multi-player-sync/game'
 import { RectGameError } from '@core/lib/utils/errors'
+import { SoundManager } from '@core/lib/sounds'
 
 export const GAME_CANVAS_WIDTH = 1900
 export const GAME_CANVAS_HEIGHT = 950
@@ -34,6 +35,8 @@ export class Game {
     pixiApp: Application
     synchronizer: GameSynchronizer | null = null
 
+    soundManager: SoundManager
+
     doOnEnd: ((isWinner: boolean) => void) | null = null
 
     entities: GameEntity[] = []
@@ -45,6 +48,8 @@ export class Game {
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
+
+        this.soundManager = new SoundManager(this.multiPlayerSession || null)
 
         if (this.multiPlayerSession) {
             this.synchronizer = createGameSynchronizer(
@@ -79,6 +84,8 @@ export class Game {
         } else {
             await this.synchronizer?.waitForGameInitialization()
         }
+
+        this.soundManager.initializeAndLoadSounds()
 
         this.windowResizeHandler = () => resizeCanvas(this.pixiApp.canvas)
         window.addEventListener('resize', this.windowResizeHandler)
