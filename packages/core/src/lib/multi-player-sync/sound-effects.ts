@@ -15,7 +15,7 @@ export interface SoundEffectSynchronizer {
     cleanup(): void
 }
 
-export function createSoundsSynchronizer(
+export function createSoundEffectSynchronizer(
     soundManager: SoundManager,
     multiPlayerSession: MultiPlayerSession,
 ): SoundEffectSynchronizer {

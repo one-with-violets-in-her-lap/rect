@@ -6,7 +6,7 @@ import stabSound from '@core/assets/audio/sword-stab-flesh.mp3'
 import gunShotSound from '@core/assets/audio/22-caliber-with-ricochet.mp3'
 
 import {
-    createSoundsSynchronizer,
+    createSoundEffectSynchronizer,
     type SoundEffectSynchronizer,
 } from '@core/lib/multi-player-sync/sound-effects'
 import { getTypedObjectKeys } from '@core/lib/utils/objects'
@@ -58,7 +58,7 @@ export class SoundManager {
 
     async initializeAndLoadSounds() {
         if (this.multiPlayerSession !== null) {
-            this.soundEffectsSynchronizer = createSoundsSynchronizer(
+            this.soundEffectsSynchronizer = createSoundEffectSynchronizer(
                 this,
                 this.multiPlayerSession,
             )
