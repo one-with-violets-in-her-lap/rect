@@ -2,7 +2,7 @@
 
 # Rect
 
-Multi-player 2D shooter game
+Multi-player 2D shooter game with voice chat
 
 Built with WebRTC and Pixi.js. UI and core game logic are located in different monorepo packages (npm workspaces)
 
