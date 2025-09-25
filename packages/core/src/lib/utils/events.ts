@@ -13,7 +13,6 @@ export class Emits<TEvents extends Record<string, { (...args: any): void }>> {
         this.listeners[event]?.push(handler)
 
         const remove = () => {
-            console.log('Removing', event, handler)
             if (!this.listeners[event]) {
                 return
             }
