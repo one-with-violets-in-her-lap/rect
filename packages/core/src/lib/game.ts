@@ -91,11 +91,12 @@ export class Game {
         )
 
         if (this.multiPlayerSession) {
-            this.multiPlayerSession.doOnConnectionClose = () =>
+            this.multiPlayerSession.addEventListener('player-disconnect', () =>
                 this.endWithAnimation({
                     error: 'opponent-disconnected',
                     status: 'error',
-                })
+                }),
+            )
         }
 
         if (this.multiPlayerSession?.type === 'host') {
@@ -130,6 +131,8 @@ export class Game {
         if (this.windowResizeHandler) {
             window.removeEventListener('resize', this.windowResizeHandler)
         }
+
+        this.multiPlayerSession?.destroy()
 
         this.synchronizer?.cleanup()
 

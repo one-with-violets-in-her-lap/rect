@@ -1,6 +1,7 @@
+import Peer, { type MediaConnection, type DataConnection } from 'peerjs'
 import { MultiPlayerError } from '@core/lib/utils/errors'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
-import Peer, { type MediaConnection, type DataConnection } from 'peerjs'
+import { Emits } from '@core/lib/utils/events'
 
 export interface MultiPlayerPacket {
     type: `${string}/${string}`
@@ -150,15 +151,15 @@ function createPeer() {
     })
 }
 
-export class MultiPlayerSession {
+export class MultiPlayerSession extends Emits<{
+    'voice-chat-mute-update': { (isMuted: boolean): void }
+    'player-disconnect': { (): void }
+}> {
     private voiceChat?: {
         userMediaStream: MediaStream
         isMuted: boolean
         mediaRtcConnection: MediaConnection | null
     }
-
-    doOnVoiceMuteUpdate: ((isMuted: boolean) => void) | null = null
-    doOnConnectionClose: (() => void) | null = null
 
     private keyBindings: KeyBindings
 
@@ -169,6 +170,8 @@ export class MultiPlayerSession {
         readonly currentPeer: Peer,
         readonly otherEndPeerId: string,
     ) {
+        super()
+
         this.keyBindings = new KeyBindings([
             {
                 // Press to talk
@@ -179,8 +182,9 @@ export class MultiPlayerSession {
         ])
 
         this.receiveConnection.on('iceStateChanged', (newState) => {
-            if (newState === 'disconnected' && this.doOnConnectionClose) {
-                this.doOnConnectionClose()
+	    console.log(newState)
+            if (newState === 'disconnected') {
+                this.emit('player-disconnect')
             }
         })
     }
@@ -275,9 +279,7 @@ export class MultiPlayerSession {
             .getAudioTracks()
             .forEach((track) => (track.enabled = false))
 
-        if (this.doOnVoiceMuteUpdate) {
-            this.doOnVoiceMuteUpdate(true)
-        }
+        this.emit('voice-chat-mute-update', true)
     }
 
     unmuteVoice() {
@@ -289,8 +291,6 @@ export class MultiPlayerSession {
             .getAudioTracks()
             .forEach((track) => (track.enabled = true))
 
-        if (this.doOnVoiceMuteUpdate) {
-            this.doOnVoiceMuteUpdate(false)
-        }
+        this.emit('voice-chat-mute-update', false)
     }
 }
