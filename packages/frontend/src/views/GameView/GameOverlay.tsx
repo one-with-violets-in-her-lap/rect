@@ -18,7 +18,10 @@ export function GameOverlay({
     }
 
     useEffect(() => {
-        multiPlayerSession.doOnVoiceMuteUpdate = handleVoiceMuteUpdate
+        const voiceMuteUpdateListener = multiPlayerSession.addEventListener(
+            'voice-chat-mute-update',
+            handleVoiceMuteUpdate,
+        )
 
         const microphoneTipShowTimeoutId = window.setTimeout(() => {
             setMuteToggleShortcutTipVisible(true)
@@ -26,7 +29,7 @@ export function GameOverlay({
 
         return () => {
             window.clearTimeout(microphoneTipShowTimeoutId)
-            multiPlayerSession.doOnVoiceMuteUpdate = null
+            voiceMuteUpdateListener.remove()
         }
     }, [])
 

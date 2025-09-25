@@ -72,12 +72,13 @@ export class Character extends GameEntity {
         this.health = Math.max(this.health - damagePoints, 0)
 
         if (this.health === 0) {
-            this.game.destroyEntity(this, false)
-            this.game.soundManager.playAndSync('kill')
+            this.die()
 
-            // If character is remote entity that died, then the opponent lost
-            // and the current player won
-            this.game.endWithAnimation(this.isRemote)
+            this.game.endWithAnimation({
+                // If character is remote entity that died, then the opponent lost
+                // and the current player won
+                status: this.isRemote ? 'won' : 'lost',
+            })
         }
     }
 
@@ -112,6 +113,14 @@ export class Character extends GameEntity {
             )
             this.keyBindings.initializeEventListeners()
         }
+
+        this.game.multiPlayerSession?.addEventListener(
+            'player-disconnect',
+            () => {
+                this.die()
+            },
+            this.abortController.signal,
+        )
 
         return pixiObject
     }
@@ -153,5 +162,10 @@ export class Character extends GameEntity {
         await bullet.initialize()
 
         this.game.addEntityAndSyncMultiPlayer(bullet)
+    }
+
+    private die() {
+        this.game.destroyEntity(this, false)
+        this.game.soundManager.playAndSync('kill')
     }
 }

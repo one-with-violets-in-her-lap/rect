@@ -31,13 +31,24 @@ function resizeCanvas(canvasElement: HTMLCanvasElement) {
     }
 }
 
+export type GameResultError = 'opponent-disconnected'
+
+export type GameResult =
+    | {
+          status: 'won' | 'lost'
+      }
+    | {
+          status: 'error'
+          error: GameResultError
+      }
+
 export class Game {
     pixiApp: Application
     synchronizer: GameSynchronizer | null = null
 
     soundManager: SoundManager
 
-    doOnEnd: ((isWinner: boolean) => void) | null = null
+    doOnEnd: ((result: GameResult) => void) | null = null
 
     entities: GameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
@@ -79,6 +90,15 @@ export class Game {
             GAME_CANVAS_HEIGHT,
         )
 
+        if (this.multiPlayerSession) {
+            this.multiPlayerSession.addEventListener('player-disconnect', () =>
+                this.endWithAnimation({
+                    error: 'opponent-disconnected',
+                    status: 'error',
+                }),
+            )
+        }
+
         if (this.multiPlayerSession?.type === 'host') {
             this.synchronizer?.sendGameInitialization()
         } else {
@@ -95,12 +115,12 @@ export class Game {
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
-    async endWithAnimation(isWinner: boolean) {
+    async endWithAnimation(result: GameResult) {
         this.pixiApp.ticker.speed = 0.3
 
         setTimeout(() => {
             if (this.doOnEnd) {
-                this.doOnEnd(isWinner)
+                this.doOnEnd(result)
             }
 
             this.pixiApp.stop()
@@ -111,6 +131,8 @@ export class Game {
         if (this.windowResizeHandler) {
             window.removeEventListener('resize', this.windowResizeHandler)
         }
+
+        this.multiPlayerSession?.destroy()
 
         this.synchronizer?.cleanup()
 
