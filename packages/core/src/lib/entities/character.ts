@@ -75,9 +75,11 @@ export class Character extends GameEntity {
             this.game.destroyEntity(this, false)
             this.game.soundManager.playAndSync('kill')
 
-            // If character is remote entity that died, then the opponent lost
-            // and the current player won
-            this.game.endWithAnimation(this.isRemote)
+            this.game.endWithAnimation({
+                // If character is remote entity that died, then the opponent lost
+                // and the current player won
+                status: this.isRemote ? 'won' : 'lost',
+            })
         }
     }
 

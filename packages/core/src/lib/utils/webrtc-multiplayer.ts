@@ -158,6 +158,7 @@ export class MultiPlayerSession {
     }
 
     doOnVoiceMuteUpdate: ((isMuted: boolean) => void) | null = null
+    doOnConnectionClose: (() => void) | null = null
 
     private keyBindings: KeyBindings
 
@@ -176,6 +177,12 @@ export class MultiPlayerSession {
                 doOnKeyUp: () => this.muteVoice(),
             },
         ])
+
+        this.receiveConnection.on('iceStateChanged', (newState) => {
+            if (newState === 'disconnected' && this.doOnConnectionClose) {
+                this.doOnConnectionClose()
+            }
+        })
     }
 
     setupVoiceChat() {
@@ -250,8 +257,11 @@ export class MultiPlayerSession {
     }
 
     destroy() {
+        this.receiveConnection.off('iceStateChanged')
+
         this.sendConnection.close()
         this.receiveConnection.close()
+
         this.voiceChat?.mediaRtcConnection?.close()
         this.keyBindings.disposeEventListeners()
     }

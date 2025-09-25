@@ -60,7 +60,12 @@ export function App() {
             {multiPlayer.status === 'loading' ? (
                 <AppSpinner className="mx-auto my-24" />
             ) : multiPlayer.status === 'connected' ? (
-                <GameView multiPlayerSession={multiPlayer.multiPlayerSession} />
+                <GameView
+                    multiPlayerSession={multiPlayer.multiPlayerSession}
+                    onBackToMenu={() =>
+                        setMultiPlayer({ status: 'not-initialized' })
+                    }
+                />
             ) : (
                 <CreateGameView
                     multiPlayer={multiPlayer}
