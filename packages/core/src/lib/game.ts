@@ -54,8 +54,9 @@ export class Game {
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
 
-    private windowResizeHandler?: VoidFunction
     private initialized = false
+
+    private abortController = new AbortController()
 
     constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
@@ -91,11 +92,14 @@ export class Game {
         )
 
         if (this.multiPlayerSession) {
-            this.multiPlayerSession.addEventListener('player-disconnect', () =>
-                this.endWithAnimation({
-                    error: 'opponent-disconnected',
-                    status: 'error',
-                }),
+            this.multiPlayerSession.addEventListener(
+                'player-disconnect',
+                () =>
+                    this.endWithAnimation({
+                        error: 'opponent-disconnected',
+                        status: 'error',
+                    }),
+                this.abortController.signal,
             )
         }
 
@@ -107,11 +111,15 @@ export class Game {
 
         this.soundManager.initializeAndLoadSounds()
 
-        this.windowResizeHandler = () => resizeCanvas(this.pixiApp.canvas)
-        window.addEventListener('resize', this.windowResizeHandler)
-        this.windowResizeHandler()
+        window.addEventListener(
+            'resize',
+            () => resizeCanvas(this.pixiApp.canvas),
+            { signal: this.abortController.signal },
+        )
+        resizeCanvas(this.pixiApp.canvas)
 
         this.initialized = true
+
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
@@ -128,11 +136,7 @@ export class Game {
     }
 
     async destroy() {
-        if (this.windowResizeHandler) {
-            window.removeEventListener('resize', this.windowResizeHandler)
-        }
-
-        this.multiPlayerSession?.destroy()
+        this.abortController.abort()
 
         this.synchronizer?.cleanup()
 
