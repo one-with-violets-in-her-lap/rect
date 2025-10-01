@@ -35,7 +35,6 @@ export class Emits<TEvents extends Record<string, { (...args: any): void }>> {
         event: TEvent,
         ...args: Parameters<TEvents[TEvent]>
     ) {
-        console.log(this.listeners)
         this.listeners[event]?.forEach((listener) => listener(...args))
     }
 }
