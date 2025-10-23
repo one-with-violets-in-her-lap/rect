@@ -22,7 +22,7 @@ const sounds = {
 
     land: {
         url: landSound,
-        volume: 1,
+        volume: 0.2,
     },
 
     damage: {
