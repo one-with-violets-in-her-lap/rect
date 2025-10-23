@@ -182,7 +182,7 @@ export class MultiPlayerSession extends Emits<{
         ])
 
         this.receiveConnection.on('iceStateChanged', (newState) => {
-	    	console.log("ICE state changed:", newState)
+            console.log('ICE state changed:', newState)
             if (newState === 'disconnected') {
                 this.emit('player-disconnect')
             }
