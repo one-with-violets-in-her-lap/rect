@@ -158,7 +158,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 GRAVITY_FORCE * ticker.deltaTime
 
             if (this.movementStatus.isJumping) {
-                this.game.soundManager.playAndSync('jump')
+                this.game.soundManager.play('jump')
 
                 this.movementStatus.isGrounded = false
                 this.movementStatus.verticalVelocity = -JUMP_FORCE

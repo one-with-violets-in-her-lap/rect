@@ -69,19 +69,17 @@ export class SoundManager {
         }
     }
 
-    playAndSync(soundName: SoundName) {
-        this.play(soundName)
-        this.soundEffectsSynchronizer?.syncPlayedSound(soundName)
-    }
-
-    play(soundName: SoundName) {
+    play(soundName: SoundName, options: { sync: boolean } = { sync: true }) {
         if (this.loadedSounds[soundName] === undefined) {
             console.warn(
                 `Failed to play ${soundName} because it hasn't been loaded yet`,
             )
             return
         }
-
         this.loadedSounds[soundName].play()
+
+        if (options.sync) {
+            this.soundEffectsSynchronizer?.syncPlayedSound(soundName)
+        }
     }
 }

@@ -152,7 +152,7 @@ export class Character extends GameEntity {
             pixiObject.y +
             yMultiplier * (yMultiplier >= 0 ? bulletOffset : bulletOffset / 2)
 
-        this.game.soundManager.playAndSync('shot')
+        this.game.soundManager.play('shot')
 
         const bullet = new Bullet(this.game, {
             x: bulletX,
@@ -166,6 +166,6 @@ export class Character extends GameEntity {
 
     private die() {
         this.game.destroyEntity(this, false)
-        this.game.soundManager.playAndSync('kill')
+        this.game.soundManager.play('kill')
     }
 }

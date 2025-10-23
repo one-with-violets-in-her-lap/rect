@@ -46,9 +46,9 @@ export class Bullet extends GameEntity {
 
                     if (error.collidingEntity instanceof Character) {
                         error.collidingEntity.damageAndSync(BULLET_DAMAGE)
-                        this.game.soundManager.playAndSync('damage')
+                        this.game.soundManager.play('damage')
                     } else {
-                        this.game.soundManager.playAndSync('bulletObstacleHit')
+                        this.game.soundManager.play('bulletObstacleHit')
                     }
                 } else {
                     throw error

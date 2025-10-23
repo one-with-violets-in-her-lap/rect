@@ -23,7 +23,7 @@ export function createSoundEffectSynchronizer(
         multiPlayerSession.receiveConnection,
         'sound/play',
         (soundEffectPacket: SoundEffectPacket) => {
-            soundManager.play(soundEffectPacket.soundName)
+            soundManager.play(soundEffectPacket.soundName, { sync: false })
         },
     )
 
