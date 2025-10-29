@@ -1,6 +1,13 @@
-import characterSpriteImage from '@core/assets/images/character-1.png'
+import characterSpritesheetImage from '@core/assets/sprites/character/spritesheet.png'
+import characterSpritesheetData from '@core/assets/sprites/character/spritesheet.json'
 
-import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
+import {
+    AnimatedSprite,
+    Assets,
+    FederatedPointerEvent,
+    Spritesheet,
+    Text,
+} from 'pixi.js'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
@@ -10,11 +17,12 @@ import {
     type CharacterSynchronizer,
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
+import { NotInitializedError } from '../utils/errors'
 
-export const CHARACTER_SIZE = { width: 112, height: 116 }
+export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
-export class Character extends GameEntity {
+export class Character extends GameEntity<AnimatedSprite> {
     typeName: EntityTypeName = 'character'
     options = { enableCollision: true, enableGravity: true }
 
@@ -24,6 +32,8 @@ export class Character extends GameEntity {
     private characterSynchronizer: CharacterSynchronizer | null = null
 
     private health = 100
+
+    private spritesheet?: Spritesheet<typeof characterSpritesheetData>
 
     constructor(
         game: Game,
@@ -36,14 +46,14 @@ export class Character extends GameEntity {
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
-                doOnKeyDown: () => (this.movementStatus.isMovingRight = true),
-                doOnKeyUp: () => (this.movementStatus.isMovingRight = false),
+                doOnKeyDown: () => this.startMoveRight(),
+                doOnKeyUp: () => this.stopMovingRight(),
             },
 
             {
                 key: 'a',
-                doOnKeyDown: () => (this.movementStatus.isMovingLeft = true),
-                doOnKeyUp: () => (this.movementStatus.isMovingLeft = false),
+                doOnKeyDown: () => this.startMoveLeft(),
+                doOnKeyUp: () => this.stopMovingLeft(),
             },
 
             {
@@ -85,9 +95,26 @@ export class Character extends GameEntity {
     async load() {
         this.abortController = new AbortController()
 
-        await Assets.load(characterSpriteImage)
+        const characterSpritesheetTexture = await Assets.load(
+            characterSpritesheetImage,
+        )
+        this.spritesheet = new Spritesheet(
+            characterSpritesheetTexture,
+            characterSpritesheetData,
+        )
+        await this.spritesheet.parse()
 
-        const pixiObject = Sprite.from(characterSpriteImage)
+        for (const texture of Object.values(this.spritesheet.textures)) {
+            texture.orig.width = CHARACTER_SIZE.width
+            texture.orig.height = CHARACTER_SIZE.height
+        }
+
+        const pixiObject = new AnimatedSprite(this.spritesheet.animations.still)
+        pixiObject.scale.set(1)
+        pixiObject.animationSpeed = 0.2
+        pixiObject.loop = true
+        pixiObject.play()
+
         pixiObject.setSize(CHARACTER_SIZE)
 
         if (!this.isRemote) {
@@ -167,5 +194,73 @@ export class Character extends GameEntity {
     private die() {
         this.game.destroyEntity(this, false)
         this.game.soundManager.play('kill')
+    }
+
+    private stopMovingRight() {
+        console.log('stop right')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        if (!this.movementStatus.isMovingLeft) {
+            this.pixiObject.textures = this.spritesheet.animations.still
+            this.pixiObject.play()
+            this.pixiObject.scale.set(1)
+        }
+
+        this.movementStatus.isMovingRight = false
+    }
+
+    private stopMovingLeft() {
+        console.log('stop left')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        if (!this.movementStatus.isMovingRight) {
+            this.pixiObject.textures = this.spritesheet.animations.still
+            this.pixiObject.play()
+            this.pixiObject.scale.set(1)
+        }
+
+        this.movementStatus.isMovingLeft = false
+    }
+
+    private startMoveRight() {
+        console.log('start right')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        this.pixiObject.textures = this.spritesheet.animations['run-right']
+        this.pixiObject.play()
+        this.pixiObject.scale.set(1)
+
+        this.movementStatus.isMovingRight = true
+    }
+
+    private startMoveLeft() {
+        console.log('start left')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        this.pixiObject.textures = this.spritesheet.animations['run-left']
+        this.pixiObject.play()
+        this.pixiObject.scale.set(1)
+
+        this.movementStatus.isMovingLeft = true
     }
 }

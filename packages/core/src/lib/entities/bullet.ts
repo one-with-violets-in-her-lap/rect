@@ -1,4 +1,4 @@
-import bulletSpriteImage from '@core/assets/images/bullet.png'
+import bulletSpriteImage from '@core/assets/sprites/bullet.png'
 
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { Character } from '@core/lib/entities/character'
