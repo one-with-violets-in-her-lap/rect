@@ -3,7 +3,6 @@ import characterSpritesheetData from '@core/assets/sprites/character/spritesheet
 
 import {
     AnimatedSprite,
-    Assets,
     FederatedPointerEvent,
     Spritesheet,
     Text,
@@ -18,6 +17,11 @@ import {
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
 import { NotInitializedError } from '../utils/errors'
+import {
+    createAnimatedSprite,
+    loadSpritesheet,
+    playAnimation,
+} from '../utils/sprites'
 
 export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
@@ -95,27 +99,16 @@ export class Character extends GameEntity<AnimatedSprite> {
     async load() {
         this.abortController = new AbortController()
 
-        const characterSpritesheetTexture = await Assets.load(
+        this.spritesheet = await loadSpritesheet(
             characterSpritesheetImage,
-        )
-        this.spritesheet = new Spritesheet(
-            characterSpritesheetTexture,
             characterSpritesheetData,
+            CHARACTER_SIZE,
         )
-        await this.spritesheet.parse()
 
-        for (const texture of Object.values(this.spritesheet.textures)) {
-            texture.orig.width = CHARACTER_SIZE.width
-            texture.orig.height = CHARACTER_SIZE.height
-        }
-
-        const pixiObject = new AnimatedSprite(this.spritesheet.animations.still)
-        pixiObject.scale.set(1)
-        pixiObject.animationSpeed = 0.2
-        pixiObject.loop = true
-        pixiObject.play()
-
-        pixiObject.setSize(CHARACTER_SIZE)
+        const pixiObject = await createAnimatedSprite(this.spritesheet.animations.still, CHARACTER_SIZE, {
+            animationSpeed: 0.2,
+            loop: true,
+        })
 
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
@@ -206,9 +199,10 @@ export class Character extends GameEntity<AnimatedSprite> {
         }
 
         if (!this.movementStatus.isMovingLeft) {
-            this.pixiObject.textures = this.spritesheet.animations.still
-            this.pixiObject.play()
-            this.pixiObject.scale.set(1)
+            playAnimation(
+                this.pixiObject,
+                this.spritesheet.animations['still'],
+            )
         }
 
         this.movementStatus.isMovingRight = false
@@ -224,9 +218,10 @@ export class Character extends GameEntity<AnimatedSprite> {
         }
 
         if (!this.movementStatus.isMovingRight) {
-            this.pixiObject.textures = this.spritesheet.animations.still
-            this.pixiObject.play()
-            this.pixiObject.scale.set(1)
+            playAnimation(
+                this.pixiObject,
+                this.spritesheet.animations['still'],
+            )
         }
 
         this.movementStatus.isMovingLeft = false
@@ -241,9 +236,10 @@ export class Character extends GameEntity<AnimatedSprite> {
             )
         }
 
-        this.pixiObject.textures = this.spritesheet.animations['run-right']
-        this.pixiObject.play()
-        this.pixiObject.scale.set(1)
+        playAnimation(
+            this.pixiObject,
+            this.spritesheet.animations['run-right'],
+        )
 
         this.movementStatus.isMovingRight = true
     }
@@ -257,9 +253,10 @@ export class Character extends GameEntity<AnimatedSprite> {
             )
         }
 
-        this.pixiObject.textures = this.spritesheet.animations['run-left']
-        this.pixiObject.play()
-        this.pixiObject.scale.set(1)
+        playAnimation(
+            this.pixiObject,
+            this.spritesheet.animations['run-left'],
+        )
 
         this.movementStatus.isMovingLeft = true
     }
