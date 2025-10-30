@@ -9,7 +9,7 @@ import {
 } from 'pixi.js'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
-import { KeyBindings } from '@core/lib/utils/key-bindings'
+import { KeyBindings, KeyCode } from '@core/lib/utils/key-bindings'
 import { type Position } from '@core/lib/utils/position'
 import { Bullet } from '@core/lib/entities/bullet'
 import {
@@ -54,19 +54,19 @@ export class Character extends GameEntity<AnimatedSprite> {
 
         this.keyBindings = new KeyBindings([
             {
-                key: 'd',
+                key: KeyCode.D,
                 doOnKeyDown: () => this.startMoveRight(),
                 doOnKeyUp: () => this.stopMovingRight(),
             },
 
             {
-                key: 'a',
+                key: KeyCode.A,
                 doOnKeyDown: () => this.startMoveLeft(),
                 doOnKeyUp: () => this.stopMovingLeft(),
             },
 
             {
-                key: ' ',
+                key: KeyCode.Space,
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])

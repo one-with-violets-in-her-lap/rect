@@ -1,6 +1,6 @@
 import Peer, { type MediaConnection, type DataConnection } from 'peerjs'
 import { MultiPlayerError } from '@core/lib/utils/errors'
-import { KeyBindings } from '@core/lib/utils/key-bindings'
+import { KeyBindings, KeyCode } from '@core/lib/utils/key-bindings'
 import { Emits } from '@core/lib/utils/events'
 
 export interface MultiPlayerPacket {
@@ -175,7 +175,7 @@ export class MultiPlayerSession extends Emits<{
         this.keyBindings = new KeyBindings([
             {
                 // Press to talk
-                key: 'k',
+                key: KeyCode.K,
                 doOnKeyDown: () => this.unmuteVoice(),
                 doOnKeyUp: () => this.muteVoice(),
             },
