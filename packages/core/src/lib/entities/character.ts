@@ -1,6 +1,12 @@
-import characterSpriteImage from '@core/assets/images/character-1.png'
+import characterSpritesheetImage from '@core/assets/sprites/character/spritesheet.png'
+import characterSpritesheetData from '@core/assets/sprites/character/spritesheet.json'
 
-import { Assets, FederatedPointerEvent, Sprite, Text } from 'pixi.js'
+import {
+    AnimatedSprite,
+    FederatedPointerEvent,
+    Spritesheet,
+    Text,
+} from 'pixi.js'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings } from '@core/lib/utils/key-bindings'
@@ -10,11 +16,21 @@ import {
     type CharacterSynchronizer,
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
+import { NotInitializedError } from '../utils/errors'
+import {
+    createAnimatedSprite,
+    loadSpritesheet,
+    playAnimation,
+} from '../utils/sprites'
+import {
+    createSpriteSynchronizer,
+    type SpriteSynchronizer,
+} from '../multi-player-sync/sprites'
 
-export const CHARACTER_SIZE = { width: 112, height: 116 }
+export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
 
-export class Character extends GameEntity {
+export class Character extends GameEntity<AnimatedSprite> {
     typeName: EntityTypeName = 'character'
     options = { enableCollision: true, enableGravity: true }
 
@@ -22,8 +38,11 @@ export class Character extends GameEntity {
 
     private abortController?: AbortController
     private characterSynchronizer: CharacterSynchronizer | null = null
+    private spriteSynchronizer: SpriteSynchronizer | null = null
 
     private health = 100
+
+    private spritesheet?: Spritesheet<typeof characterSpritesheetData>
 
     constructor(
         game: Game,
@@ -36,14 +55,14 @@ export class Character extends GameEntity {
         this.keyBindings = new KeyBindings([
             {
                 key: 'd',
-                doOnKeyDown: () => (this.movementStatus.isMovingRight = true),
-                doOnKeyUp: () => (this.movementStatus.isMovingRight = false),
+                doOnKeyDown: () => this.startMoveRight(),
+                doOnKeyUp: () => this.stopMovingRight(),
             },
 
             {
                 key: 'a',
-                doOnKeyDown: () => (this.movementStatus.isMovingLeft = true),
-                doOnKeyUp: () => (this.movementStatus.isMovingLeft = false),
+                doOnKeyDown: () => this.startMoveLeft(),
+                doOnKeyUp: () => this.stopMovingLeft(),
             },
 
             {
@@ -51,13 +70,6 @@ export class Character extends GameEntity {
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
-
-        if (this.game.multiPlayerSession) {
-            this.characterSynchronizer = createCharacterSynchronizer(
-                this,
-                this.game.multiPlayerSession,
-            )
-        }
     }
 
     damageAndSync(damagePoints: number) {
@@ -85,10 +97,20 @@ export class Character extends GameEntity {
     async load() {
         this.abortController = new AbortController()
 
-        await Assets.load(characterSpriteImage)
+        this.spritesheet = await loadSpritesheet(
+            characterSpritesheetImage,
+            characterSpritesheetData,
+            CHARACTER_SIZE,
+        )
 
-        const pixiObject = Sprite.from(characterSpriteImage)
-        pixiObject.setSize(CHARACTER_SIZE)
+        const pixiObject = await createAnimatedSprite(
+            this.spritesheet.animations.still,
+            CHARACTER_SIZE,
+            {
+                animationSpeed: 0.2,
+                loop: true,
+            },
+        )
 
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
@@ -112,6 +134,19 @@ export class Character extends GameEntity {
                 },
             )
             this.keyBindings.initializeEventListeners()
+        }
+
+        if (this.game.multiPlayerSession) {
+            this.spriteSynchronizer = createSpriteSynchronizer(
+                this,
+                this.spritesheet,
+                this.game.multiPlayerSession,
+            )
+
+            this.characterSynchronizer = createCharacterSynchronizer(
+                this,
+                this.game.multiPlayerSession,
+            )
         }
 
         this.game.multiPlayerSession?.addEventListener(
@@ -167,5 +202,85 @@ export class Character extends GameEntity {
     private die() {
         this.game.destroyEntity(this, false)
         this.game.soundManager.play('kill')
+    }
+
+    private stopMovingRight() {
+        console.log('stop right')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        if (!this.movementStatus.isMovingLeft) {
+            playAnimation(
+                this.pixiObject,
+                this.spritesheet.animations,
+                'still',
+                { synchronizerToEnable: this.spriteSynchronizer },
+            )
+        }
+
+        this.movementStatus.isMovingRight = false
+    }
+
+    private stopMovingLeft() {
+        console.log('stop left')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        if (!this.movementStatus.isMovingRight) {
+            playAnimation(
+                this.pixiObject,
+                this.spritesheet.animations,
+                'still',
+                { synchronizerToEnable: this.spriteSynchronizer },
+            )
+        }
+
+        this.movementStatus.isMovingLeft = false
+    }
+
+    private startMoveRight() {
+        console.log('start right')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        playAnimation(
+            this.pixiObject,
+            this.spritesheet.animations,
+            'run-right',
+            { synchronizerToEnable: this.spriteSynchronizer },
+        )
+
+        this.movementStatus.isMovingRight = true
+    }
+
+    private startMoveLeft() {
+        console.log('start left')
+
+        if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        playAnimation(
+            this.pixiObject,
+            this.spritesheet.animations,
+            'run-left',
+            { synchronizerToEnable: this.spriteSynchronizer },
+        )
+
+        this.movementStatus.isMovingLeft = true
     }
 }

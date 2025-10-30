@@ -1,4 +1,4 @@
-import obstacleSpriteImage from '@core/assets/images/obstacle.png'
+import obstacleSpriteImage from '@core/assets/sprites/obstacle.png'
 
 import { Assets, Sprite } from 'pixi.js'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'

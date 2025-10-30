@@ -187,7 +187,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 this.movementStatus.isGrounded = false
             } catch (error) {
                 if (error instanceof CollisionError) {
-		    this.game.soundManager.play('land')
+                    this.game.soundManager.play('land')
                     this.movementStatus.isGrounded = true
                     break
                 } else {

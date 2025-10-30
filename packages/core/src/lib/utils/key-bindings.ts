@@ -8,12 +8,15 @@ export class KeyBindings {
     private readonly keyHandlersAbortController = new AbortController()
 
     constructor(private readonly keyBindings: KeyBinding[]) {}
+
     initializeEventListeners() {
         this.keyBindings.forEach((keyBinding) => {
             document.addEventListener(
                 'keydown',
                 (event) =>
-                    event.key === keyBinding.key && keyBinding.doOnKeyDown
+                    !event.repeat &&
+                    event.key === keyBinding.key &&
+                    keyBinding.doOnKeyDown
                         ? keyBinding.doOnKeyDown()
                         : null,
                 { signal: this.keyHandlersAbortController.signal },
@@ -22,7 +25,9 @@ export class KeyBindings {
             document.addEventListener(
                 'keyup',
                 (event) =>
-                    event.key === keyBinding.key && keyBinding.doOnKeyUp
+                    !event.repeat &&
+                    event.key === keyBinding.key &&
+                    keyBinding.doOnKeyUp
                         ? keyBinding.doOnKeyUp()
                         : null,
                 { signal: this.keyHandlersAbortController.signal },
