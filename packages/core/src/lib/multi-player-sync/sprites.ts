@@ -1,4 +1,4 @@
-import type { AnimatedSprite, Spritesheet, Texture } from 'pixi.js'
+import type { AnimatedSprite, Spritesheet } from 'pixi.js'
 import { GameEntity } from '@core/lib/entities'
 import {
     addPacketHandler,
