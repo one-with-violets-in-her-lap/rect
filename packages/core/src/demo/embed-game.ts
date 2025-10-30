@@ -30,13 +30,17 @@ async function embedGame() {
 }
 
 async function setupMultiPlayerIfEnabled() {
+    const iceServers = await fetch(import.meta.env.VITE_ICE_SERVERS_URL).then(
+        (response) => response.json(),
+    )
+
     const searchParams = new URLSearchParams(window.location.search)
     const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
     const multiPlayerSessionToConnectTo = searchParams.get('connect')
 
     if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
         const { sessionId, waitForOtherPlayerConnection } =
-            await createMultiPlayerSession()
+            await createMultiPlayerSession(iceServers)
 
         alert(
             `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
@@ -44,7 +48,10 @@ async function setupMultiPlayerIfEnabled() {
 
         return await waitForOtherPlayerConnection()
     } else if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo !== null) {
-        return await connectToMultiPlayerSession(multiPlayerSessionToConnectTo)
+        return await connectToMultiPlayerSession(
+            multiPlayerSessionToConnectTo,
+            iceServers,
+        )
     } else {
         return null
     }

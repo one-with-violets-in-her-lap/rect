@@ -12,4 +12,6 @@ export default defineConfig({
             '@core': fileURLToPath(new URL('../core/src', import.meta.url)),
         },
     },
+
+    envDir: '../../'
 })

@@ -11,4 +11,6 @@ export default defineConfig({
     optimizeDeps: {
         include: ['pixi.js'],
     },
+
+    envDir: '../../'
 })

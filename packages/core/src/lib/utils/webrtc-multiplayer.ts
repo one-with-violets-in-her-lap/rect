@@ -31,8 +31,8 @@ export function addPacketHandler<TPacket extends MultiPlayerPacket>(
     }
 }
 
-export async function createMultiPlayerSession() {
-    const peer = await createPeer()
+export async function createMultiPlayerSession(iceServers: RTCIceServer[]) {
+    const peer = await createPeer(iceServers)
 
     return {
         sessionId: peer.id,
@@ -40,8 +40,8 @@ export async function createMultiPlayerSession() {
     }
 }
 
-export function connectToMultiPlayerSession(otherEndPeerId: string) {
-    return createPeer().then(
+export function connectToMultiPlayerSession(otherEndPeerId: string, iceServers: RTCIceServer[]) {
+    return createPeer(iceServers).then(
         (currentPeer) =>
             new Promise<MultiPlayerSession>((resolve, reject) => {
                 const sendConnectionCreationPromise = createSendDataConnection(
@@ -123,12 +123,12 @@ function createSendDataConnection(currentPeer: Peer, otherEndPeerId: string) {
     })
 }
 
-function createPeer() {
+function createPeer(iceServers: RTCIceServer[]) {
     return new Promise<Peer>((resolve, reject) => {
         const peer = new Peer({
             debug: 2,
             config: {
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+                iceServers,
             },
             host: 'peerjs-signaling-server.onrender.com',
             referrerPolicy: 'no-referrer',
