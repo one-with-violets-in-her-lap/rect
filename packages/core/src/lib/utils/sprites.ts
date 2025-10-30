@@ -6,6 +6,7 @@ import {
     type Size,
     type SpritesheetData,
 } from 'pixi.js'
+import type { SpriteSynchronizer } from '@core/lib/multi-player-sync/sprites'
 
 /**
  * Loads the spritesheet, normalizes the textures' sizes and sets up some parameters
@@ -48,11 +49,17 @@ export async function createAnimatedSprite(
 /**
  * Starts to play a provided animation by swapping it
  */
-export function playAnimation(
+export function playAnimation<TAnimations extends Record<string, Texture[]>>(
     pixiObject: AnimatedSprite,
-    animation: Texture[],
+    animations: TAnimations,
+    animationName: keyof TAnimations,
+    options?: { synchronizerToEnable: SpriteSynchronizer | null },
 ) {
-    pixiObject.textures = animation
+    pixiObject.textures = animations[animationName]
     pixiObject.play()
     pixiObject.scale.set(1)
+
+    if (options?.synchronizerToEnable) {
+        options.synchronizerToEnable.syncSpriteUpdate(animationName as string)
+    }
 }

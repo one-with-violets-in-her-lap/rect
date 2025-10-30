@@ -22,6 +22,10 @@ import {
     loadSpritesheet,
     playAnimation,
 } from '../utils/sprites'
+import {
+    createSpriteSynchronizer,
+    type SpriteSynchronizer,
+} from '../multi-player-sync/sprites'
 
 export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
@@ -34,6 +38,7 @@ export class Character extends GameEntity<AnimatedSprite> {
 
     private abortController?: AbortController
     private characterSynchronizer: CharacterSynchronizer | null = null
+    private spriteSynchronizer: SpriteSynchronizer | null = null
 
     private health = 100
 
@@ -65,13 +70,6 @@ export class Character extends GameEntity<AnimatedSprite> {
                 doOnKeyDown: () => (this.movementStatus.isJumping = true),
             },
         ])
-
-        if (this.game.multiPlayerSession) {
-            this.characterSynchronizer = createCharacterSynchronizer(
-                this,
-                this.game.multiPlayerSession,
-            )
-        }
     }
 
     damageAndSync(damagePoints: number) {
@@ -105,10 +103,14 @@ export class Character extends GameEntity<AnimatedSprite> {
             CHARACTER_SIZE,
         )
 
-        const pixiObject = await createAnimatedSprite(this.spritesheet.animations.still, CHARACTER_SIZE, {
-            animationSpeed: 0.2,
-            loop: true,
-        })
+        const pixiObject = await createAnimatedSprite(
+            this.spritesheet.animations.still,
+            CHARACTER_SIZE,
+            {
+                animationSpeed: 0.2,
+                loop: true,
+            },
+        )
 
         if (!this.isRemote) {
             const currentCharacterLabel = new Text({
@@ -132,6 +134,19 @@ export class Character extends GameEntity<AnimatedSprite> {
                 },
             )
             this.keyBindings.initializeEventListeners()
+        }
+
+        if (this.game.multiPlayerSession) {
+            this.spriteSynchronizer = createSpriteSynchronizer(
+                this,
+                this.spritesheet,
+                this.game.multiPlayerSession,
+            )
+
+            this.characterSynchronizer = createCharacterSynchronizer(
+                this,
+                this.game.multiPlayerSession,
+            )
         }
 
         this.game.multiPlayerSession?.addEventListener(
@@ -201,7 +216,9 @@ export class Character extends GameEntity<AnimatedSprite> {
         if (!this.movementStatus.isMovingLeft) {
             playAnimation(
                 this.pixiObject,
-                this.spritesheet.animations['still'],
+                this.spritesheet.animations,
+                'still',
+                { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
 
@@ -220,7 +237,9 @@ export class Character extends GameEntity<AnimatedSprite> {
         if (!this.movementStatus.isMovingRight) {
             playAnimation(
                 this.pixiObject,
-                this.spritesheet.animations['still'],
+                this.spritesheet.animations,
+                'still',
+                { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
 
@@ -238,7 +257,9 @@ export class Character extends GameEntity<AnimatedSprite> {
 
         playAnimation(
             this.pixiObject,
-            this.spritesheet.animations['run-right'],
+            this.spritesheet.animations,
+            'run-right',
+            { synchronizerToEnable: this.spriteSynchronizer },
         )
 
         this.movementStatus.isMovingRight = true
@@ -255,7 +276,9 @@ export class Character extends GameEntity<AnimatedSprite> {
 
         playAnimation(
             this.pixiObject,
-            this.spritesheet.animations['run-left'],
+            this.spritesheet.animations,
+            'run-left',
+            { synchronizerToEnable: this.spriteSynchronizer },
         )
 
         this.movementStatus.isMovingLeft = true
