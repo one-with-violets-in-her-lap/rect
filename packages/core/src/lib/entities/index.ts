@@ -127,7 +127,9 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
         const hasCollisionsWithYScreenBounds =
             newPosition.y !== undefined &&
-            this.game.pixiApp.canvas.height - pixiObject.height <= newPosition.y
+            (this.game.pixiApp.canvas.height - pixiObject.height <=
+                newPosition.y ||
+                newPosition.y < 0)
 
         const hasCollisionsWithXScreenBounds =
             newPosition.x !== undefined &&
