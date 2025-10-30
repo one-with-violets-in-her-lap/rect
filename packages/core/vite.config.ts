@@ -12,5 +12,5 @@ export default defineConfig({
         include: ['pixi.js'],
     },
 
-    envDir: '../../'
+    envDir: '../../',
 })

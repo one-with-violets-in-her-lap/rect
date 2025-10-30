@@ -40,7 +40,10 @@ export async function createMultiPlayerSession(iceServers: RTCIceServer[]) {
     }
 }
 
-export function connectToMultiPlayerSession(otherEndPeerId: string, iceServers: RTCIceServer[]) {
+export function connectToMultiPlayerSession(
+    otherEndPeerId: string,
+    iceServers: RTCIceServer[],
+) {
     return createPeer(iceServers).then(
         (currentPeer) =>
             new Promise<MultiPlayerSession>((resolve, reject) => {
