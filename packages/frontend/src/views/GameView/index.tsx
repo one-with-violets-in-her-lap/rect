@@ -50,7 +50,7 @@ export function GameView({
             )
         }
 
-        game.current = new Game(multiPlayerSession)
+        game.current = new Game(gameCanvasContainer.current, multiPlayerSession)
 
         game.current.doOnEnd = (result) => {
             setGameStatus(
@@ -71,7 +71,7 @@ export function GameView({
 
         loadMapIfHost(game.current, multiPlayerSession)
 
-        await game.current.initialize(gameCanvasContainer.current)
+        await game.current.initialize()
     }
 
     useEffect(() => {

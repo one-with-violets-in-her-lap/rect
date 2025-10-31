@@ -1,3 +1,5 @@
+import '@core/assets/styles/main.css'
+
 import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
 import { GameEntity } from '@core/lib/entities'
 import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
@@ -58,7 +60,7 @@ export class Game {
 
     private abortController = new AbortController()
 
-    constructor(readonly multiPlayerSession?: MultiPlayerSession | null) {
+    constructor(readonly containerElement: HTMLElement, readonly multiPlayerSession?: MultiPlayerSession | null) {
         this.pixiApp = new Application()
 
         this.soundManager = new SoundManager(this.multiPlayerSession || null)
@@ -75,13 +77,13 @@ export class Game {
         }
     }
 
-    async initialize(containerElement: HTMLElement) {
+    async initialize() {
         await this.pixiApp.init({
             width: GAME_CANVAS_WIDTH,
             height: GAME_CANVAS_HEIGHT,
             backgroundAlpha: 0,
         })
-        containerElement.replaceChildren(this.pixiApp.canvas)
+        this.containerElement.replaceChildren(this.pixiApp.canvas)
 
         this.pixiApp.stage.interactive = true
         this.pixiApp.stage.hitArea = new Rectangle(
