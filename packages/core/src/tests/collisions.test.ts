@@ -19,7 +19,7 @@ test('Check collision detection between 3 entities', async () => {
     const ENTITY_1_POSITION_UPDATE = { x: 25, y: 30 }
     const ENTITY_3_POSITION_UPDATE = { x: 300, y: 300 }
 
-    const game = new Game()
+    const game = new Game(document.createElement('div'))
 
     const entityToCollide1 = new MockedGameEntity(game, { x: 10, y: 10 })
     await entityToCollide1.initialize()

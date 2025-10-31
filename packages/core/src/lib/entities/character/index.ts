@@ -35,7 +35,7 @@ export class Character extends GameEntity<AnimatedSprite> {
     typeName: EntityTypeName = 'character'
     options = { enableCollision: true, enableGravity: true }
 
-    keyBindings: KeyBindings
+    keyBindings?: KeyBindings
 
     private controls?: CharacterControls
 
@@ -147,7 +147,7 @@ export class Character extends GameEntity<AnimatedSprite> {
                     signal: this.abortController.signal,
                 },
             )
-            this.keyBindings.initializeEventListeners()
+            this.keyBindings?.initializeEventListeners()
         }
 
         if (this.game.multiPlayerSession) {
@@ -179,7 +179,8 @@ export class Character extends GameEntity<AnimatedSprite> {
     async cleanup() {
         super.cleanup()
 
-        this.keyBindings.disposeEventListeners()
+        this.keyBindings?.disposeEventListeners()
+	this.controls?.destroy()
 
         this.abortController?.abort()
     }
