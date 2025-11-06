@@ -27,7 +27,7 @@ import {
     createSpriteSynchronizer,
     type SpriteSynchronizer,
 } from '@core/lib/multi-player-sync/sprites'
-import { CharacterControls } from './controls'
+import { CharacterControls } from '@core/lib/hud/character-controls'
 
 export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18

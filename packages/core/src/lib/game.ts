@@ -9,6 +9,7 @@ import {
 } from '@core/lib/multi-player-sync/game'
 import { RectGameError } from '@core/lib/utils/errors'
 import { SoundManager } from '@core/lib/sounds'
+import { VoiceChatControls } from '@core/lib/hud/voice-chat-controls'
 
 export const GAME_CANVAS_WIDTH = 1900
 export const GAME_CANVAS_HEIGHT = 950
@@ -60,6 +61,8 @@ export class Game {
 
     private abortController = new AbortController()
 
+    private voiceChatControls: VoiceChatControls
+
     constructor(
         readonly containerElement: HTMLElement,
         readonly multiPlayerSession?: MultiPlayerSession | null,
@@ -67,6 +70,12 @@ export class Game {
         this.pixiApp = new Application()
 
         this.soundManager = new SoundManager(this.multiPlayerSession || null)
+
+        this.voiceChatControls = new VoiceChatControls(this, {
+            doOnVoiceButtonPressEnd: () => this.multiPlayerSession?.muteVoice(),
+            doOnVoiceButtonPressStart: () =>
+                this.multiPlayerSession?.unmuteVoice(),
+        })
 
         if (this.multiPlayerSession) {
             this.synchronizer = createGameSynchronizer(
@@ -122,6 +131,8 @@ export class Game {
             { signal: this.abortController.signal },
         )
         resizeCanvas(this.pixiApp.canvas)
+
+	this.voiceChatControls.mount()
 
         this.initialized = true
 
