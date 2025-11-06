@@ -13,7 +13,7 @@ export class CharacterControls {
             doOnJumpButtonClick: () => void
         },
     ) {
-	this.abortController = new AbortController()
+        this.abortController = new AbortController()
     }
 
     mount() {
@@ -51,18 +51,48 @@ export class CharacterControls {
 	`,
         )
 
-	document.getElementById('moveLeftButton')?.addEventListener('pointerdown', () => this.handlers.doOnLeftButtonPressStart(), { signal: this.abortController.signal })
-	document.getElementById('moveLeftButton')?.addEventListener('pointerup', () => this.handlers.doOnLeftButtonPressEnd(), { signal: this.abortController.signal })
+        document
+            .getElementById('moveLeftButton')
+            ?.addEventListener(
+                'pointerdown',
+                () => this.handlers.doOnLeftButtonPressStart(),
+                { signal: this.abortController.signal },
+            )
+        document
+            .getElementById('moveLeftButton')
+            ?.addEventListener(
+                'pointerup',
+                () => this.handlers.doOnLeftButtonPressEnd(),
+                { signal: this.abortController.signal },
+            )
 
-	document.getElementById('moveRightButton')?.addEventListener('pointerdown', () => this.handlers.doOnRightButtonPressStart(), { signal: this.abortController.signal })
-	document.getElementById('moveRightButton')?.addEventListener('pointerup', () => this.handlers.doOnRightButtonPressEnd(), { signal: this.abortController.signal })
+        document
+            .getElementById('moveRightButton')
+            ?.addEventListener(
+                'pointerdown',
+                () => this.handlers.doOnRightButtonPressStart(),
+                { signal: this.abortController.signal },
+            )
+        document
+            .getElementById('moveRightButton')
+            ?.addEventListener(
+                'pointerup',
+                () => this.handlers.doOnRightButtonPressEnd(),
+                { signal: this.abortController.signal },
+            )
 
-	document.getElementById('jumpButton')?.addEventListener('pointerdown', () => this.handlers.doOnJumpButtonClick(), { signal: this.abortController.signal })
+        document
+            .getElementById('jumpButton')
+            ?.addEventListener(
+                'pointerdown',
+                () => this.handlers.doOnJumpButtonClick(),
+                { signal: this.abortController.signal },
+            )
     }
 
     destroy() {
-	this.abortController.abort()
+        this.abortController.abort()
 
-	document.getElementById('characterControls')?.remove()
+        document.getElementById('characterControls')?.remove()
     }
 }

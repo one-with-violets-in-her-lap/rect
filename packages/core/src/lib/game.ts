@@ -60,7 +60,10 @@ export class Game {
 
     private abortController = new AbortController()
 
-    constructor(readonly containerElement: HTMLElement, readonly multiPlayerSession?: MultiPlayerSession | null) {
+    constructor(
+        readonly containerElement: HTMLElement,
+        readonly multiPlayerSession?: MultiPlayerSession | null,
+    ) {
         this.pixiApp = new Application()
 
         this.soundManager = new SoundManager(this.multiPlayerSession || null)

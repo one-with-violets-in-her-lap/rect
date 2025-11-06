@@ -20,9 +20,9 @@ export function CreateGameView({
         setLoading(true)
 
         try {
-	    const iceServers = await fetch(import.meta.env.VITE_ICE_SERVERS_URL).then(
-		(response) => response.json(),
-	    )
+            const iceServers = await fetch(
+                import.meta.env.VITE_ICE_SERVERS_URL,
+            ).then((response) => response.json())
 
             const { sessionId, waitForOtherPlayerConnection } =
                 await createMultiPlayerSession(iceServers)

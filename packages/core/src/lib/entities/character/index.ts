@@ -416,7 +416,7 @@ export class Character extends GameEntity<AnimatedSprite> {
         )
 
         this.movementStatus.isMovingRight = true
-	this.direction = 'right'
+        this.direction = 'right'
     }
 
     private startMoveLeft() {
@@ -434,11 +434,11 @@ export class Character extends GameEntity<AnimatedSprite> {
         )
 
         this.movementStatus.isMovingLeft = true
-	this.direction = 'left'
+        this.direction = 'left'
     }
 
     private jump() {
-	if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject || !this.spritesheet) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
