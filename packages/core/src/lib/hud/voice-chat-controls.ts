@@ -25,7 +25,7 @@ export class VoiceChatControls {
 	    <div id="${ELEMENT_IDS.container}" class="fixed bottom-8 right-8 items-center gap-5 flex-wrap flex">
 		<button
 		    id="${ELEMENT_IDS.voiceChatButton}"
-		    class="size-9 flex items-center justify-center bg-background-tinted/90 backdrop-blur-sm border-primary/30 border
+		    class="size-12 flex items-center justify-center bg-background-tinted/90 backdrop-blur-sm border-primary/30 border
 			shadow-[0px_0px_12px_0px_rgba(0,0,0,0.05),inset_0px_0px_2px_0px_rgba(0,0,0,0.2)] text-stroke font-bold rounded-xl col-start-1
 			col-end-4 row-start-2 active:bg-background-tinted-elevated active:scale-105 touch-none"
 		>
