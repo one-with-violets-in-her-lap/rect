@@ -95,6 +95,7 @@ export class Game {
             height: GAME_CANVAS_HEIGHT,
             backgroundAlpha: 0,
         })
+	this.containerElement.classList.add('rect-game-container')
         this.containerElement.replaceChildren(this.pixiApp.canvas)
 
         this.pixiApp.stage.interactive = true
