@@ -49,7 +49,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     protected abstract load(): Promise<TPixiObject> | TPixiObject
 
-    update(ticker: Ticker) {
+    update(_ticker: Ticker) {
         if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Failed to perform movement tick, ' +
