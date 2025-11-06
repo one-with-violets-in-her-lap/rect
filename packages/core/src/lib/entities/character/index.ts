@@ -1,13 +1,7 @@
 import characterSpritesheetImage from '@core/assets/sprites/character/spritesheet.png'
 import characterSpritesheetData from '@core/assets/sprites/character/spritesheet.json'
 
-import {
-    AnimatedSprite,
-    FederatedPointerEvent,
-    Spritesheet,
-    Text,
-    Ticker,
-} from 'pixi.js'
+import { FederatedPointerEvent, Spritesheet, Text, Ticker } from 'pixi.js'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { KeyBindings, KeyCode } from '@core/lib/utils/key-bindings'
@@ -19,18 +13,19 @@ import {
 } from '@core/lib/multi-player-sync/character'
 import { CollisionError, NotInitializedError } from '@core/lib/utils/errors'
 import {
-    createAnimatedSprite,
-    loadSpritesheet,
-    playAnimation,
-} from '@core/lib/utils/sprites'
-import {
     createSpriteSynchronizer,
     type SpriteSynchronizer,
 } from '@core/lib/multi-player-sync/sprites'
 import { CharacterControls } from '@core/lib/hud/character-controls'
+import {
+    AnimatedSpriteWithMetadata,
+    loadSpritesheet,
+} from '@core/lib/utils/sprites'
 
 export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
+
+type CharacterSpritesheet = Spritesheet<typeof characterSpritesheetData>
 
 export interface CharacterMovement {
     isMovingLeft: boolean
@@ -48,7 +43,9 @@ const JUMP_FORCE = 20
 const INITIAL_HORIZONTAL_VELOCITY = 10
 const INITIAL_VERTICAL_VELOCITY = 0
 
-export class Character extends GameEntity<AnimatedSprite> {
+export class Character extends GameEntity<
+    AnimatedSpriteWithMetadata<CharacterSpritesheet>
+> {
     typeName: EntityTypeName = 'character'
     options = { enableCollision: true, enableGravity: true }
 
@@ -58,11 +55,10 @@ export class Character extends GameEntity<AnimatedSprite> {
 
     private abortController?: AbortController
     private characterSynchronizer: CharacterSynchronizer | null = null
-    private spriteSynchronizer: SpriteSynchronizer | null = null
+    private spriteSynchronizer: SpriteSynchronizer<CharacterSpritesheet> | null =
+        null
 
     private health = 100
-
-    private spritesheet?: Spritesheet<typeof characterSpritesheetData>
 
     private movementStatus: CharacterMovement = {
         isMovingLeft: false,
@@ -139,19 +135,20 @@ export class Character extends GameEntity<AnimatedSprite> {
     async load() {
         this.abortController = new AbortController()
 
-        this.spritesheet = await loadSpritesheet(
+        const spritesheet = await loadSpritesheet(
             characterSpritesheetImage,
             characterSpritesheetData,
             CHARACTER_SIZE,
         )
 
-        const pixiObject = await createAnimatedSprite(
-            this.spritesheet.animations['still-right'],
+        const pixiObject = new AnimatedSpriteWithMetadata(
+            spritesheet,
             CHARACTER_SIZE,
             {
-                animationSpeed: 0.2,
+                name: 'still-right',
                 loop: true,
             },
+            0.2,
         )
 
         if (!this.isRemote) {
@@ -181,7 +178,6 @@ export class Character extends GameEntity<AnimatedSprite> {
         if (this.game.multiPlayerSession) {
             this.spriteSynchronizer = createSpriteSynchronizer(
                 this,
-                this.spritesheet,
                 this.game.multiPlayerSession,
             )
 
@@ -364,17 +360,15 @@ export class Character extends GameEntity<AnimatedSprite> {
     }
 
     private stopMovingRight() {
-        if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
         }
 
         if (!this.movementStatus.isMovingLeft) {
-            playAnimation(
-                this.pixiObject,
-                this.spritesheet.animations,
-                'still-right',
+            this.pixiObject.playAnimation(
+                { loop: true, name: 'still-right' },
                 { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
@@ -383,17 +377,15 @@ export class Character extends GameEntity<AnimatedSprite> {
     }
 
     private stopMovingLeft() {
-        if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
         }
 
         if (!this.movementStatus.isMovingRight) {
-            playAnimation(
-                this.pixiObject,
-                this.spritesheet.animations,
-                'still-left',
+            this.pixiObject.playAnimation(
+                { name: 'still-left', loop: true },
                 { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
@@ -402,16 +394,14 @@ export class Character extends GameEntity<AnimatedSprite> {
     }
 
     private startMoveRight() {
-        if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
         }
 
-        playAnimation(
-            this.pixiObject,
-            this.spritesheet.animations,
-            'run-right',
+        this.pixiObject.playAnimation(
+            { name: 'run-right', loop: true },
             { synchronizerToEnable: this.spriteSynchronizer },
         )
 
@@ -420,16 +410,14 @@ export class Character extends GameEntity<AnimatedSprite> {
     }
 
     private startMoveLeft() {
-        if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
         }
 
-        playAnimation(
-            this.pixiObject,
-            this.spritesheet.animations,
-            'run-left',
+        this.pixiObject.playAnimation(
+            { name: 'run-left', loop: true },
             { synchronizerToEnable: this.spriteSynchronizer },
         )
 
@@ -438,17 +426,21 @@ export class Character extends GameEntity<AnimatedSprite> {
     }
 
     private jump() {
-        if (!this.pixiObject || !this.spritesheet) {
+        if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Character object was not initilized. Cannot access spritesheet and Pixi object',
             )
         }
 
-        playAnimation(
-            this.pixiObject,
-            this.spritesheet.animations,
-            this.direction === 'left' ? 'jump-left' : 'jump-right',
-            { synchronizerToEnable: this.spriteSynchronizer, loop: false },
+        this.pixiObject.playAnimation(
+            {
+                name: this.direction === 'left' ? 'jump-left' : 'jump-right',
+                loop: false,
+            },
+            {
+                synchronizerToEnable: this.spriteSynchronizer,
+                playPreviousAnimationOnCompletion: true,
+            },
         )
 
         this.movementStatus.isJumping = true

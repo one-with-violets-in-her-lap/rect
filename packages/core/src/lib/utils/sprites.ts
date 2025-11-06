@@ -2,7 +2,6 @@ import {
     AnimatedSprite,
     Assets,
     Spritesheet,
-    Texture,
     type Size,
     type SpritesheetData,
 } from 'pixi.js'
@@ -29,59 +28,61 @@ export async function loadSpritesheet<TSpritesheetData extends SpritesheetData>(
     return spritesheet
 }
 
-export async function createAnimatedSprite(
-    initialAnimation: Texture[],
-    objectSize: Size,
-    options: Partial<{ animationSpeed: number; loop: boolean }> = {},
-) {
-    const { animationSpeed = 1, loop = true } = options
-
-    const pixiObject = new AnimatedSprite(initialAnimation)
-    pixiObject.scale.set(1)
-    pixiObject.animationSpeed = animationSpeed
-    pixiObject.loop = loop
-    pixiObject.setSize(objectSize)
-    pixiObject.play()
-
-    return pixiObject
+export interface SpriteAnimation<TSpritesheet extends Spritesheet> {
+    name: keyof TSpritesheet['animations']
+    loop: boolean
 }
 
-/**
- * Starts to play a provided animation by swapping it
- */
-export function playAnimation<TAnimations extends Record<string, Texture[]>>(
-    pixiObject: AnimatedSprite,
-    animations: TAnimations,
-    animationName: keyof TAnimations,
-    options: Partial<{
-        synchronizerToEnable: SpriteSynchronizer | null
-        loop: boolean
-        playPreviousAnimationOnCompletion: boolean
-    }> = {},
-) {
-    const {
-        synchronizerToEnable,
-        loop = true,
-        playPreviousAnimationOnCompletion = true,
-    } = options
+export class AnimatedSpriteWithMetadata<
+    TSpritesheet extends Spritesheet,
+> extends AnimatedSprite {
+    currentAnimation: SpriteAnimation<TSpritesheet>
 
-    const previousAnimation = pixiObject.textures
-    const wasPreviousAnimationLooped = pixiObject.loop
-
-    pixiObject.textures = animations[animationName]
-    pixiObject.loop = loop
-    pixiObject.scale.set(1)
-    pixiObject.play()
-
-    if (playPreviousAnimationOnCompletion) {
-        pixiObject.onComplete = () => {
-            pixiObject.textures = previousAnimation
-            pixiObject.loop = wasPreviousAnimationLooped
-            pixiObject.play()
-        }
+    constructor(
+        private readonly spritesheet: TSpritesheet,
+        size: Size,
+        initialAnimation: SpriteAnimation<TSpritesheet>,
+        animationSpeed: number = 1,
+    ) {
+        super(spritesheet.animations[initialAnimation.name as string])
+        this.currentAnimation = initialAnimation
+        this.animationSpeed = animationSpeed
+        this.setSize(size)
     }
 
-    if (synchronizerToEnable) {
-        synchronizerToEnable.syncSpriteUpdate(animationName as string)
+    /**
+     * Starts to play a provided animation, swapping the current one
+     */
+    playAnimation(
+        animation: SpriteAnimation<TSpritesheet>,
+        options: Partial<{
+            synchronizerToEnable: SpriteSynchronizer<TSpritesheet> | null
+            playPreviousAnimationOnCompletion: boolean
+        }> = {},
+    ) {
+        const {
+            synchronizerToEnable,
+            playPreviousAnimationOnCompletion = true,
+        } = options
+
+        const previousAnimation = this.currentAnimation
+        this.currentAnimation = animation
+
+        this.textures = this.spritesheet.animations[animation.name as string]
+        this.loop = animation.loop
+        this.scale.set(1)
+        this.play()
+
+        if (playPreviousAnimationOnCompletion) {
+            this.onComplete = () =>
+                this.playAnimation(previousAnimation, {
+                    synchronizerToEnable,
+                    playPreviousAnimationOnCompletion: false,
+                })
+        }
+
+        if (synchronizerToEnable) {
+            synchronizerToEnable.syncSpriteUpdate(animation)
+        }
     }
 }

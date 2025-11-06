@@ -132,7 +132,7 @@ export class Game {
         )
         resizeCanvas(this.pixiApp.canvas)
 
-	this.voiceChatControls.mount()
+        this.voiceChatControls.mount()
 
         this.initialized = true
 
