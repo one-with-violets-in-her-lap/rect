@@ -6,6 +6,7 @@ import {
     FederatedPointerEvent,
     Spritesheet,
     Text,
+    Ticker,
 } from 'pixi.js'
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
@@ -16,7 +17,7 @@ import {
     type CharacterSynchronizer,
     createCharacterSynchronizer,
 } from '@core/lib/multi-player-sync/character'
-import { NotInitializedError } from '@core/lib/utils/errors'
+import { CollisionError, NotInitializedError } from '@core/lib/utils/errors'
 import {
     createAnimatedSprite,
     loadSpritesheet,
@@ -30,6 +31,22 @@ import { CharacterControls } from './controls'
 
 export const CHARACTER_SIZE = { width: 115, height: 124 }
 const CURRENT_CHARACTER_LABEL_Y_OFFSET = -18
+
+export interface CharacterMovement {
+    isMovingLeft: boolean
+    isMovingRight: boolean
+    horizontalVelocity: number
+
+    isJumping: boolean
+    isGrounded: boolean
+    verticalVelocity: number
+}
+
+const GRAVITY_FORCE = 0.9
+const JUMP_FORCE = 20
+
+const INITIAL_HORIZONTAL_VELOCITY = 10
+const INITIAL_VERTICAL_VELOCITY = 0
 
 export class Character extends GameEntity<AnimatedSprite> {
     typeName: EntityTypeName = 'character'
@@ -46,6 +63,18 @@ export class Character extends GameEntity<AnimatedSprite> {
     private health = 100
 
     private spritesheet?: Spritesheet<typeof characterSpritesheetData>
+
+    private movementStatus: CharacterMovement = {
+        isMovingLeft: false,
+        isMovingRight: false,
+        horizontalVelocity: INITIAL_HORIZONTAL_VELOCITY,
+
+        isJumping: false,
+        isGrounded: false,
+        verticalVelocity: INITIAL_VERTICAL_VELOCITY,
+    }
+
+    private direction: 'left' | 'right' = 'right'
 
     constructor(
         game: Game,
@@ -71,7 +100,7 @@ export class Character extends GameEntity<AnimatedSprite> {
 
                 {
                     key: KeyCode.Space,
-                    doOnKeyDown: () => (this.movementStatus.isJumping = true),
+                    doOnKeyDown: () => this.jump(),
                 },
             ])
 
@@ -80,8 +109,7 @@ export class Character extends GameEntity<AnimatedSprite> {
                 doOnRightButtonPressEnd: () => this.stopMovingRight(),
                 doOnLeftButtonPressStart: () => this.startMoveLeft(),
                 doOnLeftButtonPressEnd: () => this.stopMovingLeft(),
-                doOnJumpButtonClick: () =>
-                    (this.movementStatus.isJumping = true),
+                doOnJumpButtonClick: () => this.jump(),
             })
         }
     }
@@ -118,7 +146,7 @@ export class Character extends GameEntity<AnimatedSprite> {
         )
 
         const pixiObject = await createAnimatedSprite(
-            this.spritesheet.animations.still,
+            this.spritesheet.animations['still-right'],
             CHARACTER_SIZE,
             {
                 animationSpeed: 0.2,
@@ -176,11 +204,125 @@ export class Character extends GameEntity<AnimatedSprite> {
         return pixiObject
     }
 
+    update(ticker: Ticker) {
+        const pixiObject = super.update(ticker)
+
+        if (!this.isRemote) {
+            if (this.options.enableGravity) {
+                this.applyGravity(ticker)
+            }
+
+            this.moveHorizontallyIfNeeded(ticker)
+        }
+
+        return pixiObject
+    }
+
+    private applyGravity(ticker: Ticker) {
+        const pixiObject = this.getPixiObjectOrThrow()
+
+        if (this.movementStatus.isGrounded) {
+            this.movementStatus.verticalVelocity =
+                GRAVITY_FORCE * ticker.deltaTime
+
+            if (this.movementStatus.isJumping) {
+                this.game.soundManager.play('jump')
+
+                this.movementStatus.isGrounded = false
+                this.movementStatus.verticalVelocity = -JUMP_FORCE
+                this.movementStatus.isJumping = false
+            }
+        } else {
+            this.movementStatus.verticalVelocity +=
+                GRAVITY_FORCE * ticker.deltaTime
+        }
+
+        const deltaYToMoveBy =
+            this.movementStatus.verticalVelocity * ticker.deltaTime
+        const direction = Math.sign(deltaYToMoveBy)
+        const moveSteps = Math.abs(Math.floor(deltaYToMoveBy))
+        const remainder = deltaYToMoveBy % 1
+
+        for (
+            let deltaYCounter = 0;
+            deltaYCounter < moveSteps;
+            deltaYCounter++
+        ) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    y: pixiObject.y + direction,
+                })
+                this.movementStatus.isGrounded = false
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    this.game.soundManager.play('land')
+                    this.movementStatus.isGrounded = true
+                    break
+                } else {
+                    throw error
+                }
+            }
+        }
+
+        if (remainder !== 0) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    y: pixiObject.y + direction,
+                })
+                this.movementStatus.isGrounded = false
+            } catch (error) {
+                if (error instanceof CollisionError) {
+                    this.movementStatus.isGrounded = true
+                } else {
+                    throw error
+                }
+            }
+        }
+
+        this.syncStateWithMultiPlayer(pixiObject)
+    }
+
+    private moveHorizontallyIfNeeded(ticker: Ticker) {
+        const pixiObject = this.getPixiObjectOrThrow()
+
+        if (this.movementStatus.isMovingLeft) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    x:
+                        pixiObject.x -
+                        this.movementStatus.horizontalVelocity *
+                            ticker.deltaTime,
+                })
+            } catch (error) {
+                if (!(error instanceof CollisionError)) {
+                    throw error
+                }
+            }
+        }
+
+        if (this.movementStatus.isMovingRight) {
+            try {
+                this.updatePositionRespectingCollisions({
+                    x:
+                        pixiObject.x +
+                        this.movementStatus.horizontalVelocity *
+                            ticker.deltaTime,
+                })
+            } catch (error) {
+                if (!(error instanceof CollisionError)) {
+                    throw error
+                }
+            }
+        }
+
+        this.syncStateWithMultiPlayer(pixiObject)
+    }
+
     async cleanup() {
         super.cleanup()
 
         this.keyBindings?.disposeEventListeners()
-	this.controls?.destroy()
+        this.controls?.destroy()
 
         this.abortController?.abort()
     }
@@ -232,7 +374,7 @@ export class Character extends GameEntity<AnimatedSprite> {
             playAnimation(
                 this.pixiObject,
                 this.spritesheet.animations,
-                'still',
+                'still-right',
                 { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
@@ -251,7 +393,7 @@ export class Character extends GameEntity<AnimatedSprite> {
             playAnimation(
                 this.pixiObject,
                 this.spritesheet.animations,
-                'still',
+                'still-left',
                 { synchronizerToEnable: this.spriteSynchronizer },
             )
         }
@@ -274,6 +416,7 @@ export class Character extends GameEntity<AnimatedSprite> {
         )
 
         this.movementStatus.isMovingRight = true
+	this.direction = 'right'
     }
 
     private startMoveLeft() {
@@ -291,5 +434,23 @@ export class Character extends GameEntity<AnimatedSprite> {
         )
 
         this.movementStatus.isMovingLeft = true
+	this.direction = 'left'
+    }
+
+    private jump() {
+	if (!this.pixiObject || !this.spritesheet) {
+            throw new NotInitializedError(
+                'Character object was not initilized. Cannot access spritesheet and Pixi object',
+            )
+        }
+
+        playAnimation(
+            this.pixiObject,
+            this.spritesheet.animations,
+            this.direction === 'left' ? 'jump-left' : 'jump-right',
+            { synchronizerToEnable: this.spriteSynchronizer, loop: false },
+        )
+
+        this.movementStatus.isJumping = true
     }
 }

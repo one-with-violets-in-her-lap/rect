@@ -10,19 +10,6 @@ import {
 
 export type EntityTypeName = 'obstacle' | 'character' | 'bullet'
 
-export interface EntityMovement {
-    isMovingLeft: boolean
-    isMovingRight: boolean
-    horizontalVelocity: number
-
-    isJumping: boolean
-    isGrounded: boolean
-    verticalVelocity: number
-}
-
-const GRAVITY_FORCE = 0.9
-const JUMP_FORCE = 20
-
 export abstract class GameEntity<TPixiObject extends Container = Container> {
     abstract typeName: EntityTypeName
     abstract options: {
@@ -33,16 +20,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     id: string
 
     pixiObject?: TPixiObject
-
-    protected movementStatus: EntityMovement = {
-        isMovingLeft: false,
-        isMovingRight: false,
-        horizontalVelocity: 10,
-
-        isJumping: false,
-        isGrounded: false,
-        verticalVelocity: 0,
-    }
 
     private synchronizer: EntitySynchronizer | null = null
 
@@ -72,11 +49,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
 
     protected abstract load(): Promise<TPixiObject> | TPixiObject
 
-    async cleanup() {
-        this.pixiObject?.destroy()
-    }
-
-    update(ticker: Ticker) {
+    update(_ticker: Ticker) {
         if (!this.pixiObject) {
             throw new NotInitializedError(
                 'Failed to perform movement tick, ' +
@@ -84,15 +57,11 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
             )
         }
 
-        if (!this.isRemote) {
-            if (this.options.enableGravity) {
-                this.applyGravity(ticker, this.pixiObject)
-            }
-
-            this.moveHorizontallyIfNeeded(this.pixiObject, ticker)
-        }
-
         return this.pixiObject
+    }
+
+    async cleanup() {
+        this.pixiObject?.destroy()
     }
 
     getPixiObjectOrThrow() {
@@ -104,10 +73,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         }
 
         return this.pixiObject
-    }
-
-    getMovementStatus() {
-        return this.movementStatus
     }
 
     protected updatePositionRespectingCollisions(
@@ -152,102 +117,6 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         if (newPosition.y) {
             pixiObject.y = newPosition.y
         }
-    }
-
-    private applyGravity(ticker: Ticker, pixiObject: TPixiObject) {
-        if (this.movementStatus.isGrounded) {
-            this.movementStatus.verticalVelocity =
-                GRAVITY_FORCE * ticker.deltaTime
-
-            if (this.movementStatus.isJumping) {
-                this.game.soundManager.play('jump')
-
-                this.movementStatus.isGrounded = false
-                this.movementStatus.verticalVelocity = -JUMP_FORCE
-                this.movementStatus.isJumping = false
-            }
-        } else {
-            this.movementStatus.verticalVelocity +=
-                GRAVITY_FORCE * ticker.deltaTime
-        }
-
-        const deltaYToMoveBy =
-            this.movementStatus.verticalVelocity * ticker.deltaTime
-        const direction = Math.sign(deltaYToMoveBy)
-        const moveSteps = Math.abs(Math.floor(deltaYToMoveBy))
-        const remainder = deltaYToMoveBy % 1
-
-        for (
-            let deltaYCounter = 0;
-            deltaYCounter < moveSteps;
-            deltaYCounter++
-        ) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    y: pixiObject.y + direction,
-                })
-                this.movementStatus.isGrounded = false
-            } catch (error) {
-                if (error instanceof CollisionError) {
-                    this.game.soundManager.play('land')
-                    this.movementStatus.isGrounded = true
-                    break
-                } else {
-                    throw error
-                }
-            }
-        }
-
-        if (remainder !== 0) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    y: pixiObject.y + direction,
-                })
-                this.movementStatus.isGrounded = false
-            } catch (error) {
-                if (error instanceof CollisionError) {
-                    this.movementStatus.isGrounded = true
-                } else {
-                    throw error
-                }
-            }
-        }
-
-        this.syncStateWithMultiPlayer(pixiObject)
-    }
-
-    private moveHorizontallyIfNeeded(pixiObject: TPixiObject, ticker: Ticker) {
-        if (this.movementStatus.isMovingLeft) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    x:
-                        pixiObject.x -
-                        this.movementStatus.horizontalVelocity *
-                            ticker.deltaTime,
-                })
-            } catch (error) {
-                if (!(error instanceof CollisionError)) {
-                    throw error
-                }
-            }
-        }
-
-        if (this.movementStatus.isMovingRight) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    x:
-                        pixiObject.x +
-                        this.movementStatus.horizontalVelocity *
-                            ticker.deltaTime,
-                })
-            } catch (error) {
-                if (!(error instanceof CollisionError)) {
-                    throw error
-                }
-            }
-        }
-
-        this.syncStateWithMultiPlayer(pixiObject)
     }
 
     protected syncStateWithMultiPlayer(pixiObject: TPixiObject) {

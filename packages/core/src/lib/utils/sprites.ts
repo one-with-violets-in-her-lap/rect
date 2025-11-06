@@ -53,13 +53,35 @@ export function playAnimation<TAnimations extends Record<string, Texture[]>>(
     pixiObject: AnimatedSprite,
     animations: TAnimations,
     animationName: keyof TAnimations,
-    options?: { synchronizerToEnable: SpriteSynchronizer | null },
+    options: Partial<{
+        synchronizerToEnable: SpriteSynchronizer | null
+        loop: boolean
+        playPreviousAnimationOnCompletion: boolean
+    }> = {},
 ) {
-    pixiObject.textures = animations[animationName]
-    pixiObject.play()
-    pixiObject.scale.set(1)
+    const {
+        synchronizerToEnable,
+        loop = true,
+        playPreviousAnimationOnCompletion = true,
+    } = options
 
-    if (options?.synchronizerToEnable) {
-        options.synchronizerToEnable.syncSpriteUpdate(animationName as string)
+    const previousAnimation = pixiObject.textures
+    const wasPreviousAnimationLooped = pixiObject.loop
+
+    pixiObject.textures = animations[animationName]
+    pixiObject.loop = loop
+    pixiObject.scale.set(1)
+    pixiObject.play()
+
+    if (playPreviousAnimationOnCompletion) {
+        pixiObject.onComplete = () => {
+            pixiObject.textures = previousAnimation
+            pixiObject.loop = wasPreviousAnimationLooped
+            pixiObject.play()
+        }
+    }
+
+    if (synchronizerToEnable) {
+        synchronizerToEnable.syncSpriteUpdate(animationName as string)
     }
 }
