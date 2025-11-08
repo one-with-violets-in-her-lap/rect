@@ -41,7 +41,7 @@ export function checkIfNewEntityPositionColliding(
         }
 
         return checkIfBoundsColliding(
-            entity.getPixiObjectOrThrow().getBounds(),
+            entity.getBoundingBox(),
             new Bounds(
                 newPositionToCheck.x,
                 newPositionToCheck.y,

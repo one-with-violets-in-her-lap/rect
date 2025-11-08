@@ -75,6 +75,10 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
         return this.pixiObject
     }
 
+    getBoundingBox() {
+	return this.getPixiObjectOrThrow().getBounds()
+    }
+
     protected updatePositionRespectingCollisions(
         newPosition: Partial<Position>,
     ) {

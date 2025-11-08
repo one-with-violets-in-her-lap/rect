@@ -67,7 +67,7 @@ export class Game {
         readonly containerElement: HTMLElement,
         readonly multiPlayerSession?: MultiPlayerSession | null,
     ) {
-        this.pixiApp = new Application()
+        this.pixiApp = new Application({ antialias: true })
 
         this.soundManager = new SoundManager(this.multiPlayerSession || null)
 
@@ -95,7 +95,7 @@ export class Game {
             height: GAME_CANVAS_HEIGHT,
             backgroundAlpha: 0,
         })
-	this.containerElement.classList.add('rect-game-container')
+        this.containerElement.classList.add('rect-game-container')
         this.containerElement.replaceChildren(this.pixiApp.canvas)
 
         this.pixiApp.stage.interactive = true
@@ -186,7 +186,7 @@ export class Game {
         if (this.initialized) {
             const pixiObject = await entity.initialize()
 
-            this.pixiApp.stage.addChild(pixiObject)
+            this.pixiApp.stage.addChildAt(pixiObject, 0)
 
             this.addTickerCallback(entity, (ticker) => entity.update(ticker))
         } else {

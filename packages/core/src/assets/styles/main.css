@@ -5,10 +5,11 @@
     --color-background: #fffbff;
     --color-background-tinted: var(--color-pink-50);
     --color-background-tinted-elevated: var(--color-pink-100);
-    --color-stroke: var(--color-neutral-900);
+    --color-stroke: #171717;
     --color-stroke-tertiary: var(--color-neutral-300);
+    --color-stroke-tinted: #69003a;
 
-    --color-primary: var(--color-pink-500);
+    --color-primary: #FF267D;
 }
 
 .rect-game-container {
