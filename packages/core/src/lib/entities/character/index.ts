@@ -251,8 +251,10 @@ export class Character extends GameEntity<
                 this.movementStatus.isGrounded = false
             } catch (error) {
                 if (error instanceof CollisionError) {
-                    this.game.soundManager.play('land')
-                    this.movementStatus.isGrounded = true
+                    if (!this.movementStatus.isGrounded) {
+                        this.game.soundManager.play('land')
+                        this.movementStatus.isGrounded = true
+                    }
                     break
                 } else {
                     throw error
