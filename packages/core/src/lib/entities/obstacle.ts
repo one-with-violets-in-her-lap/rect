@@ -40,33 +40,26 @@ export class Obstacle extends GameEntity {
 
         const pixiObject = new Container()
 
-        if (
-            this.initialPosition.y <
-                this.game.containerElement.clientHeight * 0.4 &&
-            this.initialPosition.x <
-                this.game.containerElement.clientWidth * 0.3
-        ) {
-            const shadowHeight =
-                this.game.containerElement.clientHeight - this.initialPosition.y
-            const shadowWidth = this.size.width - 20
+        const shadowHeight =
+            this.game.containerElement.clientHeight - this.initialPosition.y
+        const shadowWidth = this.size.width - 20
 
-            this.shadow = new Graphics()
-                .poly([
-                    0,
-                    0,
-                    shadowWidth,
-                    0,
-                    shadowWidth * 2,
-                    shadowHeight,
-                    shadowWidth / 2,
-                    shadowHeight,
-                ])
-                .fill('#000000')
-            this.shadow.position.set(20, 20)
-            this.shadow.alpha = 0.03
+        this.shadow = new Graphics()
+            .poly([
+                0,
+                0,
+                shadowWidth,
+                0,
+                shadowWidth * 2,
+                shadowHeight,
+                shadowWidth / 2,
+                shadowHeight,
+            ])
+            .fill('#000000')
+        this.shadow.position.set(20, 20)
+        this.shadow.alpha = 0.03
 
-            pixiObject.addChild(this.shadow)
-        }
+        pixiObject.addChild(this.shadow)
 
         pixiObject.addChild(this.sprite)
 
