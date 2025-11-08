@@ -8,13 +8,12 @@ import {
     type EntitySynchronizer,
 } from '@core/lib/multi-player-sync/entity'
 
-export type EntityTypeName = 'obstacle' | 'character' | 'bullet'
+export type EntityTypeName = 'obstacle' | 'character' | 'bullet' | 'light'
 
 export abstract class GameEntity<TPixiObject extends Container = Container> {
     abstract typeName: EntityTypeName
     abstract options: {
         enableCollision: boolean
-        enableGravity: boolean
     }
 
     id: string
@@ -76,7 +75,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
     }
 
     getBoundingBox() {
-	return this.getPixiObjectOrThrow().getBounds()
+        return this.getPixiObjectOrThrow().getBounds()
     }
 
     protected updatePositionRespectingCollisions(
@@ -107,7 +106,7 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 newPosition.x < 0)
 
         if (
-            collisionInfo.isColliding ||
+            collisionInfo.isColliding && collisionInfo.collidingEntity.options.enableCollision && this.options.enableCollision ||
             hasCollisionsWithYScreenBounds ||
             hasCollisionsWithXScreenBounds
         ) {

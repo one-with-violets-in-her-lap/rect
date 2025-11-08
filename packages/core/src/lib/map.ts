@@ -3,11 +3,12 @@ import { GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
+import { Light } from './entities/light'
 
 const OBSTACLE_COUNT = { max: 9, min: 6 }
 
 const OBSTACLE_WIDTH = { max: 530, min: 300 }
-const OBSTACLE_HEIGHT = { max: 28, min: 36 }
+const OBSTACLE_HEIGHT = { max: 28, min: 46 }
 
 const OBSTACLE_SPAWN_Y_BOUND = 100
 const OBSTACLE_SPAWN_X_BOUND = 130
@@ -76,5 +77,9 @@ export function loadMapIfHost(
 
             game.addEntityAndSyncMultiPlayer(obstacle)
         }
+
+        game.addEntityAndSyncMultiPlayer(
+            new Light(game, { x: 0, y: 0 }, undefined),
+        )
     }
 }

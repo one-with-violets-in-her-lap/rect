@@ -9,11 +9,15 @@
     --color-stroke-tertiary: var(--color-neutral-300);
     --color-stroke-tinted: #69003a;
 
-    --color-primary: #FF267D;
+    --color-primary: #ff267d;
+
+    --color-map-background: linear-gradient(
+        180deg,
+        #D3B6C2 41.41%,
+        #997D85 100%
+    );
 }
 
 .rect-game-container {
-    background-image: linear-gradient(
-        var(--color-background-tinted), var(--color-background) 40%
-    );
+    background-image: var(--color-map-background);
 }
