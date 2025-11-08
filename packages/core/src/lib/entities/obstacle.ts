@@ -67,12 +67,12 @@ export class Obstacle extends GameEntity {
     }
 
     getBoundingBox() {
-        if (!this.sprite) {
+        if (!this.sprite || !this.pixiObject) {
             throw new NotInitializedError(
                 'Cannot get bounding box because sprite is not initialized',
             )
         }
 
-        return this.sprite.getBounds()
+        return new Bounds(this.pixiObject.x, this.pixiObject.y + 4, this.pixiObject.x + this.sprite.width, this.pixiObject.y + this.sprite.height)
     }
 }
