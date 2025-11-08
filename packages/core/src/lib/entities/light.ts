@@ -1,7 +1,7 @@
 import { BlurFilter, Graphics } from 'pixi.js'
 import { GameEntity, type EntityTypeName } from './index'
 
-const LIGHT_WIDTH = 700
+const LIGHT_WIDTH = 800
 const LIGHT_RAY_WIDTH = 2
 
 export class Light extends GameEntity<Graphics> {
@@ -31,7 +31,7 @@ export class Light extends GameEntity<Graphics> {
         pixiObject = pixiObject.fill('#FFFFFF')
         pixiObject.alpha = 0.1
 
-        const blurFilter = new BlurFilter({ strength: 30 })
+        const blurFilter = new BlurFilter({ strength: 20 })
         pixiObject.filters = [blurFilter]
 
         return pixiObject
