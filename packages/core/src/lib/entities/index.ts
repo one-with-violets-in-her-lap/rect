@@ -106,7 +106,9 @@ export abstract class GameEntity<TPixiObject extends Container = Container> {
                 newPosition.x < 0)
 
         if (
-            collisionInfo.isColliding && collisionInfo.collidingEntity.options.enableCollision && this.options.enableCollision ||
+            (collisionInfo.isColliding &&
+                collisionInfo.collidingEntity.options.enableCollision &&
+                this.options.enableCollision) ||
             hasCollisionsWithYScreenBounds ||
             hasCollisionsWithXScreenBounds
         ) {

@@ -4,7 +4,10 @@ import { Assets, Sprite, Ticker } from 'pixi.js'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import { Character } from '@core/lib/entities/character'
 import { CollisionError } from '@core/lib/utils/errors'
-import type { BaseCreateEntityPacket, GameEntitySerializer } from '@core/lib/multi-player-sync/game'
+import type {
+    BaseCreateEntityPacket,
+    GameEntitySerializer,
+} from '@core/lib/multi-player-sync/game'
 
 const BULLET_VELOCITY = 60
 const BULLET_DAMAGE = 10
