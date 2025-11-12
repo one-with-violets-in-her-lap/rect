@@ -1,23 +1,42 @@
 import { Game } from '@core/lib/game'
 import { type EntityTypeName, GameEntity } from '@core/lib/entities'
-import { Obstacle } from '@core/lib/entities/obstacle'
 import {
     addPacketHandler,
     type MultiPlayerPacket,
     type MultiPlayerSession,
 } from '@core/lib/utils/webrtc-multiplayer'
-import { Character } from '@core/lib/entities/character'
 import { type Position } from '@core/lib/utils/position'
-import { Bullet } from '@core/lib/entities/bullet'
 import { MultiPlayerError } from '@core/lib/utils/errors'
+import {
+    obstacleSerializer,
+    type CreateObstaclePacket,
+} from '@core/lib/entities/obstacle'
+import {
+    characterSerializer,
+    type CreateCharacterPacket,
+} from '@core/lib/entities/character/serializer'
+import {
+    bulletSerializer,
+    type CreateBulletPacket,
+} from '@core/lib/entities/bullet'
+import {
+    lightSerializer,
+    type CreateLightPacket,
+} from '@core/lib/entities/light'
 
-interface CreateEntityPacket extends MultiPlayerPacket {
+export interface BaseCreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
     entityTypeName: EntityTypeName
     entityId: string
     initialPosition: Position
     isRemote: boolean
 }
+
+export type CreateEntityPacket =
+    | CreateObstaclePacket
+    | CreateCharacterPacket
+    | CreateBulletPacket
+    | CreateLightPacket
 
 interface GameInitializationCompletedPacket extends MultiPlayerPacket {
     type: 'game/initialization-completed'
@@ -29,39 +48,11 @@ interface DestroyEntityPacket extends MultiPlayerPacket {
 }
 
 export interface GameSynchronizer {
-    syncNewEntity(newEntityPacket: CreateEntityPacket): void
+    syncNewEntity(newEntityPacket: BaseCreateEntityPacket): void
     syncEntityDestroy(entityId: string): void
     sendGameInitialization(): void
     waitForGameInitialization(): Promise<void>
     cleanup(): void
-}
-
-// TODO: remove code duplication by just dynamically passing params in GameEntity constructor
-const entityCreatorsByType: Record<
-    CreateEntityPacket['entityTypeName'],
-    (game: Game, createEntityPacket: CreateEntityPacket) => GameEntity
-> = {
-    obstacle: (game, createEntityPacket) =>
-        new Obstacle(
-            game,
-            createEntityPacket.initialPosition,
-            createEntityPacket.entityId,
-            createEntityPacket.isRemote,
-        ),
-    character: (game, createEntityPacket) =>
-        new Character(
-            game,
-            createEntityPacket.initialPosition,
-            createEntityPacket.entityId,
-            createEntityPacket.isRemote,
-        ),
-    bullet: (game, createEntityPacket) =>
-        new Bullet(
-            game,
-            createEntityPacket.initialPosition,
-            createEntityPacket.entityId,
-            createEntityPacket.isRemote,
-        ),
 }
 
 export function createGameSynchronizer(
@@ -141,5 +132,26 @@ export function createGameSynchronizer(
 }
 
 function createEntityFromPacket(game: Game, packet: CreateEntityPacket) {
-    return entityCreatorsByType[packet.entityTypeName](game, packet)
+    // TODO: shitty code, make some kind of a registry in entities module
+    switch (packet.entityTypeName) {
+        case 'obstacle':
+            return obstacleSerializer.createFromPacket(game, packet)
+
+        case 'character':
+            return characterSerializer.createFromPacket(game, packet)
+
+        case 'bullet':
+            return bulletSerializer.createFromPacket(game, packet)
+
+        case 'light':
+            return lightSerializer.createFromPacket(game, packet)
+    }
+}
+
+export interface GameEntitySerializer<
+    TGameEntity extends GameEntity,
+    TSerializedPacket extends BaseCreateEntityPacket,
+> {
+    serialize(entity: TGameEntity): TSerializedPacket
+    createFromPacket(game: Game, packet: TSerializedPacket): TGameEntity
 }

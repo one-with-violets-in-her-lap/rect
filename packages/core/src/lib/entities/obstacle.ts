@@ -6,6 +6,10 @@ import { type EntityTypeName, GameEntity } from '@core/lib/entities'
 import type { Game } from '../game'
 import type { Position } from '../utils/position'
 import { NotInitializedError } from '../utils/errors'
+import type {
+    BaseCreateEntityPacket,
+    GameEntitySerializer,
+} from '../multi-player-sync/game'
 
 export type ObstacleVariant = 'default' | 'unstable'
 
@@ -26,10 +30,11 @@ export class Obstacle extends GameEntity {
         game: Game,
         initialPosition: Position,
         id?: string,
-        private readonly variant: ObstacleVariant = 'default',
-        private readonly size: Size = { height: 32, width: 300 },
+        isRemote = false,
+        readonly variant: ObstacleVariant = 'default',
+        readonly size: Size = { height: 32, width: 300 },
     ) {
-        super(game, initialPosition, id)
+        super(game, initialPosition, id, isRemote)
     }
 
     async load() {
@@ -73,6 +78,45 @@ export class Obstacle extends GameEntity {
             )
         }
 
-        return new Bounds(this.pixiObject.x, this.pixiObject.y + 4, this.pixiObject.x + this.sprite.width, this.pixiObject.y + this.sprite.height)
+        return new Bounds(
+            this.pixiObject.x,
+            this.pixiObject.y + 4,
+            this.pixiObject.x + this.sprite.width,
+            this.pixiObject.y + this.sprite.height,
+        )
     }
+}
+
+export interface CreateObstaclePacket extends BaseCreateEntityPacket {
+    entityTypeName: 'obstacle'
+    variant: ObstacleVariant
+    size: Size
+}
+
+export const obstacleSerializer: GameEntitySerializer<
+    Obstacle,
+    CreateObstaclePacket
+> = {
+    serialize(obstacle) {
+        return {
+            entityId: obstacle.id,
+            type: 'game/create-entity',
+            entityTypeName: 'obstacle',
+            initialPosition: obstacle.initialPosition,
+            isRemote: false,
+            size: obstacle.size,
+            variant: obstacle.variant,
+        }
+    },
+
+    createFromPacket(game, packet) {
+        return new Obstacle(
+            game,
+            packet.initialPosition,
+            packet.entityId,
+            packet.isRemote,
+            packet.variant,
+            packet.size,
+        )
+    },
 }

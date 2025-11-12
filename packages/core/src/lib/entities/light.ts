@@ -1,5 +1,9 @@
 import { BlurFilter, Graphics } from 'pixi.js'
-import { GameEntity, type EntityTypeName } from './index'
+import type {
+    BaseCreateEntityPacket,
+    GameEntitySerializer,
+} from '@core/lib/multi-player-sync/game'
+import { GameEntity, type EntityTypeName } from '@core/lib/entities'
 
 export class Light extends GameEntity<Graphics> {
     options = { enableCollision: false }
@@ -27,4 +31,29 @@ export class Light extends GameEntity<Graphics> {
 
         return pixiObject
     }
+}
+
+export interface CreateLightPacket extends BaseCreateEntityPacket {
+    entityTypeName: 'light'
+}
+
+export const lightSerializer: GameEntitySerializer<Light, CreateLightPacket> = {
+    serialize(entity) {
+        return {
+            entityId: entity.id,
+            type: 'game/create-entity',
+            entityTypeName: 'light',
+            initialPosition: entity.initialPosition,
+            isRemote: false,
+        }
+    },
+
+    createFromPacket(game, packet) {
+        return new Light(
+            game,
+            packet.initialPosition,
+            packet.entityId,
+            packet.isRemote,
+        )
+    },
 }

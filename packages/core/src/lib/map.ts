@@ -70,7 +70,7 @@ export function loadMapIfHost(
 
             const variant = Math.random() > 0.2 ? 'default' : 'unstable'
 
-            const obstacle = new Obstacle(game, { x, y }, undefined, variant, {
+            const obstacle = new Obstacle(game, { x, y }, undefined, false, variant, {
                 width,
                 height,
             })
