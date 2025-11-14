@@ -1,4 +1,4 @@
-import { GameEntity } from '@core/lib/entities'
+import { BaseGameEntity } from '@core/lib/entities'
 import {
     addPacketHandler,
     type MultiPlayerPacket,
@@ -20,7 +20,7 @@ export interface EntitySynchronizer {
 }
 
 export function createEntitySynchronizer(
-    entity: GameEntity,
+    entity: BaseGameEntity,
     multiPlayerSession: MultiPlayerSession,
 ): EntitySynchronizer {
     addPacketHandler(

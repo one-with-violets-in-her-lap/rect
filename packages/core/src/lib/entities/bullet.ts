@@ -1,7 +1,7 @@
 import bulletSpriteImage from '@core/assets/sprites/bullet.png'
 
 import { Assets, Sprite, Ticker } from 'pixi.js'
-import { type EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, BaseGameEntity } from '@core/lib/entities'
 import { Character } from '@core/lib/entities/character'
 import { CollisionError } from '@core/lib/utils/errors'
 import type {
@@ -12,7 +12,7 @@ import type {
 const BULLET_VELOCITY = 60
 const BULLET_DAMAGE = 10
 
-export class Bullet extends GameEntity {
+export class Bullet extends BaseGameEntity {
     typeName: EntityTypeName = 'bullet'
     options = { enableCollision: true, enableGravity: false }
 

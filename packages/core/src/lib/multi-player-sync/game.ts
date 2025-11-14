@@ -1,5 +1,9 @@
 import { Game } from '@core/lib/game'
-import { type EntityTypeName, GameEntity } from '@core/lib/entities'
+import {
+    entitySerializersMap,
+    type EntityTypeName,
+    type GameEntity,
+} from '@core/lib/entities'
 import {
     addPacketHandler,
     type MultiPlayerPacket,
@@ -7,22 +11,10 @@ import {
 } from '@core/lib/utils/webrtc-multiplayer'
 import { type Position } from '@core/lib/utils/position'
 import { MultiPlayerError } from '@core/lib/utils/errors'
-import {
-    obstacleSerializer,
-    type CreateObstaclePacket,
-} from '@core/lib/entities/obstacle'
-import {
-    characterSerializer,
-    type CreateCharacterPacket,
-} from '@core/lib/entities/character/serializer'
-import {
-    bulletSerializer,
-    type CreateBulletPacket,
-} from '@core/lib/entities/bullet'
-import {
-    lightSerializer,
-    type CreateLightPacket,
-} from '@core/lib/entities/light'
+import { type CreateObstaclePacket } from '@core/lib/entities/obstacle'
+import { type CreateCharacterPacket } from '@core/lib/entities/character/serializer'
+import { type CreateBulletPacket } from '@core/lib/entities/bullet'
+import { type CreateLightPacket } from '@core/lib/entities/light'
 
 export interface BaseCreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
@@ -48,7 +40,7 @@ interface DestroyEntityPacket extends MultiPlayerPacket {
 }
 
 export interface GameSynchronizer {
-    syncNewEntity(newEntityPacket: BaseCreateEntityPacket): void
+    syncNewEntity(entity: GameEntity): void
     syncEntityDestroy(entityId: string): void
     sendGameInitialization(): void
     waitForGameInitialization(): Promise<void>
@@ -63,7 +55,9 @@ export function createGameSynchronizer(
         multiPlayerSession.receiveConnection,
         'game/create-entity',
         (packet: CreateEntityPacket) => {
-            const entity = createEntityFromPacket(game, packet)
+            const entity = entitySerializersMap[
+                packet.entityTypeName
+            ].createFromPacket(game, packet)
             game.entities.push(entity)
             game.addEntityToPixiApp(entity)
         },
@@ -89,8 +83,10 @@ export function createGameSynchronizer(
     )
 
     return {
-        syncNewEntity(newEntityPacket) {
-            multiPlayerSession.sendConnection.send(newEntityPacket)
+        syncNewEntity(entity: GameEntity) {
+            multiPlayerSession.sendConnection.send(
+                entitySerializersMap[entity.typeName].serialize(entity),
+            )
         },
 
         syncEntityDestroy(entityId) {
@@ -128,23 +124,6 @@ export function createGameSynchronizer(
         cleanup() {
             multiPlayerSession.receiveConnection.removeAllListeners()
         },
-    }
-}
-
-function createEntityFromPacket(game: Game, packet: CreateEntityPacket) {
-    // TODO: shitty code, make some kind of a registry in entities module
-    switch (packet.entityTypeName) {
-        case 'obstacle':
-            return obstacleSerializer.createFromPacket(game, packet)
-
-        case 'character':
-            return characterSerializer.createFromPacket(game, packet)
-
-        case 'bullet':
-            return bulletSerializer.createFromPacket(game, packet)
-
-        case 'light':
-            return lightSerializer.createFromPacket(game, packet)
     }
 }
 

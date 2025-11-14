@@ -2,7 +2,7 @@ import defaultObstacleSpriteImage from '@core/assets/sprites/obstacle/default.pn
 import unstableObstacleSpriteImage from '@core/assets/sprites/obstacle/unstable.png'
 
 import { Assets, Bounds, Container, Graphics, Sprite, type Size } from 'pixi.js'
-import { type EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, BaseGameEntity } from '@core/lib/entities'
 import type { Game } from '../game'
 import type { Position } from '../utils/position'
 import { NotInitializedError } from '../utils/errors'
@@ -18,7 +18,7 @@ const OBSTACLE_SPRITES: Record<ObstacleVariant, string> = {
     unstable: unstableObstacleSpriteImage,
 }
 
-export class Obstacle extends GameEntity {
+export class Obstacle extends BaseGameEntity {
     options = { enableGravity: false, enableCollision: true }
 
     typeName: EntityTypeName = 'obstacle'

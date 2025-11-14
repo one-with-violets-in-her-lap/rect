@@ -1,5 +1,5 @@
 import type { Spritesheet } from 'pixi.js'
-import { GameEntity } from '@core/lib/entities'
+import { BaseGameEntity } from '@core/lib/entities'
 import {
     addPacketHandler,
     type MultiPlayerPacket,
@@ -22,7 +22,7 @@ export interface SpriteSynchronizer<TSpritesheet extends Spritesheet> {
 }
 
 export function createSpriteSynchronizer<TSpritesheet extends Spritesheet>(
-    entity: GameEntity<AnimatedSpriteWithMetadata<TSpritesheet>>,
+    entity: BaseGameEntity<AnimatedSpriteWithMetadata<TSpritesheet>>,
     multiPlayerSession: MultiPlayerSession,
 ): SpriteSynchronizer<TSpritesheet> {
     addPacketHandler(

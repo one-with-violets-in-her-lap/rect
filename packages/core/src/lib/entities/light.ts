@@ -3,9 +3,9 @@ import type {
     BaseCreateEntityPacket,
     GameEntitySerializer,
 } from '@core/lib/multi-player-sync/game'
-import { GameEntity, type EntityTypeName } from '@core/lib/entities'
+import { BaseGameEntity, type EntityTypeName } from '@core/lib/entities'
 
-export class Light extends GameEntity<Graphics> {
+export class Light extends BaseGameEntity<Graphics> {
     options = { enableCollision: false }
 
     typeName: EntityTypeName = 'light'

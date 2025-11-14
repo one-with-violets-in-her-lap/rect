@@ -1,7 +1,7 @@
 import '@core/assets/styles/main.css'
 
 import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
-import { GameEntity } from '@core/lib/entities'
+import { BaseGameEntity, type GameEntity } from '@core/lib/entities'
 import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
     createGameSynchronizer,
@@ -53,7 +53,7 @@ export class Game {
 
     doOnEnd: ((result: GameResult) => void) | null = null
 
-    entities: GameEntity[] = []
+    entities: BaseGameEntity[] = []
     private tickerCallbacksByEntityId: Record<string, TickerCallback<Ticker>> =
         {}
 
@@ -171,18 +171,12 @@ export class Game {
     addEntityAndSyncMultiPlayer(entity: GameEntity) {
         this.entities.push(entity)
 
-        this.synchronizer?.syncNewEntity({
-            type: 'game/create-entity',
-            entityId: entity.id,
-            entityTypeName: entity.typeName,
-            initialPosition: entity.initialPosition,
-            isRemote: !entity.isRemote,
-        })
+        this.synchronizer?.syncNewEntity(entity)
 
         this.addEntityToPixiApp(entity)
     }
 
-    async addEntityToPixiApp(entity: GameEntity) {
+    async addEntityToPixiApp(entity: BaseGameEntity) {
         if (this.initialized) {
             const pixiObject = await entity.initialize()
 
@@ -197,7 +191,7 @@ export class Game {
         }
     }
 
-    destroyEntity(entityToDelete: GameEntity, syncWithMultiPlayer = true) {
+    destroyEntity(entityToDelete: BaseGameEntity, syncWithMultiPlayer = true) {
         this.pixiApp.ticker.remove(
             this.tickerCallbacksByEntityId[entityToDelete.id],
         )
@@ -214,7 +208,7 @@ export class Game {
     }
 
     private addTickerCallback(
-        entity: GameEntity,
+        entity: BaseGameEntity,
         callback: TickerCallback<Ticker>,
     ) {
         this.tickerCallbacksByEntityId[entity.id] = callback
