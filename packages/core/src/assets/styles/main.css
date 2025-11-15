@@ -5,14 +5,19 @@
     --color-background: #fffbff;
     --color-background-tinted: var(--color-pink-50);
     --color-background-tinted-elevated: var(--color-pink-100);
-    --color-stroke: var(--color-neutral-900);
+    --color-stroke: #171717;
     --color-stroke-tertiary: var(--color-neutral-300);
+    --color-stroke-tinted: #69003a;
 
-    --color-primary: var(--color-pink-500);
+    --color-primary: #ff267d;
+
+    --color-map-background: linear-gradient(
+        180deg,
+        #e3d0d8 41.41%,
+        #c8b6bd 100%
+    );
 }
 
 .rect-game-container {
-    background-image: linear-gradient(
-        var(--color-background-tinted), var(--color-background) 40%
-    );
+    background-image: var(--color-map-background);
 }

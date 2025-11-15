@@ -3,10 +3,10 @@
 import { Sprite } from 'pixi.js'
 import { expect, test } from 'vitest'
 import { Game } from '@core/lib/game'
-import { type EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, BaseGameEntity } from '@core/lib/entities'
 import { checkIfNewEntityPositionColliding } from '@core/lib/collisions'
 
-class MockedGameEntity extends GameEntity {
+class MockedGameEntity extends BaseGameEntity {
     typeName: EntityTypeName = 'obstacle'
     options = { enableCollision: true, enableGravity: false }
 

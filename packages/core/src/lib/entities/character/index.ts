@@ -3,7 +3,7 @@ import characterSpritesheetData from '@core/assets/sprites/character/spritesheet
 
 import { FederatedPointerEvent, Spritesheet, Text, Ticker } from 'pixi.js'
 import { Game } from '@core/lib/game'
-import { type EntityTypeName, GameEntity } from '@core/lib/entities'
+import { type EntityTypeName, BaseGameEntity } from '@core/lib/entities'
 import { KeyBindings, KeyCode } from '@core/lib/utils/key-bindings'
 import { type Position } from '@core/lib/utils/position'
 import { Bullet } from '@core/lib/entities/bullet'
@@ -43,7 +43,7 @@ const JUMP_FORCE = 20
 const INITIAL_HORIZONTAL_VELOCITY = 10
 const INITIAL_VERTICAL_VELOCITY = 0
 
-export class Character extends GameEntity<
+export class Character extends BaseGameEntity<
     AnimatedSpriteWithMetadata<CharacterSpritesheet>
 > {
     typeName: EntityTypeName = 'character'
@@ -251,8 +251,10 @@ export class Character extends GameEntity<
                 this.movementStatus.isGrounded = false
             } catch (error) {
                 if (error instanceof CollisionError) {
-                    this.game.soundManager.play('land')
-                    this.movementStatus.isGrounded = true
+                    if (!this.movementStatus.isGrounded) {
+                        this.game.soundManager.play('land')
+                        this.movementStatus.isGrounded = true
+                    }
                     break
                 } else {
                     throw error

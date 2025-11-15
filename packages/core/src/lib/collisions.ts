@@ -1,5 +1,5 @@
 import { Bounds } from 'pixi.js'
-import { GameEntity } from '@core/lib/entities'
+import { BaseGameEntity } from '@core/lib/entities'
 
 export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
     return (
@@ -23,13 +23,13 @@ export function checkIfBoundsColliding(bounds1: Bounds, bounds2: Bounds) {
  * so you don't need to it yourself
  */
 export function checkIfNewEntityPositionColliding(
-    targetEntityToCheck: GameEntity,
+    targetEntityToCheck: BaseGameEntity,
     newPositionToCheck: { x: number; y: number },
-    allEntities: GameEntity[],
+    allEntities: BaseGameEntity[],
 ):
     | {
           isColliding: true
-          collidingEntity: GameEntity
+          collidingEntity: BaseGameEntity
       }
     | {
           isColliding: false
@@ -41,7 +41,7 @@ export function checkIfNewEntityPositionColliding(
         }
 
         return checkIfBoundsColliding(
-            entity.getPixiObjectOrThrow().getBounds(),
+            entity.getBoundingBox(),
             new Bounds(
                 newPositionToCheck.x,
                 newPositionToCheck.y,
