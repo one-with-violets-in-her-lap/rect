@@ -18,7 +18,7 @@ export const characterSerializer: GameEntitySerializer<
             type: 'game/create-entity',
             entityTypeName: 'character',
             initialPosition: entity.initialPosition,
-            isRemote: false,
+            isRemote: !entity.isRemote,
         }
     },
 

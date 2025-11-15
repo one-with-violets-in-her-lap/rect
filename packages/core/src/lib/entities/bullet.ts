@@ -78,7 +78,7 @@ export const bulletSerializer: GameEntitySerializer<
             type: 'game/create-entity',
             entityTypeName: 'bullet',
             initialPosition: entity.initialPosition,
-            isRemote: false,
+            isRemote: !entity.isRemote,
         }
     },
 

@@ -44,7 +44,7 @@ export const lightSerializer: GameEntitySerializer<Light, CreateLightPacket> = {
             type: 'game/create-entity',
             entityTypeName: 'light',
             initialPosition: entity.initialPosition,
-            isRemote: false,
+            isRemote: !entity.isRemote,
         }
     },
 

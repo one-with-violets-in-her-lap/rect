@@ -103,7 +103,7 @@ export const obstacleSerializer: GameEntitySerializer<
             type: 'game/create-entity',
             entityTypeName: 'obstacle',
             initialPosition: obstacle.initialPosition,
-            isRemote: false,
+            isRemote: !obstacle.isRemote,
             size: obstacle.size,
             variant: obstacle.variant,
         }
