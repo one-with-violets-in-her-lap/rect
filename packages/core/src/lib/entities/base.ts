@@ -8,7 +8,7 @@ import {
     type EntitySynchronizer,
 } from '@core/lib/multi-player-sync/entity'
 
-export type EntityTypeName = 'obstacle' | 'character' | 'bullet' | 'light'
+export type EntityTypeName = 'obstacle' | 'character' | 'bullet' | 'point-light'
 
 export abstract class BaseGameEntity<
     TPixiObject extends Container = Container,

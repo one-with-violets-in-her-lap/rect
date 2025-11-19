@@ -3,7 +3,7 @@ import { GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
-import { Light } from './entities/light'
+import { PointLight } from './entities/light'
 
 const OBSTACLE_COUNT = { max: 9, min: 6 }
 
@@ -86,7 +86,7 @@ export function loadMapIfHost(
         }
 
         game.addEntityAndSyncMultiPlayer(
-            new Light(game, { x: 0, y: 0 }, undefined),
+            new PointLight(game, { x: game.containerElement.clientWidth / 2, y: 0 }, undefined),
         )
     }
 }

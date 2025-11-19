@@ -6,10 +6,10 @@ import { type EntityTypeName, BaseGameEntity } from './base'
 import { Bullet, bulletSerializer } from './bullet'
 import type { Character } from './character'
 import { characterSerializer } from './character/serializer'
-import { Light, lightSerializer } from './light'
+import { PointLight, pointLightSerializer } from './light'
 import { Obstacle, obstacleSerializer } from './obstacle'
 
-type GameEntity = Obstacle | Character | Light | Bullet
+type GameEntity = Obstacle | Character | PointLight | Bullet
 
 export const entitySerializersMap: Record<
     EntityTypeName,
@@ -18,7 +18,7 @@ export const entitySerializersMap: Record<
     obstacle: obstacleSerializer,
     bullet: bulletSerializer,
     character: characterSerializer,
-    light: lightSerializer,
+    'point-light': pointLightSerializer,
 }
 
 export { type EntityTypeName, BaseGameEntity, type GameEntity }
