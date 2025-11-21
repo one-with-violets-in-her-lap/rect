@@ -118,7 +118,7 @@ export function loadMapIfHost(
         }
 
         game.addEntityAndSyncMultiPlayer(
-            new PointLight(game, { x: 0, y: 0 }, undefined),
+            new PointLight(game, { x: GAME_CANVAS_WIDTH / 2, y: 0 }, undefined),
         )
     }
 }

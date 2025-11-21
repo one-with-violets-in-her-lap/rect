@@ -79,8 +79,11 @@ export class PointLight extends BaseGameEntity<Graphics> {
             const nextPoint = visibilityPoints[pointIndex + 1]
 
             pixiObject.moveTo(0, 0)
-            pixiObject.lineTo(point.x, point.y)
-            pixiObject.lineTo(nextPoint.x, nextPoint.y)
+            pixiObject.lineTo(point.x - pixiObject.x, point.y - pixiObject.y)
+            pixiObject.lineTo(
+                nextPoint.x - pixiObject.x,
+                nextPoint.y - pixiObject.y,
+            )
         }
 
         pixiObject.fill('white')
@@ -124,8 +127,8 @@ export class PointLight extends BaseGameEntity<Graphics> {
                         currentAngle = baseAngle + 0.0001
                     }
 
-                    const distanceX = this.radius * Math.cos(currentAngle)
-                    const distanceY = this.radius * Math.sin(currentAngle)
+                    const distanceX = Math.cos(currentAngle) * this.radius
+                    const distanceY = Math.sin(currentAngle) * this.radius
 
                     for (const otherEdge of segments) {
                         const edgeSizeX = otherEdge[1].x - otherEdge[0].x
