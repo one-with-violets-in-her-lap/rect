@@ -1,4 +1,4 @@
-import { Bounds, Graphics, Ticker } from 'pixi.js'
+import { BlurFilter, Bounds, Graphics, Ticker } from 'pixi.js'
 import type {
     BaseCreateEntityPacket,
     GameEntitySerializer,
@@ -46,6 +46,11 @@ export class PointLight extends BaseGameEntity<Graphics> {
     async load() {
         const pixiObject = new Graphics()
 
+	pixiObject.alpha = 0.4
+
+	const blurFilter = new BlurFilter({ strength: 30, antialias: true, blendMode: 'soft-light'})
+	pixiObject.filters = [blurFilter]
+
         return pixiObject
     }
 
@@ -85,6 +90,8 @@ export class PointLight extends BaseGameEntity<Graphics> {
                 nextPoint.y - pixiObject.y,
             )
         }
+
+	pixiObject.closePath()
 
         pixiObject.fill('white')
 
