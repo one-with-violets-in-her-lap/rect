@@ -4,6 +4,7 @@ import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
 import { PointLight } from './entities/light'
+import { Boundary } from './entities/boundary'
 
 const OBSTACLE_COUNT = { max: 9, min: 6 }
 
@@ -25,6 +26,35 @@ export function loadMapIfHost(
     multiPlayerSession: MultiPlayerSession | null,
 ) {
     if (!multiPlayerSession || multiPlayerSession.type === 'host') {
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: 0, y: -20 },
+                { width: game.containerElement.clientWidth, height: 10 },
+            ),
+        )
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: 0, y: game.containerElement.clientHeight + 20 },
+                { width: game.containerElement.clientWidth, height: 10 },
+            ),
+        )
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: -20, y: 0 },
+                { width: 10, height: game.containerElement.clientHeight },
+            ),
+        )
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: game.containerElement.clientWidth + 20, y: 0 },
+                { width: 10, height: game.containerElement.clientHeight },
+            ),
+        )
+
         game.addEntityAndSyncMultiPlayer(new Character(game, { x: 0, y: 0 }))
 
         game.addEntityAndSyncMultiPlayer(
@@ -86,7 +116,7 @@ export function loadMapIfHost(
         }
 
         game.addEntityAndSyncMultiPlayer(
-            new PointLight(game, { x: game.containerElement.clientWidth / 2, y: 0 }, undefined),
+            new PointLight(game, { x: 0, y: 0 }, undefined),
         )
     }
 }
