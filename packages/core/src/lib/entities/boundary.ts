@@ -26,7 +26,7 @@ export class Boundary extends BaseGameEntity {
         const pixiObject = new Graphics()
 
         pixiObject.rect(0, 0, this.size.width, this.size.height)
-        pixiObject.fill('white')
+        pixiObject.fill('#7F3351')
 
         pixiObject.setSize(this.size)
 

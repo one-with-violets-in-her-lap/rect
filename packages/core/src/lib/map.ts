@@ -1,5 +1,5 @@
 import { getRandomNumber } from '@core/lib/utils/math'
-import { GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
+import { GAME_CANVAS_HEIGHT, GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
@@ -29,33 +29,35 @@ export function loadMapIfHost(
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
-                { x: 0, y: -20 },
-                { width: game.containerElement.clientWidth, height: 10 },
-            ),
-        )
-        game.addEntityAndSyncMultiPlayer(
-            new Boundary(
-                game,
-                { x: 0, y: game.containerElement.clientHeight + 20 },
-                { width: game.containerElement.clientWidth, height: 10 },
-            ),
-        )
-        game.addEntityAndSyncMultiPlayer(
-            new Boundary(
-                game,
-                { x: -20, y: 0 },
-                { width: 10, height: game.containerElement.clientHeight },
-            ),
-        )
-        game.addEntityAndSyncMultiPlayer(
-            new Boundary(
-                game,
-                { x: game.containerElement.clientWidth + 20, y: 0 },
-                { width: 10, height: game.containerElement.clientHeight },
+                { x: 0, y: -50 },
+                { width: GAME_CANVAS_WIDTH, height: 50 },
             ),
         )
 
-        game.addEntityAndSyncMultiPlayer(new Character(game, { x: 0, y: 0 }))
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: 0, y: GAME_CANVAS_HEIGHT - 15 },
+                { width: GAME_CANVAS_WIDTH, height: 50 },
+            ),
+        )
+
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: -50, y: 0 },
+                { width: -50, height: GAME_CANVAS_HEIGHT },
+            ),
+        )
+        game.addEntityAndSyncMultiPlayer(
+            new Boundary(
+                game,
+                { x: GAME_CANVAS_WIDTH, y: 0 },
+                { width: 50, height: GAME_CANVAS_HEIGHT },
+            ),
+        )
+
+        game.addEntityAndSyncMultiPlayer(new Character(game, { x: 20, y: 20 }))
 
         game.addEntityAndSyncMultiPlayer(
             new Character(
@@ -82,7 +84,7 @@ export function loadMapIfHost(
 
             const x = getRandomNumber(
                 OBSTACLE_SPAWN_X_BOUND,
-                game.containerElement.clientWidth -
+                GAME_CANVAS_WIDTH -
                     OBSTACLE_SPAWN_X_BOUND -
                     width,
             )
@@ -91,9 +93,9 @@ export function loadMapIfHost(
                 Math.max(
                     OBSTACLE_SPAWN_Y_BOUND,
                     (counter / obstacleCount) *
-                        game.containerElement.clientHeight,
+                        GAME_CANVAS_HEIGHT,
                 ),
-                game.containerElement.clientHeight -
+                GAME_CANVAS_HEIGHT -
                     OBSTACLE_SPAWN_Y_BOUND -
                     height,
             )
