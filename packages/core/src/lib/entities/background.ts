@@ -1,5 +1,5 @@
 import { Graphics, type Size } from 'pixi.js'
-import type { Game } from '@core/lib/game'
+import { GAME_CANVAS_HEIGHT, GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
 import type {
     BaseCreateEntityPacket,
     GameEntitySerializer,
@@ -7,15 +7,14 @@ import type {
 import type { Position } from '@core/lib/utils/position'
 import { BaseGameEntity, type EntityTypeName } from './base'
 
-export class Boundary extends BaseGameEntity {
-    options = { enableGravity: false, enableCollision: true }
+export class Background extends BaseGameEntity {
+    options = { enableCollision: false }
 
-    typeName: EntityTypeName = 'boundary'
+    typeName: EntityTypeName = 'background'
 
     constructor(
         game: Game,
         initialPosition: Position,
-        readonly size: Size,
         id?: string,
         isRemote = false,
     ) {
@@ -25,42 +24,38 @@ export class Boundary extends BaseGameEntity {
     async load() {
         const pixiObject = new Graphics()
 
-        pixiObject.rect(0, 0, this.size.width, this.size.height)
-        pixiObject.fill('#7F3351')
-
-        pixiObject.setSize(this.size)
+        pixiObject.rect(0, 0, GAME_CANVAS_WIDTH, GAME_CANVAS_HEIGHT)
+        pixiObject.fill('#FFFFFF')
 
         return pixiObject
     }
 }
 
-export interface CreateBoundaryPacket extends BaseCreateEntityPacket {
-    entityTypeName: 'boundary'
-    size: Size
+export interface CreateBackgroundPacket extends BaseCreateEntityPacket {
+    entityTypeName: 'background'
 }
 
-export const boundarySerializer: GameEntitySerializer<
-    Boundary,
-    CreateBoundaryPacket
+export const backgroundSerializer: GameEntitySerializer<
+    Background,
+    CreateBackgroundPacket
 > = {
     serialize(entity) {
         return {
             entityId: entity.id,
             type: 'game/create-entity',
-            entityTypeName: 'boundary',
+            entityTypeName: 'background',
             initialPosition: entity.initialPosition,
             isRemote: !entity.isRemote,
-            size: entity.size,
         }
     },
 
     createFromPacket(game, packet) {
-        return new Boundary(
+        return new Background(
             game,
             packet.initialPosition,
-            packet.size,
             packet.entityId,
             packet.isRemote,
         )
     },
 }
+

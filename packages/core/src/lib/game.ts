@@ -1,6 +1,9 @@
+import sceneLightFragmentShader from '@core/assets/shaders/scene-light.frag?raw'
+import sceneLightVertexShader from '@core/assets/shaders/scene-light.vert?raw'
+
 import '@core/assets/styles/main.css'
 
-import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
+import { Application, Filter, GlProgram, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
 import { BaseGameEntity, type GameEntity } from '@core/lib/entities'
 import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
@@ -76,6 +79,14 @@ export class Game {
             doOnVoiceButtonPressStart: () =>
                 this.multiPlayerSession?.unmuteVoice(),
         })
+
+	const sceneLightFilter = new Filter({
+	    glProgram: GlProgram.from({
+		vertex: sceneLightVertexShader,
+		fragment: sceneLightFragmentShader,
+	    }),
+	})
+	this.pixiApp.stage.filters = [sceneLightFilter]
 
         if (this.multiPlayerSession) {
             this.synchronizer = createGameSynchronizer(
@@ -180,7 +191,7 @@ export class Game {
         if (this.initialized) {
             const pixiObject = await entity.initialize()
 
-            this.pixiApp.stage.addChildAt(pixiObject, 0)
+            this.pixiApp.stage.addChild(pixiObject)
 
             this.addTickerCallback(entity, (ticker) => entity.update(ticker))
         } else {
