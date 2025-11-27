@@ -1,4 +1,4 @@
-import { BlurFilter, Bounds, Graphics, Ticker } from 'pixi.js'
+import { BlurFilter, Bounds, FillGradient, Graphics, Ticker } from 'pixi.js'
 import type {
     BaseCreateEntityPacket,
     GameEntitySerializer,
@@ -33,6 +33,17 @@ export class PointLight extends BaseGameEntity<Graphics> {
 
     typeName: EntityTypeName = 'point-light'
 
+    private fadeGradientFill = new FillGradient({
+        type: 'linear',
+        start: { x: 0, y: 0 },
+        end: { x: 0, y: 1 },
+        colorStops: [
+            { offset: 0, color: '#FFFFFF' },
+            { offset: 1, color: '#FFFFFF28' },
+        ],
+        textureSpace: 'local',
+    })
+
     constructor(
         game: Game,
         initialPosition: Position,
@@ -46,10 +57,14 @@ export class PointLight extends BaseGameEntity<Graphics> {
     async load() {
         const pixiObject = new Graphics()
 
-	pixiObject.alpha = 0.3
+        pixiObject.alpha = 0.5
 
-	const blurFilter = new BlurFilter({ strength: 30, antialias: true, blendMode: 'soft-light'})
-	pixiObject.filters = [blurFilter]
+        const blurFilter = new BlurFilter({
+            strength: 14,
+            antialias: true,
+            blendMode: 'soft-light',
+        })
+        pixiObject.filters = [blurFilter]
 
         return pixiObject
     }
@@ -91,9 +106,9 @@ export class PointLight extends BaseGameEntity<Graphics> {
             )
         }
 
-	pixiObject.closePath()
+        pixiObject.closePath()
 
-        pixiObject.fill('white')
+        pixiObject.fill(this.fadeGradientFill)
 
         return pixiObject
     }
