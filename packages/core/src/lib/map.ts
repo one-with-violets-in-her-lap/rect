@@ -6,9 +6,9 @@ import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
 import { PointLight } from './entities/light'
 import { Boundary } from './entities/boundary'
 
-const OBSTACLE_COUNT = { max: 9, min: 6 }
+const OBSTACLE_COUNT = { max: 6, min: 4 }
 
-const OBSTACLE_WIDTH = { max: 530, min: 300 }
+const OBSTACLE_WIDTH = { max: 430, min: 300 }
 const OBSTACLE_HEIGHT = { max: 28, min: 46 }
 
 const OBSTACLE_SPAWN_Y_BOUND = 100
