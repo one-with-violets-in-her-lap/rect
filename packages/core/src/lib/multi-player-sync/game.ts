@@ -14,7 +14,7 @@ import { MultiPlayerError } from '@core/lib/utils/errors'
 import { type CreateObstaclePacket } from '@core/lib/entities/obstacle'
 import { type CreateCharacterPacket } from '@core/lib/entities/character/serializer'
 import { type CreateBulletPacket } from '@core/lib/entities/bullet'
-import { type CreateLightPacket } from '@core/lib/entities/light'
+import { type CreatePointLightPacket } from '@core/lib/entities/light'
 
 export interface BaseCreateEntityPacket extends MultiPlayerPacket {
     type: 'game/create-entity'
@@ -28,7 +28,7 @@ export type CreateEntityPacket =
     | CreateObstaclePacket
     | CreateCharacterPacket
     | CreateBulletPacket
-    | CreateLightPacket
+    | CreatePointLightPacket
 
 interface GameInitializationCompletedPacket extends MultiPlayerPacket {
     type: 'game/initialization-completed'
