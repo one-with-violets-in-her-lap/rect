@@ -36,7 +36,7 @@ export function checkIfNewEntityPositionColliding(
           collidingEntity: null
       } {
     const collidingEntity = allEntities.find((entity) => {
-        if (entity === targetEntityToCheck || !entity.options.enableCollision) {
+        if (entity === targetEntityToCheck) {
             return false
         }
 

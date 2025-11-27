@@ -1,15 +1,10 @@
 import { getRandomNumber } from '@core/lib/utils/math'
-import {
-    GAME_CANVAS_HEIGHT,
-    GAME_CANVAS_WIDTH,
-    type Game,
-} from '@core/lib/game'
+import { GAME_CANVAS_HEIGHT, GAME_CANVAS_WIDTH, type Game } from '@core/lib/game'
 import type { MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import { Obstacle } from '@core/lib/entities/obstacle'
 import { Character, CHARACTER_SIZE } from '@core/lib/entities/character'
 import { PointLight } from './entities/light'
 import { Boundary } from './entities/boundary'
-import { Background } from './entities/background'
 
 const OBSTACLE_COUNT = { max: 9, min: 6 }
 
@@ -31,8 +26,6 @@ export function loadMapIfHost(
     multiPlayerSession: MultiPlayerSession | null,
 ) {
     if (!multiPlayerSession || multiPlayerSession.type === 'host') {
-	game.addEntityAndSyncMultiPlayer(new Background(game, { x: 0, y: 0 }))
-
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
@@ -75,8 +68,6 @@ export function loadMapIfHost(
             ),
         )
 
-        
-
         const obstacleCount = getRandomNumber(
             OBSTACLE_COUNT.min,
             OBSTACLE_COUNT.max,
@@ -93,15 +84,20 @@ export function loadMapIfHost(
 
             const x = getRandomNumber(
                 OBSTACLE_SPAWN_X_BOUND,
-                GAME_CANVAS_WIDTH - OBSTACLE_SPAWN_X_BOUND - width,
+                GAME_CANVAS_WIDTH -
+                    OBSTACLE_SPAWN_X_BOUND -
+                    width,
             )
 
             const y = Math.min(
                 Math.max(
                     OBSTACLE_SPAWN_Y_BOUND,
-                    (counter / obstacleCount) * GAME_CANVAS_HEIGHT,
+                    (counter / obstacleCount) *
+                        GAME_CANVAS_HEIGHT,
                 ),
-                GAME_CANVAS_HEIGHT - OBSTACLE_SPAWN_Y_BOUND - height,
+                GAME_CANVAS_HEIGHT -
+                    OBSTACLE_SPAWN_Y_BOUND -
+                    height,
             )
 
             const variant = Math.random() > 0.2 ? 'default' : 'unstable'

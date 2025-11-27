@@ -10,7 +10,7 @@ import { BaseGameEntity, type EntityTypeName } from './base'
 export class Boundary extends BaseGameEntity {
     options = { enableGravity: false, enableCollision: true }
 
-    typeName: EntityTypeName = 'boundary'
+    typeName: EntityTypeName = 'obstacle'
 
     constructor(
         game: Game,

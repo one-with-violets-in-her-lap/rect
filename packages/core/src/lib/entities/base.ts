@@ -8,13 +8,7 @@ import {
     type EntitySynchronizer,
 } from '@core/lib/multi-player-sync/entity'
 
-export type EntityTypeName =
-    | 'obstacle'
-    | 'character'
-    | 'bullet'
-    | 'point-light'
-    | 'boundary'
-    | 'background'
+export type EntityTypeName = 'obstacle' | 'character' | 'bullet' | 'point-light' | 'boundary'
 
 export abstract class BaseGameEntity<
     TPixiObject extends Container = Container,
@@ -101,7 +95,11 @@ export abstract class BaseGameEntity<
             this.game.getEntities(),
         )
 
-        if (collisionInfo.isColliding && this.options.enableCollision) {
+        if (
+            (collisionInfo.isColliding &&
+                collisionInfo.collidingEntity.options.enableCollision &&
+                this.options.enableCollision)
+        ) {
             throw new CollisionError(collisionInfo.collidingEntity)
         }
 

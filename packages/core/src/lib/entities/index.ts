@@ -2,7 +2,6 @@ import type {
     BaseCreateEntityPacket,
     GameEntitySerializer,
 } from '../multi-player-sync/game'
-import { backgroundSerializer, type Background } from './background'
 import { type EntityTypeName, BaseGameEntity } from './base'
 import { Boundary, boundarySerializer } from './boundary'
 import { Bullet, bulletSerializer } from './bullet'
@@ -11,13 +10,7 @@ import { characterSerializer } from './character/serializer'
 import { PointLight, pointLightSerializer } from './light'
 import { Obstacle, obstacleSerializer } from './obstacle'
 
-type GameEntity =
-    | Obstacle
-    | Character
-    | PointLight
-    | Bullet
-    | Boundary
-    | Background
+type GameEntity = Obstacle | Character | PointLight | Bullet | Boundary
 
 export const entitySerializersMap: Record<
     EntityTypeName,
@@ -28,7 +21,6 @@ export const entitySerializersMap: Record<
     character: characterSerializer,
     'point-light': pointLightSerializer,
     boundary: boundarySerializer,
-    background: backgroundSerializer,
 }
 
 export { type EntityTypeName, BaseGameEntity, type GameEntity }
