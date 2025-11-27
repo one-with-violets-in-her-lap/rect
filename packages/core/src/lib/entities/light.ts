@@ -74,13 +74,15 @@ export class PointLight extends BaseGameEntity<Graphics> {
 
         pixiObject.clear()
 
-        let segments: Position[][] = []
+        const segments: Position[][] = []
 
         for (const entity of this.game.entities) {
             try {
                 const entitySegments = getSegments(entity.getBoundingBox())
                 segments.push(...entitySegments)
-            } catch (error) {}
+            } catch (error) {
+		// Ignores objects that are not initialized yet
+	    }
         }
 
         const visibilityPoints = this.calculateVisibilityPolygon(
@@ -117,7 +119,7 @@ export class PointLight extends BaseGameEntity<Graphics> {
         pixiObject: Graphics,
         segments: Position[][],
     ) {
-        let rays: { x: number; y: number; angle: number }[] = []
+        const rays: { x: number; y: number; angle: number }[] = []
 
         for (const edge of segments) {
             for (let index = 0; index < 2; index++) {

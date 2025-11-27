@@ -12,11 +12,25 @@ export default defineConfig([
         plugins: { js },
         extends: ['js/recommended'],
     },
+
+    {
+        rules: {
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    caughtErrors: 'none',
+                },
+            ],
+        },
+    },
+
     {
         files: ['**/*.{js,mjs,cjs,ts}'],
         languageOptions: { globals: globals.browser },
     },
+
     tseslint.configs.recommended,
+
     {
         files: ['**/*.md'],
         plugins: { markdown },
