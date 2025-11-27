@@ -14,6 +14,10 @@ const OBSTACLE_HEIGHT = { max: 28, min: 46 }
 const OBSTACLE_SPAWN_Y_BOUND = 100
 const OBSTACLE_SPAWN_X_BOUND = 130
 
+const BOUNDARY_SIZE = 80
+const HIDDEN_BOUNDARY_OFFSET = 80
+const BOTTOM_VISIBLE_BOUNDARY_OFFSET = 15
+
 /**
  * Adds game entities to the game that form a complete map users can play
  *
@@ -26,34 +30,39 @@ export function loadMapIfHost(
     multiPlayerSession: MultiPlayerSession | null,
 ) {
     if (!multiPlayerSession || multiPlayerSession.type === 'host') {
+	// Top boundary
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
-                { x: 0, y: -50 },
-                { width: GAME_CANVAS_WIDTH, height: 50 },
+                { x: 0, y: -HIDDEN_BOUNDARY_OFFSET },
+                { width: GAME_CANVAS_WIDTH, height: BOUNDARY_SIZE },
             ),
         )
 
+	// Bottom visible boundary (floor)
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
-                { x: 0, y: GAME_CANVAS_HEIGHT - 15 },
-                { width: GAME_CANVAS_WIDTH, height: 50 },
+                { x: 0, y: GAME_CANVAS_HEIGHT - BOTTOM_VISIBLE_BOUNDARY_OFFSET },
+                { width: GAME_CANVAS_WIDTH, height: BOUNDARY_SIZE },
             ),
         )
 
+	// Left boundary
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
-                { x: -50, y: 0 },
-                { width: -50, height: GAME_CANVAS_HEIGHT },
+                { x: -HIDDEN_BOUNDARY_OFFSET, y: 0 },
+                { width: -BOUNDARY_SIZE, height: GAME_CANVAS_HEIGHT },
             ),
         )
+
+	// Right boundary
         game.addEntityAndSyncMultiPlayer(
             new Boundary(
                 game,
                 { x: GAME_CANVAS_WIDTH, y: 0 },
-                { width: 50, height: GAME_CANVAS_HEIGHT },
+                { width: BOUNDARY_SIZE, height: GAME_CANVAS_HEIGHT },
             ),
         )
 
