@@ -43,7 +43,7 @@ async function setupMultiPlayerIfEnabled() {
             await createMultiPlayerSession(iceServers)
 
         alert(
-            `Send your friend the link -> http://localhost:5173?multi-player&connect=${sessionId}`,
+            `Send your friend the link -> http://${window.location.origin}?multi-player&connect=${sessionId}`,
         )
 
         return await waitForOtherPlayerConnection()
