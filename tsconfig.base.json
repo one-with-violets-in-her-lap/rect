@@ -3,7 +3,8 @@
         "composite": true,
         "paths": {
             "@frontend/*": ["./packages/frontend/src/*"],
-            "@core/*": ["./packages/core/src/*"]
+            "@core/*": ["./packages/core/src/*"],
+            "@shared/*": ["./packages/shared/src/*"]
         }
     }
 }
