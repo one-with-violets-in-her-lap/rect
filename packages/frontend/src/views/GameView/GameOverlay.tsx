@@ -3,6 +3,9 @@ import { buildClassName } from '@frontend/utils/class-names'
 import { MicIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+const MICROPHONE_TIP_DURATION_MILLISECONDS = 6000
+const MICROPHONE_TIP_DELAY_MILLISECONDS = 2000
+
 export function GameOverlay({
     multiPlayerSession,
 }: {
@@ -25,10 +28,15 @@ export function GameOverlay({
 
         const microphoneTipShowTimeoutId = window.setTimeout(() => {
             setMuteToggleShortcutTipVisible(true)
-        }, 2000)
+        }, MICROPHONE_TIP_DELAY_MILLISECONDS)
+
+        const microphoneTipHideTimeoutId = window.setTimeout(() => {
+            setMuteToggleShortcutTipVisible(false)
+        }, MICROPHONE_TIP_DELAY_MILLISECONDS + MICROPHONE_TIP_DURATION_MILLISECONDS)
 
         return () => {
             window.clearTimeout(microphoneTipShowTimeoutId)
+            window.clearTimeout(microphoneTipHideTimeoutId)
             voiceMuteUpdateListener.remove()
         }
     }, [])
