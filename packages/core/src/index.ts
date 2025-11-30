@@ -9,5 +9,6 @@ export { loadMapIfHost } from '@core/lib/map'
 export {
     connectToMultiPlayerSession,
     createMultiPlayerSession,
+    getVoiceChatUserStream,
     type MultiPlayerSession,
 } from '@core/lib/utils/webrtc-multiplayer'

@@ -31,18 +31,24 @@ export function addPacketHandler<TPacket extends MultiPlayerPacket>(
     }
 }
 
-export async function createMultiPlayerSession(iceServers: RTCIceServer[]) {
+export async function createMultiPlayerSession(
+    iceServers: RTCIceServer[],
+    mediaStream?: MediaStream,
+) {
+    console.log(mediaStream)
     const peer = await createPeer(iceServers)
 
     return {
         sessionId: peer.id,
-        waitForOtherPlayerConnection: () => waitForOtherPlayerConnection(peer),
+        waitForOtherPlayerConnection: () =>
+            waitForOtherPlayerConnection(peer, mediaStream),
     }
 }
 
 export function connectToMultiPlayerSession(
     otherEndPeerId: string,
     iceServers: RTCIceServer[],
+    mediaStream?: MediaStream,
 ) {
     return createPeer(iceServers).then(
         (currentPeer) =>
@@ -67,7 +73,9 @@ export function connectToMultiPlayerSession(
                             receiveConnection.peer,
                         )
 
-                        multiPlayerSession.setupVoiceChat()
+                        if (mediaStream) {
+                            multiPlayerSession.setupVoiceChat(mediaStream)
+                        }
 
                         resolve(multiPlayerSession)
                     } catch (error) {
@@ -78,7 +86,10 @@ export function connectToMultiPlayerSession(
     )
 }
 
-function waitForOtherPlayerConnection(currentPeer: Peer) {
+function waitForOtherPlayerConnection(
+    currentPeer: Peer,
+    mediaStream?: MediaStream,
+) {
     return new Promise<MultiPlayerSession>((resolve, reject) => {
         currentPeer.once('connection', async (receiveConnection) => {
             console.log(
@@ -101,7 +112,9 @@ function waitForOtherPlayerConnection(currentPeer: Peer) {
                     receiveConnection.peer,
                 )
 
-                multiPlayerSession.setupVoiceChat()
+                if (mediaStream) {
+                    multiPlayerSession.setupVoiceChat(mediaStream)
+                }
 
                 resolve(multiPlayerSession)
             } catch (error) {
@@ -192,75 +205,65 @@ export class MultiPlayerSession extends Emits<{
         })
     }
 
-    setupVoiceChat() {
-        return navigator.mediaDevices
-            .getUserMedia({
-                audio: true,
-                video: false,
-                preferCurrentTab: true,
-            })
-            .then(
-                (userMediaStream) =>
-                    new Promise<void>((resolve) => {
-                        this.voiceChat = {
-                            userMediaStream,
-                            mediaRtcConnection: null,
-                            isMuted: true,
-                        }
-                        this.muteVoice()
+    setupVoiceChat(userMediaStream: MediaStream) {
+        return new Promise<void>((resolve) => {
+            this.voiceChat = {
+                userMediaStream,
+                mediaRtcConnection: null,
+                isMuted: true,
+            }
+            this.muteVoice()
 
-                        if (this.type === 'host') {
-                            console.log('Calling a peer')
+            if (this.type === 'host') {
+                console.log('Calling a peer')
 
-                            this.voiceChat.mediaRtcConnection =
-                                this.currentPeer.call(
-                                    this.otherEndPeerId,
-                                    userMediaStream,
-                                )
+                this.voiceChat.mediaRtcConnection = this.currentPeer.call(
+                    this.otherEndPeerId,
+                    userMediaStream,
+                )
 
-                            console.log(
-                                `Call accepted: ${this.voiceChat.mediaRtcConnection}`,
-                            )
+                console.log(
+                    `Call accepted: ${this.voiceChat.mediaRtcConnection}`,
+                )
 
-                            this.voiceChat.mediaRtcConnection.addListener(
-                                'stream',
-                                (stream) => {
-                                    const audio = new Audio()
-                                    audio.srcObject = stream
-                                    audio.play()
-                                },
-                            )
+                this.voiceChat.mediaRtcConnection.addListener(
+                    'stream',
+                    (stream) => {
+                        const audio = new Audio()
+                        audio.srcObject = stream
+                        audio.play()
+                    },
+                )
 
-                            resolve()
-                        } else {
-                            console.log('Waiting for a call')
+                resolve()
+            } else {
+                console.log('Waiting for a call')
 
-                            this.currentPeer.addListener('call', (call) => {
-                                console.log('Answering the call')
+                this.currentPeer.addListener('call', (call) => {
+                    console.log('Answering the call')
 
-                                if (!this.voiceChat) {
-                                    throw new MultiPlayerError(
-                                        'Voice chat is not initialized at time two peers ' +
-                                            'are connected. `this.voiceChat` is undefined',
-                                    )
-                                }
-                                this.voiceChat.mediaRtcConnection = call
+                    if (!this.voiceChat) {
+                        throw new MultiPlayerError(
+                            'Voice chat is not initialized at time two peers ' +
+                                'are connected. `this.voiceChat` is undefined',
+                        )
+                    }
+                    this.voiceChat.mediaRtcConnection = call
 
-                                call.answer(userMediaStream)
+                    call.answer(userMediaStream)
 
-                                call.addListener('stream', (stream) => {
-                                    const audio = new Audio()
-                                    audio.srcObject = stream
-                                    audio.play()
-                                })
+                    call.addListener('stream', (stream) => {
+                        const audio = new Audio()
+                        audio.srcObject = stream
+                        audio.play()
+                    })
 
-                                resolve()
-                            })
-                        }
+                    resolve()
+                })
+            }
 
-                        this.keyBindings.initializeEventListeners()
-                    }),
-            )
+            this.keyBindings.initializeEventListeners()
+        })
     }
 
     destroy() {
@@ -295,5 +298,16 @@ export class MultiPlayerSession extends Emits<{
             .forEach((track) => (track.enabled = true))
 
         this.emit('voice-chat-mute-update', false)
+    }
+}
+
+export async function getVoiceChatUserStream() {
+    try {
+        return await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false,
+        })
+    } catch (error) {
+        console.error('Failed to get user media', error)
     }
 }

@@ -1,7 +1,7 @@
 import { CopyIcon, QrCodeIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { createMultiPlayerSession } from 'rect'
+import { createMultiPlayerSession, getVoiceChatUserStream } from 'rect'
 import { AppButton } from '@frontend/components/ui/AppButton'
 import { buildClassName } from '@frontend/utils/class-names'
 import type { MultiPlayerState } from '@frontend/models/multi-player-state'
@@ -25,7 +25,7 @@ export function CreateGameView({
             ).then((response) => response.json())
 
             const { sessionId, waitForOtherPlayerConnection } =
-                await createMultiPlayerSession(iceServers)
+                await createMultiPlayerSession(iceServers, await getVoiceChatUserStream())
 
             const connectUrl = new URL(window.location.href)
             connectUrl.searchParams.set('connect', sessionId)

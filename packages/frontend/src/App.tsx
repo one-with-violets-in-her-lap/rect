@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'sonner'
-import { connectToMultiPlayerSession } from 'rect'
+import { connectToMultiPlayerSession, getVoiceChatUserStream } from 'rect'
 import { CreateGameView } from '@frontend/views/CreateGameView'
 import { GameView } from '@frontend/views/GameView'
 import type { MultiPlayerState } from '@frontend/models/multi-player-state'
@@ -34,6 +34,7 @@ export function App() {
                 const multiPlayerSession = await connectToMultiPlayerSession(
                     multiPlayerSessionToConnectTo,
                     iceServers,
+                    await getVoiceChatUserStream(),
                 )
 
                 setMultiPlayer({

@@ -6,6 +6,7 @@ import {
 } from '@core/index'
 import { Game } from '@core/lib/game'
 import { loadMapIfHost } from '@core/lib/map'
+import { getVoiceChatUserStream } from '@core/lib/utils/webrtc-multiplayer'
 
 embedGame()
 
@@ -38,9 +39,11 @@ async function setupMultiPlayerIfEnabled() {
     const isMultiPlayerEnabled = searchParams.get('multi-player') !== null
     const multiPlayerSessionToConnectTo = searchParams.get('connect')
 
+    const voiceChatStream = await getVoiceChatUserStream()
+
     if (isMultiPlayerEnabled && multiPlayerSessionToConnectTo === null) {
         const { sessionId, waitForOtherPlayerConnection } =
-            await createMultiPlayerSession(iceServers)
+            await createMultiPlayerSession(iceServers, voiceChatStream)
 
         alert(
             `Send your friend the link -> http://${window.location.origin}?multi-player&connect=${sessionId}`,
@@ -51,6 +54,7 @@ async function setupMultiPlayerIfEnabled() {
         return await connectToMultiPlayerSession(
             multiPlayerSessionToConnectTo,
             iceServers,
+            voiceChatStream,
         )
     } else {
         return null
