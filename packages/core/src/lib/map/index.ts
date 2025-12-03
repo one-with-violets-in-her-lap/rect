@@ -31,8 +31,7 @@ export class GameMap {
     ) {}
 
     async initialize(game: Game) {
-	console.log('map init', game)
-        if (this.multiPlayerSession) {
+        if (this.multiPlayerSession && !this.mapSynchronizer) {
             this.mapSynchronizer = createMapSynchronizer(
                 this,
                 game,
