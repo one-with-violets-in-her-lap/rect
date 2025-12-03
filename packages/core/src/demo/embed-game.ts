@@ -19,10 +19,13 @@ async function embedGame() {
 
     const multiPlayerSession = await setupMultiPlayerIfEnabled()
 
-    const game = new Game(gameContainer, new GameMap(multiPlayerSession), multiPlayerSession)
+    const game = new Game(
+        gameContainer,
+        new GameMap(multiPlayerSession),
+        multiPlayerSession,
+    )
     game.doOnEnd = async () => {
-        await game.destroy()
-        embedGame()
+        await game.map.initialize(game)
     }
 
     await game.initialize()
