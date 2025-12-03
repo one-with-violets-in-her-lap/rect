@@ -27,7 +27,7 @@ export class GameMap {
     private mapSynchronizer: MapSynchronizer | null = null
 
     constructor(
-        private readonly multiPlayerSession: MultiPlayerSession | null,
+        private readonly multiPlayerSession?: MultiPlayerSession | null,
     ) {}
 
     async initialize(game: Game) {
