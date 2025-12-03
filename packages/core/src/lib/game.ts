@@ -1,6 +1,7 @@
 import '@core/assets/styles/main.css'
 
 import { Application, Rectangle, Ticker, type TickerCallback } from 'pixi.js'
+import type { GameMap } from '@core/lib/map'
 import { BaseGameEntity, type GameEntity } from '@core/lib/entities'
 import { type MultiPlayerSession } from '@core/lib/utils/webrtc-multiplayer'
 import {
@@ -65,6 +66,7 @@ export class Game {
 
     constructor(
         readonly containerElement: HTMLElement,
+        readonly map: GameMap,
         readonly multiPlayerSession?: MultiPlayerSession | null,
     ) {
         this.pixiApp = new Application({ antialias: true })
@@ -110,7 +112,7 @@ export class Game {
             this.multiPlayerSession.addEventListener(
                 'player-disconnect',
                 () =>
-                    this.endWithAnimation({
+                    this.end({
                         error: 'opponent-disconnected',
                         status: 'error',
                     }),
@@ -135,21 +137,17 @@ export class Game {
 
         this.voiceChatControls.mount()
 
+        await this.map.initialize(this)
+
         this.initialized = true
 
         this.entities.forEach((entity) => this.addEntityToPixiApp(entity))
     }
 
-    async endWithAnimation(result: GameResult) {
-        this.pixiApp.ticker.speed = 0.3
-
-        setTimeout(() => {
-            if (this.doOnEnd) {
-                this.doOnEnd(result)
-            }
-
-            this.pixiApp.stop()
-        }, 1000)
+    async end(result: GameResult) {
+        if (this.doOnEnd) {
+            this.doOnEnd(result)
+        }
     }
 
     async destroy() {
@@ -169,14 +167,14 @@ export class Game {
     }
 
     addEntityAndSyncMultiPlayer(entity: GameEntity) {
-        this.entities.push(entity)
-
         this.synchronizer?.syncNewEntity(entity)
 
         this.addEntityToPixiApp(entity)
     }
 
     async addEntityToPixiApp(entity: BaseGameEntity) {
+        this.entities.push(entity)
+
         if (this.initialized) {
             const pixiObject = await entity.initialize()
 

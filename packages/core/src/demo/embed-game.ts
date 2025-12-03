@@ -5,7 +5,7 @@ import {
     createMultiPlayerSession,
 } from '@core/index'
 import { Game } from '@core/lib/game'
-import { loadMapIfHost } from '@core/lib/map'
+import { GameMap } from '@core/lib/map'
 import { getVoiceChatUserStream } from '@core/lib/utils/webrtc-multiplayer'
 
 embedGame()
@@ -19,13 +19,11 @@ async function embedGame() {
 
     const multiPlayerSession = await setupMultiPlayerIfEnabled()
 
-    const game = new Game(gameContainer, multiPlayerSession)
+    const game = new Game(gameContainer, new GameMap(multiPlayerSession), multiPlayerSession)
     game.doOnEnd = async () => {
         await game.destroy()
         embedGame()
     }
-
-    loadMapIfHost(game, multiPlayerSession)
 
     await game.initialize()
 }
@@ -46,7 +44,7 @@ async function setupMultiPlayerIfEnabled() {
             await createMultiPlayerSession(iceServers, voiceChatStream)
 
         alert(
-            `Send your friend the link -> http://${window.location.origin}?multi-player&connect=${sessionId}`,
+            `Send your friend the link -> ${window.location.origin}?multi-player&connect=${sessionId}`,
         )
 
         return await waitForOtherPlayerConnection()
