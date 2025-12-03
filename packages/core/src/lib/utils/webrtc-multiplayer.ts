@@ -35,7 +35,6 @@ export async function createMultiPlayerSession(
     iceServers: RTCIceServer[],
     mediaStream?: MediaStream,
 ) {
-    console.log(mediaStream)
     const peer = await createPeer(iceServers)
 
     return {

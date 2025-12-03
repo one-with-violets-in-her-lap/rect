@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Game, loadMapIfHost, type MultiPlayerSession } from 'rect'
+import { Game, GameMap, type MultiPlayerSession } from 'rect'
 import { buildClassName } from '@frontend/utils/class-names'
 import { GameOverlay } from '@frontend/views/GameView/GameOverlay'
 import type { GameResult, GameResultError } from '@core/lib/game'
@@ -50,7 +50,11 @@ export function GameView({
             )
         }
 
-        game.current = new Game(gameCanvasContainer.current, multiPlayerSession)
+        game.current = new Game(
+            gameCanvasContainer.current,
+            new GameMap(multiPlayerSession),
+            multiPlayerSession,
+        )
 
         game.current.doOnEnd = (result) => {
             setGameStatus(
@@ -69,8 +73,6 @@ export function GameView({
             scheduleGameRestart()
         }
 
-        loadMapIfHost(game.current, multiPlayerSession)
-
         await game.current.initialize()
     }
 
@@ -81,15 +83,8 @@ export function GameView({
 
     async function scheduleGameRestart() {
         setTimeout(async () => {
-            if (game.current && gameCanvasContainer.current) {
-                await game.current.destroy()
-
-                game.current = null
-                isGameInitializing.current = false
-
-                await initializeGame()
-
-                gameCanvasContainer.current.focus()
+            if (game.current) {
+                await game.current.map.initialize(game.current)
 
                 setGameStatus({ status: 'in-progress' })
             }

@@ -5,7 +5,7 @@
  */
 
 export { Game } from '@core/lib/game'
-export { loadMapIfHost } from '@core/lib/map'
+export { GameMap } from '@core/lib/map'
 export {
     connectToMultiPlayerSession,
     createMultiPlayerSession,
