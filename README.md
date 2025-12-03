@@ -10,4 +10,4 @@ Built with WebRTC and Pixi.js. UI and core game logic are located in different m
 
 ## Video demo
 
-https://github.com/user-attachments/assets/19b5a231-3b0c-4893-9fb0-7aaa89204aef
+https://github.com/user-attachments/assets/f58179ec-bf93-4383-994d-7d2bf0595837
