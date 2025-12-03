@@ -26,11 +26,7 @@ export function createMapSynchronizer(
         multiPlayerSession.receiveConnection,
         'map/initialize',
         async (packet) => {
-	    console.log(packet)
-
             map.clear(game)
-
-	    console.log(game.entities)
 
             packet.entities.forEach((entityPacket) => {
                 const entity = entitySerializersMap[
