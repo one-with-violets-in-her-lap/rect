@@ -7,6 +7,7 @@ import {
     createEntitySynchronizer,
     type EntitySynchronizer,
 } from '@core/lib/multi-player-sync/entity'
+import { getTypedObjectKeys } from '../utils/objects'
 
 export type EntityTypeName =
     | 'obstacle'
@@ -114,6 +115,46 @@ export abstract class BaseGameEntity<
 
         if (newPosition.y) {
             pixiObject.y = newPosition.y
+        }
+    }
+
+    moveBy(delta: Partial<Position>) {
+        for (const axis of getTypedObjectKeys(delta)) {
+            let wholeStepMoveError: unknown | null = null
+
+            if (delta[axis] === undefined) {
+                continue
+            }
+
+            const pixiObject = this.getPixiObjectOrThrow()
+
+            const remainder = delta[axis] % 1
+            const direction = Math.sign(delta[axis])
+            const moveSteps = Math.abs(Math.floor(delta[axis]))
+
+            for (
+                let deltaCounter = 0;
+                deltaCounter < moveSteps;
+                deltaCounter++
+            ) {
+                try {
+                    this.updatePositionRespectingCollisions({
+                        [axis]: pixiObject[axis] + direction,
+                    })
+                } catch (error) {
+                    wholeStepMoveError = error
+                }
+            }
+
+            if (remainder !== 0) {
+                this.updatePositionRespectingCollisions({
+                    [axis]: pixiObject[axis] + direction,
+                })
+            }
+
+            if (wholeStepMoveError) {
+                throw wholeStepMoveError
+            }
         }
     }
 
