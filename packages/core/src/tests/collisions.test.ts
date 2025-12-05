@@ -9,7 +9,7 @@ import { checkIfNewEntityPositionColliding } from '@core/lib/collisions'
 
 class MockedGameEntity extends BaseGameEntity {
     typeName: EntityTypeName = 'obstacle'
-    options = { enableCollision: true, enableGravity: false }
+    options = { isCollidable: true, enableGravity: false }
 
     load() {
         return new Sprite({ width: 20, height: 20 })

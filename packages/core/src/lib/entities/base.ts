@@ -21,7 +21,7 @@ export abstract class BaseGameEntity<
 > {
     abstract typeName: EntityTypeName
     abstract options: {
-        enableCollision: boolean | ((collidedEntity: BaseGameEntity) => boolean)
+        isCollidable: boolean | ((collidedEntity: BaseGameEntity) => boolean)
     }
 
     id: string
@@ -103,17 +103,17 @@ export abstract class BaseGameEntity<
 
         if (collisionInfo.isColliding) {
             const isCurrentEntityCollidable =
-                typeof this.options.enableCollision === 'boolean'
-                    ? this.options.enableCollision
-                    : this.options.enableCollision(
+                typeof this.options.isCollidable === 'boolean'
+                    ? this.options.isCollidable
+                    : this.options.isCollidable(
                           collisionInfo.collidingEntity,
                       )
 
             const isTargetEntityCollidable =
-                typeof collisionInfo.collidingEntity.options.enableCollision ===
+                typeof collisionInfo.collidingEntity.options.isCollidable ===
                 'boolean'
-                    ? collisionInfo.collidingEntity.options.enableCollision
-                    : collisionInfo.collidingEntity.options.enableCollision(
+                    ? collisionInfo.collidingEntity.options.isCollidable
+                    : collisionInfo.collidingEntity.options.isCollidable(
                           this,
                       )
 

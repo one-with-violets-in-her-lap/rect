@@ -18,7 +18,7 @@ const OBSTACLE_SPRITES: Record<ObstacleVariant, string> = {
 }
 
 export class Obstacle extends BaseGameEntity {
-    options = { enableGravity: false, enableCollision: true }
+    options = { enableGravity: false, isCollidable: true }
 
     typeName: EntityTypeName = 'obstacle'
 

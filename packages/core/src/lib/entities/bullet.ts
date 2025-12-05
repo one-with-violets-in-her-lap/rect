@@ -15,7 +15,7 @@ const BULLET_DAMAGE = 10
 export class Bullet extends BaseGameEntity {
     typeName: EntityTypeName = 'bullet'
     options = {
-        enableCollision(entity: BaseGameEntity) {
+        isCollidable(entity: BaseGameEntity) {
             // Disable collision for current character
             if (entity.typeName === 'character' && !entity.isRemote) {
                 return false

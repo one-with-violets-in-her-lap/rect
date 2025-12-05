@@ -8,7 +8,7 @@ import type { Position } from '@core/lib/utils/position'
 import { BaseGameEntity, type EntityTypeName } from './base'
 
 export class Boundary extends BaseGameEntity {
-    options = { enableGravity: false, enableCollision: true }
+    options = { enableGravity: false, isCollidable: true }
 
     typeName: EntityTypeName = 'boundary'
 

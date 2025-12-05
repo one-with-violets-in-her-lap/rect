@@ -29,7 +29,7 @@ function getSegments(bounds: Bounds) {
 }
 
 export class PointLight extends BaseGameEntity<Graphics> {
-    options = { enableCollision: false }
+    options = { isCollidable: false }
 
     typeName: EntityTypeName = 'point-light'
 
