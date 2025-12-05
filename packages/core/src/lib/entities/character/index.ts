@@ -235,45 +235,18 @@ export class Character extends BaseGameEntity<
 
         const deltaYToMoveBy =
             this.movementStatus.verticalVelocity * ticker.deltaTime
-        const direction = Math.sign(deltaYToMoveBy)
-        const moveSteps = Math.abs(Math.floor(deltaYToMoveBy))
-        const remainder = deltaYToMoveBy % 1
 
-        for (
-            let deltaYCounter = 0;
-            deltaYCounter < moveSteps;
-            deltaYCounter++
-        ) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    y: pixiObject.y + direction,
-                })
-                this.movementStatus.isGrounded = false
-            } catch (error) {
-                if (error instanceof CollisionError) {
-                    if (!this.movementStatus.isGrounded) {
-                        this.game.soundManager.play('land')
-                        this.movementStatus.isGrounded = true
-                    }
-                    break
-                } else {
-                    throw error
-                }
-            }
-        }
-
-        if (remainder !== 0) {
-            try {
-                this.updatePositionRespectingCollisions({
-                    y: pixiObject.y + direction,
-                })
-                this.movementStatus.isGrounded = false
-            } catch (error) {
-                if (error instanceof CollisionError) {
+        try {
+            this.moveBy({ y: deltaYToMoveBy })
+            this.movementStatus.isGrounded = false
+        } catch (error) {
+            if (error instanceof CollisionError) {
+                if (!this.movementStatus.isGrounded) {
+                    this.game.soundManager.play('land')
                     this.movementStatus.isGrounded = true
-                } else {
-                    throw error
                 }
+            } else {
+                throw error
             }
         }
 
