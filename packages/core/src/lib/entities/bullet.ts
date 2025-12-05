@@ -14,7 +14,16 @@ const BULLET_DAMAGE = 10
 
 export class Bullet extends BaseGameEntity {
     typeName: EntityTypeName = 'bullet'
-    options = { enableCollision: true, enableGravity: false }
+    options = {
+        enableCollision(entity: BaseGameEntity) {
+            // Disable collision for current character
+            if (entity.typeName === 'character' && !entity.isRemote) {
+                return false
+            }
+
+            return true
+        },
+    }
 
     radiansAngle = 0
 
@@ -34,15 +43,13 @@ export class Bullet extends BaseGameEntity {
         if (!this.isRemote) {
             pixiObject.rotation = this.radiansAngle
 
-            const newX =
-                pixiObject.x +
+            const deltaX =
                 Math.cos(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
-            const newY =
-                pixiObject.y +
+            const deltaY =
                 Math.sin(this.radiansAngle) * BULLET_VELOCITY * ticker.deltaTime
 
             try {
-                this.updatePositionRespectingCollisions({ x: newX, y: newY })
+                this.moveBy({ x: deltaX, y: deltaY })
                 this.syncStateWithMultiPlayer(pixiObject)
             } catch (error) {
                 if (error instanceof CollisionError) {
