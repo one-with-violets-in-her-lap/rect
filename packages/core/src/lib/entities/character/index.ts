@@ -47,7 +47,7 @@ export class Character extends BaseGameEntity<
     AnimatedSpriteWithMetadata<CharacterSpritesheet>
 > {
     typeName: EntityTypeName = 'character'
-    options = { enableCollision: true, enableGravity: true }
+    options = { isCollidable: true, enableGravity: true }
 
     keyBindings?: KeyBindings
 
