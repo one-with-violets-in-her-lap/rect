@@ -113,7 +113,7 @@ export function GameView({
 
             <div
                 className={buildClassName(
-                    'bg-stroke/70 fixed top-0 left-0 flex h-full w-full flex-col items-start justify-center p-20 backdrop-blur-xs',
+                    'bg-stroke/70 fixed top-0 left-0 flex w-full flex-col items-start justify-center p-20 backdrop-blur-xs',
                     'transition-all duration-300 ease-in-out',
                     gameStatus.status === 'in-progress'
                         ? '-translate-y-full opacity-0'

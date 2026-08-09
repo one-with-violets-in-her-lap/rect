@@ -1,6 +1,7 @@
 import { CopyIcon, QrCodeIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { renderSVG } from 'uqr'
 import { createMultiPlayerSession, getVoiceChatUserStream } from 'rect'
 import { AppButton } from '@frontend/components/ui/AppButton'
 import { buildClassName } from '@frontend/utils/class-names'
@@ -15,6 +16,12 @@ export function CreateGameView({
 }) {
     const [loading, setLoading] = useState(false)
     const [connectUrl, setConnectUrl] = useState<string>()
+    const [qrCodeVisible, setQrCodeVisible] = useState(false)
+
+    const qrCodeSvg = useMemo(
+        () => (connectUrl ? renderSVG(connectUrl) : undefined),
+        [connectUrl],
+    )
 
     async function handleStart() {
         setLoading(true)
@@ -25,7 +32,10 @@ export function CreateGameView({
             ).then((response) => response.json())
 
             const { sessionId, waitForOtherPlayerConnection } =
-                await createMultiPlayerSession(iceServers, await getVoiceChatUserStream())
+                await createMultiPlayerSession(
+                    iceServers,
+                    await getVoiceChatUserStream(),
+                )
 
             const connectUrl = new URL(window.location.href)
             connectUrl.searchParams.set('connect', sessionId)
@@ -65,7 +75,7 @@ export function CreateGameView({
     }
 
     return (
-        <div className="mx-auto flex h-full max-w-4xl items-center px-4 py-6">
+        <div className="mx-auto flex h-full max-w-4xl items-start px-4 py-14 max-sm:py-6">
             <section
                 className={buildClassName(
                     'transition-all',
@@ -92,32 +102,57 @@ export function CreateGameView({
                     'transition-all delay-500 duration-500',
                     multiPlayer.status === 'waiting-for-peer-to-connect'
                         ? 'pointer-events-auto translate-x-0 opacity-100'
-                        : 'pointer-events-none -translate-x-96 opacity-0',
+                        : 'pointer-events-none absolute -translate-x-96 opacity-0',
                 )}
             >
-                <h2 className="mb-7 text-5xl font-semibold max-md:text-4xl">
+                <h2 className="mb-12 text-5xl font-semibold max-md:text-4xl max-md:mb-7">
                     Waiting for another player to connect
                 </h2>
 
-                <p className="mb-5 text-xl">Give your friend this link:</p>
+                <div className="grid w-full grid-cols-[minmax(0px,512px)_42px] items-start gap-x-12 gap-y-6 max-md:grid-cols-1">
+                    <div>
+                        <p className="mb-5 text-xl">
+                            Give your friend this link:
+                        </p>
+                        <div className="text-primary grid w-full grid-cols-[1fr_48px] items-center gap-x-4 rounded-lg bg-pink-50 px-4 py-3">
+                            <div className="max-w-full grow overflow-x-hidden text-nowrap">
+                                {connectUrl}
+                            </div>
 
-                <div className="text-primary grid max-w-lg grid-cols-[1fr_48px] items-center gap-x-4 rounded-lg bg-pink-50 px-4 py-3">
-                    <div className="max-w-full grow overflow-x-hidden text-nowrap">
-                        {connectUrl}
+                            <div className="flex items-center gap-x-2">
+                                <button
+                                    className="hover:cursor-pointer"
+                                    onClick={handleCopy}
+                                >
+                                    <CopyIcon size="20px" />
+                                </button>
+
+                                <button
+                                    className={buildClassName(
+                                        'hover:cursor-pointer',
+                                        qrCodeVisible && 'opacity-60',
+                                    )}
+                                    onClick={() =>
+                                        setQrCodeVisible(!qrCodeVisible)
+                                    }
+                                >
+                                    <QrCodeIcon size="20px" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-x-2">
-                        <button
-                            className="hover:cursor-pointer"
-                            onClick={handleCopy}
-                        >
-                            <CopyIcon size="20px" />
-                        </button>
-
-                        <button className="hover:cursor-pointer">
-                            <QrCodeIcon size="20px" />
-                        </button>
-                    </div>
+                    {qrCodeSvg && (
+                        <div
+                            className={buildClassName(
+                                'border-stroke-tertiary w-42 origin-center overflow-hidden rounded-lg border bg-white shadow-black/10 transition-all duration-300 [&>svg]:h-full [&>svg]:w-full',
+                                qrCodeVisible
+                                    ? 'scale-100 opacity-100'
+                                    : 'scale-45 opacity-0',
+                            )}
+                            dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+                        />
+                    )}
                 </div>
             </section>
         </div>
